@@ -47,7 +47,7 @@ const MOCK_QUOTES = [
 
 export default function Dashboard() {
   const [active, setActive]       = useState("overview");
-  const [quotes, setQuotes]       = useState(MOCK_QUOTES);
+  const [quotes, setQuotes] = useState<any[]>([]);
   const [selected, setSelected]   = useState<any>(null);
   const [operator, setOperator]   = useState<any>(null);
   const [filter, setFilter]       = useState("all");
@@ -56,16 +56,28 @@ export default function Dashboard() {
   const [saved, setSaved]         = useState(false);
 
   useEffect(() => {
-    // Load operator info
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase.from("operators").select("*").eq("id", user.id).single();
-        if (data) setOperator(data);
-      }
-    };
-    load();
-  }, []);
+  const load = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Load operator info
+      const { data: op } = await supabase
+        .from("operators")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      if (op) setOperator(op);
+
+      // Load real quote requests
+      const { data: qs } = await supabase
+        .from("quote_requests")
+        .select("*")
+        .eq("operator_id", user.id)
+        .order("created_at", { ascending: false });
+      if (qs) setQuotes(qs);
+    }
+  };
+  load();
+}, []);
 
   const logout = async () => {
     await supabase.auth.signOut();
