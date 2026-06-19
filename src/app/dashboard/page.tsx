@@ -1,452 +1,459 @@
+"use client";
+
 import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const COLORS = {
-  bg: "#0a0a0a",
-  surface: "#111111",
-  card: "#161616",
-  border: "#222222",
-  accent: "#f5a623",
-  accentDim: "#f5a62322",
-  text: "#f0f0f0",
-  muted: "#666666",
-  green: "#22c55e",
-  red: "#ef4444",
-  blue: "#3b82f6",
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const C = {
+  bg: "#0A0A0A",
+  surface: "#111111",
+  card: "#161616",
+  border: "#222222",
+  accent: "#D97B4F",
+  accentDim: "rgba(217,123,79,0.1)",
+  text: "#F0F0F0",
+  muted: "#666666",
+  green: "#22c55e",
+  red: "#ef4444",
+  blue: "#3b82f6",
 };
 
-const NAV_ITEMS = [
-  { id: "overview", label: "Overview", icon: "▦" },
-  { id: "jobs", label: "Jobs", icon: "⊟" },
-  { id: "schedule", label: "Schedule", icon: "◫" },
-  { id: "customers", label: "Customers", icon: "◎" },
-  { id: "team", label: "Team", icon: "⊕" },
-  { id: "settings", label: "Settings", icon: "⊙" },
-];
-
-const MOCK_JOBS = [
-  { id: 1, customer: "Marcus T.", address: "412 Pine St", type: "Full Cleanout", status: "scheduled", date: "Today 9:00 AM", amount: 380 },
-  { id: 2, customer: "Sandra L.", address: "88 Elm Ave", type: "Appliance Pickup", status: "in_progress", date: "Today 11:30 AM", amount: 145 },
-  { id: 3, customer: "Derek W.", address: "291 Oak Blvd", type: "Furniture Removal", status: "completed", date: "Yesterday", amount: 210 },
-  { id: 4, customer: "Priya N.", address: "55 Walnut Ln", type: "Yard Debris", status: "completed", date: "Yesterday", amount: 175 },
-  { id: 5, customer: "Tom B.", address: "770 Cedar Rd", type: "Estate Cleanout", status: "pending", date: "Tomorrow 8:00 AM", amount: 650 },
-  { id: 6, customer: "Lisa K.", address: "33 Maple Dr", type: "Hot Tub Removal", status: "pending", date: "Jun 22", amount: 425 },
-];
-
-const STATUS_STYLES = {
-  scheduled: { label: "Scheduled", color: COLORS.blue, bg: "#3b82f622" },
-  in_progress: { label: "In Progress", color: COLORS.accent, bg: "#f5a62322" },
-  completed: { label: "Completed", color: COLORS.green, bg: "#22c55e22" },
-  pending: { label: "Pending", color: COLORS.muted, bg: "#66666622" },
+const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
+  new:       { label: "New",        color: C.blue,   bg: "rgba(59,130,246,0.1)" },
+  reviewed:  { label: "Reviewed",   color: C.accent, bg: C.accentDim },
+  quoted:    { label: "Quoted",     color: "#a855f7", bg: "rgba(168,85,247,0.1)" },
+  booked:    { label: "Booked",     color: C.green,  bg: "rgba(34,197,94,0.1)" },
+  completed: { label: "Completed",  color: C.muted,  bg: "rgba(102,102,102,0.1)" },
+  cancelled: { label: "Cancelled",  color: C.red,    bg: "rgba(239,68,68,0.1)" },
 };
 
-function StatCard({ label, value, sub, accent }) {
-  return (
-    <div style={{
-      background: COLORS.card,
-      border: `1px solid ${COLORS.border}`,
-      borderRadius: 12,
-      padding: "24px 20px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 6,
-    }}>
-      <span style={{ fontSize: 12, color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</span>
-      <span style={{ fontSize: 32, fontWeight: 700, color: accent || COLORS.text, fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1 }}>{value}</span>
-      {sub && <span style={{ fontSize: 12, color: COLORS.muted }}>{sub}</span>}
-    </div>
-  );
-}
+const NAV = [
+  { id: "overview",  label: "Overview",  icon: "▦" },
+  { id: "quotes",    label: "Quotes",    icon: "📋" },
+  { id: "settings",  label: "Settings",  icon: "⚙️" },
+];
 
-function JobRow({ job, onView }) {
-  const s = STATUS_STYLES[job.status];
-  return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 140px 120px 80px 90px",
-      alignItems: "center",
-      padding: "14px 20px",
-      borderBottom: `1px solid ${COLORS.border}`,
-      gap: 12,
-      cursor: "pointer",
-      transition: "background 0.15s",
-    }}
-      onMouseEnter={e => e.currentTarget.style.background = "#1a1a1a"}
-      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-      onClick={() => onView(job)}
-    >
-      <span style={{ color: COLORS.text, fontWeight: 500 }}>{job.customer}</span>
-      <span style={{ color: COLORS.muted, fontSize: 13 }}>{job.address}</span>
-      <span style={{ color: COLORS.muted, fontSize: 13 }}>{job.type}</span>
-      <span style={{ color: COLORS.muted, fontSize: 13 }}>{job.date}</span>
-      <span style={{
-        fontSize: 11, fontWeight: 600, color: s.color, background: s.bg,
-        padding: "4px 10px", borderRadius: 20, textAlign: "center", whiteSpace: "nowrap"
-      }}>{s.label}</span>
-      <span style={{ color: COLORS.accent, fontWeight: 700, textAlign: "right" }}>${job.amount}</span>
-    </div>
-  );
-}
+// ── MOCK DATA (replace with real Supabase data later) ─────────────────────────
+const MOCK_QUOTES = [
+  { id: "1", created_at: "2025-06-19T09:00:00Z", customer_name: "Marcus T.", customer_phone: "717-555-0101", customer_email: "marcus@email.com", customer_address: "412 Pine St, Harrisburg PA", customer_notes: "Side gate is locked, call first", ai_description: "Large pile of mixed furniture — sofa, dresser, two mattresses, approximately half truck load. Standard access, ground floor.", status: "new", estimated_min: 350, estimated_max: 525 },
+  { id: "2", created_at: "2025-06-18T14:30:00Z", customer_name: "Sandra L.", customer_phone: "717-555-0102", customer_email: "sandra@email.com", customer_address: "88 Elm Ave, Camp Hill PA", customer_notes: "", ai_description: "Washer and dryer, side by side, in laundry room on first floor. No stairs. Easy access.", status: "quoted", estimated_min: 190, estimated_max: 210, final_price: 200 },
+  { id: "3", created_at: "2025-06-18T10:00:00Z", customer_name: "Derek W.", customer_phone: "717-555-0103", customer_email: "derek@email.com", customer_address: "291 Oak Blvd, Mechanicsburg PA", customer_notes: "Basement stuff too", ai_description: "Mixed construction debris — drywall scraps, lumber, tiles. Approximately quarter truck load. Basement access, one flight of stairs.", status: "booked", estimated_min: 375, estimated_max: 425, final_price: 400 },
+  { id: "4", created_at: "2025-06-17T16:00:00Z", customer_name: "Priya N.", customer_phone: "717-555-0104", customer_email: "priya@email.com", customer_address: "55 Walnut Ln, York PA", customer_notes: "", ai_description: "Console piano in living room, ground floor. Approximately 400 lbs. Standard doorway, no stairs.", status: "new", estimated_min: 350, estimated_max: 370 },
+];
 
-function JobModal({ job, onClose }) {
-  if (!job) return null;
-  const s = STATUS_STYLES[job.status];
-  return (
-    <div style={{
-      position: "fixed", inset: 0, background: "#000000bb", zIndex: 100,
-      display: "flex", alignItems: "center", justifyContent: "center"
-    }} onClick={onClose}>
-      <div style={{
-        background: COLORS.card, border: `1px solid ${COLORS.border}`,
-        borderRadius: 16, padding: 32, width: 440, position: "relative"
-      }} onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} style={{
-          position: "absolute", top: 16, right: 16,
-          background: "none", border: "none", color: COLORS.muted,
-          fontSize: 20, cursor: "pointer"
-        }}>✕</button>
-        <div style={{ fontSize: 11, color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Job Details</div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text, marginBottom: 4 }}>{job.customer}</div>
-        <div style={{ fontSize: 13, color: COLORS.muted, marginBottom: 20 }}>{job.address}</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {[
-            ["Service Type", job.type],
-            ["Date & Time", job.date],
-            ["Status", <span style={{ color: s.color }}>{s.label}</span>],
-            ["Amount", <span style={{ color: COLORS.accent, fontWeight: 700 }}>${job.amount}</span>],
-          ].map(([k, v]) => (
-            <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${COLORS.border}`, paddingBottom: 12 }}>
-              <span style={{ fontSize: 13, color: COLORS.muted }}>{k}</span>
-              <span style={{ fontSize: 14, color: COLORS.text }}>{v}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
-          <button style={{
-            flex: 1, padding: "12px 0", background: COLORS.accent, color: "#000",
-            border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14
-          }}>Mark Complete</button>
-          <button style={{
-            flex: 1, padding: "12px 0", background: COLORS.border, color: COLORS.text,
-            border: "none", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14
-          }}>Send Update</button>
-        </div>
-      </div>
-    </div>
-  );
-}
+export default function Dashboard() {
+  const [active, setActive]       = useState("overview");
+  const [quotes, setQuotes]       = useState(MOCK_QUOTES);
+  const [selected, setSelected]   = useState<any>(null);
+  const [operator, setOperator]   = useState<any>(null);
+  const [filter, setFilter]       = useState("all");
+  const [finalPrice, setFinalPrice] = useState("");
+  const [saving, setSaving]       = useState(false);
+  const [saved, setSaved]         = useState(false);
 
-function Overview() {
-  const todayJobs = MOCK_JOBS.filter(j => j.date.includes("Today"));
-  const completedJobs = MOCK_JOBS.filter(j => j.status === "completed");
-  const revenue = MOCK_JOBS.filter(j => j.status === "completed").reduce((s, j) => s + j.amount, 0);
-  const [selected, setSelected] = useState(null);
+  useEffect(() => {
+    // Load operator info
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from("operators").select("*").eq("id", user.id).single();
+        if (data) setOperator(data);
+      }
+    };
+    load();
+  }, []);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-      <div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text, marginBottom: 4 }}>Good morning, Operator 👋</div>
-        <div style={{ fontSize: 14, color: COLORS.muted }}>Here's what's happening today.</div>
-      </div>
+  const logout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
-        <StatCard label="Today's Jobs" value={todayJobs.length} sub="2 active routes" accent={COLORS.accent} />
-        <StatCard label="Week Revenue" value={`$${revenue}`} sub="↑ 12% vs last week" />
-        <StatCard label="Completed" value={completedJobs.length} sub="This week" accent={COLORS.green} />
-        <StatCard label="Pending" value={MOCK_JOBS.filter(j => j.status === "pending").length} sub="Needs scheduling" />
-      </div>
+  const newCount       = quotes.filter(q => q.status === "new").length;
+  const bookedCount    = quotes.filter(q => q.status === "booked").length;
+  const completedCount = quotes.filter(q => q.status === "completed").length;
+  const weekRevenue    = quotes.filter(q => q.final_price).reduce((s: number, q: any) => s + (q.final_price || 0), 0);
 
-      <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, overflow: "hidden" }}>
-        <div style={{ padding: "18px 20px", borderBottom: `1px solid ${COLORS.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontWeight: 600, color: COLORS.text }}>Today's Jobs</span>
-          <span style={{ fontSize: 12, color: COLORS.muted }}>{todayJobs.length} jobs</span>
-        </div>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 140px 120px 80px 90px",
-          padding: "10px 20px",
-          borderBottom: `1px solid ${COLORS.border}`,
-          gap: 12
-        }}>
-          {["Customer", "Address", "Type", "Time", "Status", "Amount"].map(h => (
-            <span key={h} style={{ fontSize: 11, color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>{h}</span>
-          ))}
-        </div>
-        {todayJobs.map(job => <JobRow key={job.id} job={job} onView={setSelected} />)}
-      </div>
+  const filteredQuotes = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
 
-      {selected && <JobModal job={selected} onClose={() => setSelected(null)} />}
-    </div>
-  );
-}
+  const updateStatus = (id: string, status: string) => {
+    setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
+    if (selected?.id === id) setSelected((prev: any) => ({ ...prev, status }));
+  };
 
-function Jobs() {
-  const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState(null);
-  const filters = ["all", "scheduled", "in_progress", "completed", "pending"];
-  const filtered = filter === "all" ? MOCK_JOBS : MOCK_JOBS.filter(j => j.status === filter);
+  const sendQuote = (id: string, price: number) => {
+    setQuotes(prev => prev.map(q => q.id === id ? { ...q, status: "quoted", final_price: price } : q));
+    if (selected?.id === id) setSelected((prev: any) => ({ ...prev, status: "quoted", final_price: price }));
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>All Jobs</div>
-        <button style={{
-          background: COLORS.accent, color: "#000", border: "none",
-          borderRadius: 8, padding: "10px 20px", fontWeight: 700, cursor: "pointer"
-        }}>+ New Job</button>
-      </div>
+  const inp = {
+    background: C.surface,
+    border: `1px solid ${C.border}`,
+    borderRadius: 8,
+    padding: "11px 14px",
+    color: C.text,
+    fontSize: ".9rem",
+    fontFamily: "inherit",
+    outline: "none",
+    width: "100%",
+    boxSizing: "border-box" as const,
+  };
 
-      <div style={{ display: "flex", gap: 8 }}>
-        {filters.map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{
-            padding: "7px 16px", borderRadius: 20, border: `1px solid ${filter === f ? COLORS.accent : COLORS.border}`,
-            background: filter === f ? COLORS.accentDim : "transparent",
-            color: filter === f ? COLORS.accent : COLORS.muted,
-            fontSize: 12, fontWeight: 600, cursor: "pointer", textTransform: "capitalize"
-          }}>{f.replace("_", " ")}</button>
-        ))}
-      </div>
+  // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
+  const QuoteModal = ({ quote, onClose }: any) => {
+    const s = STATUS_STYLES[quote.status] || STATUS_STYLES.new;
+    const [price, setPrice] = useState(String(quote.final_price || quote.estimated_min || ""));
 
-      <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, overflow: "hidden" }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 140px 120px 80px 90px",
-          padding: "10px 20px",
-          borderBottom: `1px solid ${COLORS.border}`,
-          gap: 12
-        }}>
-          {["Customer", "Address", "Type", "Date", "Status", "Amount"].map(h => (
-            <span key={h} style={{ fontSize: 11, color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>{h}</span>
-          ))}
-        </div>
-        {filtered.map(job => <JobRow key={job.id} job={job} onView={setSelected} />)}
-        {filtered.length === 0 && (
-          <div style={{ padding: 40, textAlign: "center", color: COLORS.muted }}>No jobs found.</div>
-        )}
-      </div>
-      {selected && <JobModal job={selected} onClose={() => setSelected(null)} />}
-    </div>
-  );
-}
+    return (
+      <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", zIndex:100, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+        <div onClick={e => e.stopPropagation()} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, width:"100%", maxWidth:520, maxHeight:"90vh", overflowY:"auto" }}>
+          
+          {/* Header */}
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24 }}>
+            <div>
+              <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:4 }}>QUOTE REQUEST</div>
+              <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>{quote.customer_name}</div>
+              <div style={{ fontSize:".84rem", color:C.muted, marginTop:2 }}>{quote.customer_address}</div>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+              <span style={{ fontSize:".72rem", fontWeight:700, color:s.color, background:s.bg, padding:"5px 12px", borderRadius:20 }}>{s.label}</span>
+              <button onClick={onClose} style={{ background:"none", border:"none", color:C.muted, fontSize:"1.2rem", cursor:"pointer" }}>✕</button>
+            </div>
+          </div>
 
-function Schedule() {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
+          {/* Customer contact */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>CUSTOMER</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {[
+                ["📞", quote.customer_phone, `tel:${quote.customer_phone}`],
+                ["📧", quote.customer_email, `mailto:${quote.customer_email}`],
+              ].map(([icon, val, href]) => (
+                <a key={String(href)} href={String(href)} style={{ display:"flex", alignItems:"center", gap:10, color:C.accent, textDecoration:"none", fontSize:".88rem" }}>
+                  <span>{icon}</span>{val}
+                </a>
+              ))}
+              {quote.customer_notes && (
+                <div style={{ display:"flex", gap:10, alignItems:"flex-start", marginTop:4 }}>
+                  <span>📝</span>
+                  <span style={{ fontSize:".84rem", color:C.muted, lineHeight:1.45 }}>{quote.customer_notes}</span>
+                </div>
+              )}
+            </div>
+          </div>
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>Schedule</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
-        {days.map((day, i) => {
-          const d = new Date(startOfWeek);
-          d.setDate(startOfWeek.getDate() + i);
-          const isToday = d.toDateString() === today.toDateString();
-          const dayJobs = i === 1 ? MOCK_JOBS.filter(j => j.date.includes("Today")) :
-                          i === 2 ? MOCK_JOBS.filter(j => j.date.includes("Tomorrow")) : [];
-          return (
-            <div key={day} style={{
-              background: isToday ? COLORS.accentDim : COLORS.card,
-              border: `1px solid ${isToday ? COLORS.accent : COLORS.border}`,
-              borderRadius: 12, padding: 16, minHeight: 120
-            }}>
-              <div style={{ fontSize: 11, color: isToday ? COLORS.accent : COLORS.muted, fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>{day}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: isToday ? COLORS.accent : COLORS.text, marginBottom: 10 }}>{d.getDate()}</div>
-              {dayJobs.map(j => (
-                <div key={j.id} style={{
-                  background: STATUS_STYLES[j.status].bg, borderRadius: 6,
-                  padding: "4px 8px", marginBottom: 4,
-                  fontSize: 11, color: STATUS_STYLES[j.status].color, fontWeight: 600
-                }}>{j.customer}</div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 20 }}>
-        <div style={{ fontWeight: 600, color: COLORS.text, marginBottom: 16 }}>Upcoming This Week</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {MOCK_JOBS.filter(j => j.status !== "completed").map(j => (
-            <div key={j.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 12, borderBottom: `1px solid ${COLORS.border}` }}>
-              <div>
-                <div style={{ color: COLORS.text, fontWeight: 500, marginBottom: 2 }}>{j.customer}</div>
-                <div style={{ fontSize: 12, color: COLORS.muted }}>{j.type} · {j.date}</div>
-              </div>
-              <span style={{ color: COLORS.accent, fontWeight: 700 }}>${j.amount}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+          {/* AI Description */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:10 }}>AI DESCRIPTION</div>
+            <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.6 }}>{quote.ai_description}</div>
+            {quote.estimated_min && (
+              <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between" }}>
+                <span style={{ fontSize:".78rem", color:C.muted }}>Estimated range</span>
+                <span style={{ fontSize:".88rem", fontWeight:700, color:C.accent }}>${quote.estimated_min} – ${quote.estimated_max}</span>
+              </div>
+            )}
+          </div>
 
-function Customers() {
-  const unique = [...new Map(MOCK_JOBS.map(j => [j.customer, j])).values()];
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>Customers</div>
-      <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, overflow: "hidden" }}>
-        {unique.map((c, i) => (
-          <div key={i} style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            padding: "16px 20px", borderBottom: `1px solid ${COLORS.border}`
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: "50%", background: COLORS.accentDim,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: COLORS.accent, fontWeight: 700, fontSize: 14
-              }}>{c.customer[0]}</div>
-              <div>
-                <div style={{ color: COLORS.text, fontWeight: 500 }}>{c.customer}</div>
-                <div style={{ fontSize: 12, color: COLORS.muted }}>{c.address}</div>
-              </div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ color: COLORS.accent, fontWeight: 700 }}>${c.amount}</div>
-              <div style={{ fontSize: 11, color: COLORS.muted }}>Last job</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+          {/* Send quote */}
+          {quote.status === "new" || quote.status === "reviewed" ? (
+            <div style={{ background:C.accentDim, border:`1px solid rgba(217,123,79,0.2)`, borderRadius:10, padding:16, marginBottom:16 }}>
+              <div style={{ fontSize:".7rem", color:C.accent, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>SET YOUR PRICE</div>
+              <div style={{ display:"flex", gap:10 }}>
+                <input
+                  type="number"
+                  placeholder="Enter your price..."
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  style={{ ...inp, flex:1 }}
+                />
+                <button
+                  onClick={() => price && sendQuote(quote.id, parseInt(price))}
+                  disabled={!price}
+                  style={{ padding:"11px 20px", borderRadius:8, border:"none", background:price ? C.accent : "rgba(217,123,79,0.3)", color:price ? "#000" : "rgba(255,255,255,0.3)", fontWeight:700, cursor:price ? "pointer" : "not-allowed", fontSize:".88rem", whiteSpace:"nowrap" as const }}
+                >
+                  {saved ? "Sent ✓" : "Send Quote"}
+                </button>
+              </div>
+            </div>
+          ) : quote.final_price ? (
+            <div style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.2)", borderRadius:10, padding:16, marginBottom:16, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <span style={{ fontSize:".84rem", color:C.muted }}>Quote sent to customer</span>
+              <span style={{ fontSize:"1.4rem", fontWeight:800, color:C.green }}>${quote.final_price}</span>
+            </div>
+          ) : null}
 
-function Team() {
-  const members = [
-    { name: "James R.", role: "Driver", status: "active", jobs: 12 },
-    { name: "Carlos M.", role: "Loader", status: "active", jobs: 9 },
-    { name: "DeShawn P.", role: "Driver", status: "off", jobs: 7 },
-  ];
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>Team</div>
-        <button style={{ background: COLORS.accent, color: "#000", border: "none", borderRadius: 8, padding: "10px 20px", fontWeight: 700, cursor: "pointer" }}>+ Add Member</button>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-        {members.map((m, i) => (
-          <div key={i} style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: "50%", background: COLORS.accentDim,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: COLORS.accent, fontWeight: 700, fontSize: 18
-              }}>{m.name[0]}</div>
-              <div>
-                <div style={{ color: COLORS.text, fontWeight: 600 }}>{m.name}</div>
-                <div style={{ fontSize: 12, color: COLORS.muted }}>{m.role}</div>
-              </div>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{
-                fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
-                color: m.status === "active" ? COLORS.green : COLORS.muted,
-                background: m.status === "active" ? "#22c55e22" : "#66666622"
-              }}>{m.status === "active" ? "On Duty" : "Off"}</span>
-              <span style={{ fontSize: 13, color: COLORS.muted }}>{m.jobs} jobs</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+          {/* Action buttons */}
+          <div style={{ display:"flex", gap:10 }}>
+            {quote.status === "new" && (
+              <button onClick={() => updateStatus(quote.id, "reviewed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+                Mark Reviewed
+              </button>
+            )}
+            {quote.status === "quoted" && (
+              <button onClick={() => updateStatus(quote.id, "booked")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+                Mark Booked ✓
+              </button>
+            )}
+            {quote.status === "booked" && (
+              <button onClick={() => updateStatus(quote.id, "completed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+                Mark Complete ✓
+              </button>
+            )}
+            <button onClick={() => updateStatus(quote.id, "cancelled")} style={{ padding:"12px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+              Cancel
+            </button>
+          </div>
 
-function Settings() {
-  const [biz, setBiz] = useState("JunkPix Operations");
-  const [email, setEmail] = useState("operator@junkpix.com");
-  const [phone, setPhone] = useState("(717) 555-0100");
-  const [saved, setSaved] = useState(false);
+        </div>
+      </div>
+    );
+  };
 
-  const save = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  // ── OVERVIEW ────────────────────────────────────────────────────────────────
+  const Overview = () => (
+    <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
+      <div>
+        <div style={{ fontSize:"1.5rem", fontWeight:800, color:C.text }}>
+          Good morning{operator?.owner_name ? `, ${operator.owner_name.split(" ")[0]}` : ""} 👋
+        </div>
+        <div style={{ fontSize:".88rem", color:C.muted, marginTop:4 }}>Here's what needs your attention today.</div>
+      </div>
 
-  const field = (label, val, setter) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontSize: 12, color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label>
-      <input value={val} onChange={e => setter(e.target.value)} style={{
-        background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8,
-        padding: "12px 14px", color: COLORS.text, fontSize: 14, outline: "none",
-        fontFamily: "inherit"
-      }} />
-    </div>
-  );
+      {/* Stats */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
+        {[
+          { label:"New Requests",  value:newCount,       color:C.blue,   sub:"Need your review" },
+          { label:"Booked Jobs",   value:bookedCount,    color:C.green,  sub:"Confirmed this week" },
+          { label:"Completed",     value:completedCount, color:C.muted,  sub:"This week" },
+          { label:"Week Revenue",  value:`$${weekRevenue}`, color:C.accent, sub:"From quoted jobs" },
+        ].map((stat, i) => (
+          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"20px 18px" }}>
+            <div style={{ fontSize:".68rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:8 }}>{stat.label.toUpperCase()}</div>
+            <div style={{ fontSize:"2rem", fontWeight:800, color:stat.color, lineHeight:1 }}>{stat.value}</div>
+            <div style={{ fontSize:".75rem", color:C.muted, marginTop:6 }}>{stat.sub}</div>
+          </div>
+        ))}
+      </div>
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 560 }}>
-      <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>Settings</div>
-      <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
-        <div style={{ fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>Business Info</div>
-        {field("Business Name", biz, setBiz)}
-        {field("Email", email, setEmail)}
-        {field("Phone", phone, setPhone)}
-        <button onClick={save} style={{
-          background: saved ? COLORS.green : COLORS.accent, color: "#000",
-          border: "none", borderRadius: 8, padding: "12px 0",
-          fontWeight: 700, cursor: "pointer", fontSize: 14, transition: "background 0.2s"
-        }}>{saved ? "Saved ✓" : "Save Changes"}</button>
-      </div>
-    </div>
-  );
-}
+      {/* New requests */}
+      {quotes.filter(q => q.status === "new").length > 0 && (
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
+          <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between" }}>
+            <span style={{ fontWeight:700, color:C.text }}>New Quote Requests</span>
+            <span style={{ fontSize:".78rem", color:C.accent, fontWeight:600 }}>{newCount} new</span>
+          </div>
+          {quotes.filter(q => q.status === "new").map(q => (
+            <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+            >
+              <div>
+                <div style={{ fontWeight:600, color:C.text, marginBottom:4 }}>{q.customer_name}</div>
+                <div style={{ fontSize:".78rem", color:C.muted }}>{q.customer_address}</div>
+                <div style={{ fontSize:".78rem", color:C.muted, marginTop:4, lineHeight:1.4 }}>{q.ai_description?.slice(0, 80)}...</div>
+              </div>
+              <div style={{ textAlign:"right", flexShrink:0, marginLeft:16 }}>
+                <div style={{ color:C.accent, fontWeight:700, fontSize:"1.1rem" }}>${q.estimated_min}–${q.estimated_max}</div>
+                <div style={{ fontSize:".72rem", color:C.muted, marginTop:4 }}>estimated range</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-const SCREENS = { overview: Overview, jobs: Jobs, schedule: Schedule, customers: Customers, team: Team, settings: Settings };
+      {/* All recent */}
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
+        <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}` }}>
+          <span style={{ fontWeight:700, color:C.text }}>Recent Activity</span>
+        </div>
+        {quotes.slice(0,4).map(q => {
+          const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
+          return (
+            <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+            >
+              <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+                <div style={{ width:36, height:36, borderRadius:"50%", background:C.accentDim, display:"flex", alignItems:"center", justifyContent:"center", color:C.accent, fontWeight:700, fontSize:".9rem", flexShrink:0 }}>
+                  {q.customer_name[0]}
+                </div>
+                <div>
+                  <div style={{ fontWeight:600, color:C.text, fontSize:".9rem" }}>{q.customer_name}</div>
+                  <div style={{ fontSize:".75rem", color:C.muted }}>{q.customer_address}</div>
+                </div>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:16, flexShrink:0 }}>
+                <span style={{ fontSize:".7rem", fontWeight:700, color:s.color, background:s.bg, padding:"4px 10px", borderRadius:20 }}>{s.label}</span>
+                <span style={{ color:C.accent, fontWeight:700 }}>${q.final_price || q.estimated_min}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-export default function JunkPixDashboard() {
-  const [active, setActive] = useState("overview");
-  const Screen = SCREENS[active];
+  // ── QUOTES ──────────────────────────────────────────────────────────────────
+  const Quotes = () => {
+    const statuses = ["all","new","reviewed","quoted","booked","completed","cancelled"];
+    return (
+      <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>All Quote Requests</div>
 
-  return (
-    <div style={{ display: "flex", minHeight: "100vh", background: COLORS.bg, fontFamily: "'Inter', 'Space Grotesk', sans-serif", color: COLORS.text }}>
-      {/* Sidebar */}
-      <div style={{
-        width: 220, background: COLORS.surface, borderRight: `1px solid ${COLORS.border}`,
-        display: "flex", flexDirection: "column", padding: "24px 16px", gap: 4, flexShrink: 0
-      }}>
-        {/* Logo */}
-        <div style={{ padding: "8px 12px", marginBottom: 24 }}>
-          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em" }}>
-            <span style={{ color: COLORS.accent }}>Junk</span>
-            <span style={{ color: COLORS.text }}>Pix</span>
-          </div>
-          <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>Operator Dashboard</div>
-        </div>
+        {/* Filter chips */}
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+          {statuses.map(f => (
+            <button key={f} onClick={() => setFilter(f)} style={{ padding:"7px 16px", borderRadius:20, border:`1px solid ${filter===f ? C.accent : C.border}`, background:filter===f ? C.accentDim : "transparent", color:filter===f ? C.accent : C.muted, fontSize:".78rem", fontWeight:600, cursor:"pointer", textTransform:"capitalize" as const }}>
+              {f.replace("_"," ")}
+            </button>
+          ))}
+        </div>
 
-        {NAV_ITEMS.map(item => (
-          <button key={item.id} onClick={() => setActive(item.id)} style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 14px", borderRadius: 8, border: "none",
-            background: active === item.id ? COLORS.accentDim : "transparent",
-            color: active === item.id ? COLORS.accent : COLORS.muted,
-            cursor: "pointer", fontWeight: active === item.id ? 600 : 400,
-            fontSize: 14, textAlign: "left", transition: "all 0.15s"
-          }}>
-            <span style={{ fontSize: 16 }}>{item.icon}</span>
-            {item.label}
-          </button>
-        ))}
+        {/* Quote list */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
+          {filteredQuotes.length === 0 ? (
+            <div style={{ padding:40, textAlign:"center", color:C.muted }}>No quotes found.</div>
+          ) : filteredQuotes.map(q => {
+            const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
+            return (
+              <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"grid", gridTemplateColumns:"1fr 1.5fr 100px 90px", gap:16, alignItems:"center" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              >
+                <div>
+                  <div style={{ fontWeight:600, color:C.text }}>{q.customer_name}</div>
+                  <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.customer_phone}</div>
+                </div>
+                <div style={{ fontSize:".8rem", color:C.muted, lineHeight:1.4 }}>{q.ai_description?.slice(0,70)}...</div>
+                <span style={{ fontSize:".7rem", fontWeight:700, color:s.color, background:s.bg, padding:"4px 10px", borderRadius:20, textAlign:"center" as const }}>{s.label}</span>
+                <span style={{ color:C.accent, fontWeight:700, textAlign:"right" as const }}>${q.final_price || q.estimated_min}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
-        <div style={{ marginTop: "auto", paddingTop: 24, borderTop: `1px solid ${COLORS.border}` }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px" }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: "50%", background: COLORS.accentDim,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: COLORS.accent, fontWeight: 700, fontSize: 13
-            }}>O</div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>Operator</div>
-              <div style={{ fontSize: 11, color: COLORS.muted }}>Admin</div>
-            </div>
-          </div>
-        </div>
-      </div>
+  // ── SETTINGS ────────────────────────────────────────────────────────────────
+  const SettingsScreen = () => {
+    const [minJob, setMinJob]   = useState(String(operator?.minimum_job || 150));
+    const [dump, setDump]       = useState(String(operator?.dump_fee_per_ton || 85));
+    const [labor, setLabor]     = useState(String(operator?.labor_rate_per_hour || 25));
+    const [crew, setCrew]       = useState(String(operator?.crew_size || 2));
+    const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
+    const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
+    const [done, setDone]       = useState(false);
 
-      {/* Main */}
-      <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
-        <Screen />
-      </div>
-    </div>
-  );
+    const save = async () => {
+      if (!operator) return;
+      setSaving(true);
+      const { error } = await supabase.from("operators").update({
+        minimum_job: parseInt(minJob),
+        dump_fee_per_ton: parseFloat(dump),
+        labor_rate_per_hour: parseFloat(labor),
+        crew_size: parseInt(crew),
+        gas_price: parseFloat(gas),
+        margin_percent: parseInt(margin),
+      }).eq("id", operator.id);
+      setSaving(false);
+      if (!error) { setDone(true); setTimeout(() => setDone(false), 2000); }
+    };
+
+    const Field = ({ label, value, setter, note }: any) => (
+      <div>
+        <label style={{ fontSize:".72rem", color:C.muted, letterSpacing:".08em", fontFamily:"monospace", marginBottom:6, display:"block" }}>{label}</label>
+        {note && <div style={{ fontSize:".72rem", color:C.muted, marginBottom:6, fontStyle:"italic" }}>{note}</div>}
+        <input type="number" value={value} onChange={e => setter(e.target.value)} style={inp} />
+      </div>
+    );
+
+    return (
+      <div style={{ display:"flex", flexDirection:"column", gap:24, maxWidth:520 }}>
+        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Settings</div>
+
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24 }}>
+          <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Business</div>
+          <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>{operator?.business_name} · {operator?.city}, {operator?.state}</div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginBottom:4, fontFamily:"monospace" }}>YOUR QUOTE PAGE</div>
+          <div style={{ background:C.surface, borderRadius:8, padding:"10px 14px", fontSize:".84rem", color:C.accent, fontFamily:"monospace", marginBottom:0 }}>
+            junkpix.com/quote/{operator?.id?.slice(0,8)}
+          </div>
+        </div>
+
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, display:"flex", flexDirection:"column", gap:16 }}>
+          <div>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Pricing Settings</div>
+            <div style={{ fontSize:".82rem", color:C.muted }}>Update anytime. Changes apply to all future quotes instantly.</div>
+          </div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+            <Field label="MINIMUM JOB ($)"    value={minJob}  setter={setMinJob}  />
+            <Field label="DUMP FEE / TON ($)" value={dump}    setter={setDump}    />
+            <Field label="LABOR / HOUR ($)"   value={labor}   setter={setLabor}   />
+            <Field label="CREW SIZE TODAY"    value={crew}    setter={setCrew}    note="Update daily" />
+            <Field label="GAS PRICE ($)"      value={gas}     setter={setGas}     note="Update weekly" />
+            <Field label="YOUR MARGIN (%)"    value={margin}  setter={setMargin}  />
+          </div>
+
+          <button onClick={save} disabled={saving} style={{ padding:"13px 0", borderRadius:8, border:"none", background:done ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".95rem" }}>
+            {saving ? "Saving..." : done ? "Saved ✓" : "Save Changes"}
+          </button>
+        </div>
+
+        <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+          Log Out
+        </button>
+      </div>
+    );
+  };
+
+  const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, settings: SettingsScreen };
+  const Screen = SCREENS[active];
+
+  return (
+    <div style={{ display:"flex", minHeight:"100vh", background:C.bg, fontFamily:"system-ui, sans-serif", color:C.text }}>
+
+      {/* Sidebar */}
+      <div style={{ width:200, background:C.surface, borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", padding:"24px 14px", gap:4, flexShrink:0 }}>
+        <div style={{ padding:"8px 12px", marginBottom:24 }}>
+          <div style={{ fontSize:"1.2rem", fontWeight:800 }}>
+            <span style={{ color:C.accent }}>Junk</span>
+            <span style={{ color:C.text }}>Pix</span>
+          </div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:2 }}>Operator Dashboard</div>
+        </div>
+
+        {NAV.map(item => (
+          <button key={item.id} onClick={() => setActive(item.id)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:8, border:"none", background:active===item.id ? C.accentDim : "transparent", color:active===item.id ? C.accent : C.muted, cursor:"pointer", fontWeight:active===item.id ? 600 : 400, fontSize:".88rem", textAlign:"left" as const }}>
+            <span>{item.icon}</span>{item.label}
+            {item.id === "quotes" && newCount > 0 && (
+              <span style={{ marginLeft:"auto", background:C.accent, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:".68rem", fontWeight:800 }}>{newCount}</span>
+            )}
+          </button>
+        ))}
+
+        <div style={{ marginTop:"auto", paddingTop:20, borderTop:`1px solid ${C.border}` }}>
+          <div style={{ padding:"8px 12px" }}>
+            <div style={{ fontSize:".82rem", fontWeight:600, color:C.text }}>{operator?.owner_name || "Operator"}</div>
+            <div style={{ fontSize:".72rem", color:C.muted, marginTop:2 }}>{operator?.business_name || ""}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div style={{ flex:1, padding:32, overflowY:"auto" }}>
+        <Screen />
+      </div>
+
+      {/* Quote detail modal */}
+      {selected && <QuoteModal quote={selected} onClose={() => setSelected(null)} />}
+    </div>
+  );
 }
