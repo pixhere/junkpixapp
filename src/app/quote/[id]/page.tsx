@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useParams } from "next/navigation";
 
@@ -67,7 +67,24 @@ minimum: 150-200, eighth: 200-275, quarter: 300-400, half: 475-575, threeQ: 675-
 
 export default function QuotePage() {
   const params  = useParams();
-  const opId    = params?.id as string;
+  const slug = params?.id as string;
+const [opId, setOpId] = useState<string>("");
+const [opName, setOpName] = useState<string>("");
+
+useEffect(() => {
+  const loadOperator = async () => {
+    const { data } = await supabase
+      .from("operators")
+      .select("id, business_name")
+      .eq("slug", slug)
+      .single();
+    if (data) {
+      setOpId(data.id);
+      setOpName(data.business_name);
+    }
+  };
+  loadOperator();
+}, [slug]);
 
   const [step, setStep]           = useState(1);
   const [photos, setPhotos]       = useState<string[]>([]);
