@@ -33,6 +33,7 @@ export default function SignupPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
+  const [website, setWebsite] = useState("");
   const [minimumJob, setMinimumJob] = useState("150");
   const [dumpFee, setDumpFee] = useState("85");
   const [laborRate, setLaborRate] = useState("25");
@@ -62,6 +63,7 @@ export default function SignupPage() {
           city,
           state,
           zip,
+          website,
           minimum_job: parseInt(minimumJob),
           dump_fee_per_ton: parseFloat(dumpFee),
           labor_rate_per_hour: parseFloat(laborRate),
@@ -175,6 +177,10 @@ export default function SignupPage() {
 
             <label style={labelStyle}>ZIP CODE</label>
             <input style={inputStyle} placeholder="17101" value={zip} onChange={e => setZip(e.target.value)} />
+    
+
+            <label style={labelStyle}>WEBSITE</label>
+            <input style={inputStyle} placeholder="https://yourbusiness.com" value={website} onChange={e => setWebsite(e.target.value)} />
 
             <div style={{ display:"flex", gap:12, marginTop:8 }}>
               <button onClick={() => setStep(1)} style={{ ...btnStyle, background:"transparent", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.6)", flex:1 }}>← Back</button>
