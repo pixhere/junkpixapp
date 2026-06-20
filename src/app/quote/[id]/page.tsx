@@ -70,18 +70,21 @@ export default function QuotePage() {
   const slug = params?.id as string;
 const [opId, setOpId] = useState<string>("");
 const [opName, setOpName] = useState<string>("");
+const [opWebsite, setOpWebsite] = useState<string>("");
 
 useEffect(() => {
   const loadOperator = async () => {
     const { data } = await supabase
       .from("operators")
-      .select("id, business_name")
+      .select("id, business_name, website")
       .eq("slug", slug)
       .single();
     if (data) {
-      setOpId(data.id);
-      setOpName(data.business_name);
-    }
+  setOpId(data.id);
+  setOpName(data.business_name);
+  setOpWebsite(data.website || "https://junkpix.com");
+  console.log("Operator website:", data.website);
+}
   };
   loadOperator();
 }, [slug]);
@@ -360,13 +363,22 @@ if (ai.error) throw new Error(ai.error);
   );
 
   // STEP 4 — Loading
-  if (step === 4) return (
-    <div style={{ ...s.app, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      <div style={{ width: 48, height: 48, border: `3px solid ${C.line}`, borderTopColor: C.clay, borderRadius: "50%", animation: "spin .9s linear infinite", marginBottom: 20 }} />
-      <div style={{ fontSize: ".72rem", letterSpacing: ".1em", color: C.inkFaint, fontFamily: "monospace", textAlign: "center" }}>{loadMsg}</div>
+  // STEP 4 — Loading
+// STEP 4 — Loading
+if (step === 4) return (
+  <div style={{ background:C.bg, minHeight:"100vh", maxWidth:480, width:"100%", margin:"0 auto", fontFamily:"system-ui, sans-serif", color:C.ink }}>
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 20px 14px", borderBottom:`1px solid ${C.line}` }}>
+      <div style={{ width:32 }} />
+      <div style={{ fontSize:"1.1rem", fontWeight:800, letterSpacing:".06em", color:C.ink }}>JUNK<span style={{ color:C.clay }}>PIX</span></div>
+      <div style={{ width:32 }} />
     </div>
-  );
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"80vh", gap:20 }}>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{ width:48, height:48, border:`3px solid ${C.line}`, borderTopColor:C.clay, borderRadius:"50%", animation:"spin .9s linear infinite" }} />
+      <div style={{ fontSize:".72rem", letterSpacing:".1em", color:C.inkFaint, fontFamily:"monospace", textAlign:"center" }}>{loadMsg}</div>
+    </div>
+  </div>
+);
 
   // STEP 5 — Result
   return (
@@ -429,6 +441,12 @@ if (ai.error) throw new Error(ai.error);
                 <div style={{ fontSize: ".84rem", color: C.inkSoft, lineHeight: 1.55 }}>{result.plainDescription}</div>
               </div>
             )}
+            <div
+  onClick={() => { console.log("Going to:", opWebsite); window.location.href = opWebsite; }}
+  style={{ display:"flex", alignItems:"center", justifyContent:"center", marginTop:24, padding:"14px 0", borderRadius:8, border:`1px solid ${C.line}`, background:C.card, cursor:"pointer", fontSize:".9rem", fontWeight:600, color:C.ink, gap:8 }}
+>
+  🏠 Home
+</div>
           </>
         )}
       </div>
