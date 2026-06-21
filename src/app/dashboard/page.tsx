@@ -130,6 +130,11 @@ export default function Dashboard() {
     const [copiedReply, setCopiedReply]   = useState(false);
     const [activeType, setActiveType]     = useState("");
 
+    // Send email state
+    const [emailBody, setEmailBody]       = useState("");
+    const [sendingEmail, setSendingEmail] = useState(false);
+    const [emailSent, setEmailSent]       = useState(false);
+
     const REPLY_TYPES = [
       { id: "follow_up",          label: "Follow Up",       icon: "💬" },
       { id: "quote_ready",        label: "Send Quote",      icon: "💰" },
@@ -306,6 +311,12 @@ export default function Dashboard() {
                       >
                         ↺
                       </button>
+                      <button
+                        onClick={() => setEmailBody(aiReply)}
+                        style={{ padding:"9px 14px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".82rem" }}
+                      >
+                        ✉ Use in Email
+                      </button>
                     </div>
                   </>
                 )}
@@ -318,8 +329,50 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+{/* Send Email to Customer */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(59,130,246,0.15)` }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+              <span>✉️</span>
+              <div style={{ fontSize:".7rem", color:C.blue, letterSpacing:".1em", fontFamily:"monospace", fontWeight:700 }}>EMAIL CUSTOMER</div>
+              <div style={{ fontSize:".7rem", color:C.muted, marginLeft:"auto" }}>to: {quote.customer_email}</div>
+            </div>
+            <textarea
+              value={emailBody}
+              onChange={e => setEmailBody(e.target.value)}
+              placeholder="Write your message here, or generate one with AI above then click 'Use in Email'..."
+              rows={4}
+              style={{ width:"100%", padding:"11px 14px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontSize:".84rem", fontFamily:"inherit", resize:"vertical" as const, boxSizing:"border-box" as const, marginBottom:10, outline:"none" }}
+            />
+            <div style={{ fontSize:".72rem", color:C.muted, marginBottom:10 }}>
+              Quote details (address, price, job description) are automatically added to the email.
+            </div>
+            <button
+              onClick={async () => {
+                if (!emailBody.trim()) return;
+                setSendingEmail(true);
+                try {
+                  const res = await fetch("/api/send-customer-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ quote, operator, message: emailBody }),
+                  });
+                  const data = await res.json();
+                  if (data.success) { setEmailSent(true); setTimeout(() => setEmailSent(false), 3000); }
+                } catch {
+                  alert("Failed to send email. Try again.");
+                } finally {
+                  setSendingEmail(false);
+                }
+              }}
+              disabled={!emailBody.trim() || sendingEmail}
+              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background: emailSent ? "rgba(34,197,94,0.15)" : emailBody.trim() ? C.blue : "rgba(59,130,246,0.3)", color: emailSent ? C.green : emailBody.trim() ? "#fff" : "rgba(255,255,255,0.3)", fontWeight:700, cursor: emailBody.trim() ? "pointer" : "not-allowed", fontSize:".88rem", transition:"all .2s" }}
+            >
+              {emailSent ? "Email Sent ✓" : sendingEmail ? "Sending..." : "Send Email to Customer"}
+            </button>
+          </div>
 
           {/* Send quote */}
+        
           {quote.status === "new" || quote.status === "reviewed" ? (
             <div style={{ background:C.accentDim, border:`1px solid rgba(217,123,79,0.2)`, borderRadius:10, padding:16, marginBottom:16 }}>
               <div style={{ fontSize:".7rem", color:C.accent, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>SET YOUR PRICE</div>
