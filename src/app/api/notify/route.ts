@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { operatorId, customer, aiDescription, estimatedMin, estimatedMax } = await req.json();
+    const { operatorId, customer, aiDescription, estimatedMin, estimatedMax, photoUrls } = await req.json();
 
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json({ error: "Missing Resend API key" }, { status: 500 });
@@ -66,6 +66,19 @@ export async function POST(req: NextRequest) {
         <span style="font-size:1.1rem;font-weight:800;color:#D97B4F;">$${estimatedMin} – $${estimatedMax}</span>
       </div>` : ""}
     </div>
+
+    <!-- Photos -->
+    ${photoUrls && photoUrls.length > 0 ? `
+    <div style="background:#ffffff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid #e5e5e5;">
+      <div style="font-size:.7rem;font-weight:700;color:#999;letter-spacing:.1em;margin-bottom:16px;font-family:monospace;">CUSTOMER PHOTOS</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        ${photoUrls.map((url: string) => `
+          <a href="${url}" target="_blank">
+            <img src="${url}" style="width:160px;height:120px;object-fit:cover;border-radius:8px;border:1px solid #e5e5e5;" />
+          </a>
+        `).join("")}
+      </div>
+    </div>` : ""}
 
     <!-- CTA -->
     <div style="text-align:center;padding:8px 0 24px;">

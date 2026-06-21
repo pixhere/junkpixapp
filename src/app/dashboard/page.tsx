@@ -214,6 +214,26 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+         {/* Photos */}
+          {(() => {
+            const urls = Array.isArray(quote.photo_urls) 
+              ? quote.photo_urls 
+              : typeof quote.photo_urls === 'string' 
+                ? JSON.parse(quote.photo_urls) 
+                : [];
+            return urls.length > 0 ? (
+              <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+                <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>CUSTOMER PHOTOS</div>
+                <div style={{ display:"flex", gap:10, flexWrap:"wrap" as const }}>
+                  {urls.map((url: string, i: number) => (
+                    <a key={i} href={url} target="_blank" rel="noreferrer">
+                      <img src={url} alt={"Photo " + (i+1)} style={{ width:140, height:105, objectFit:"cover" as const, borderRadius:8, border:`1px solid ${C.border}`, cursor:"pointer" }} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null;
+          })()}
 
           {/* AI SUGGESTED REPLIES */}
           <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(217,123,79,0.15)` }}>

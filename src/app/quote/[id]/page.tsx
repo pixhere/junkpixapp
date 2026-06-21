@@ -67,7 +67,8 @@ minimum: 150-200, eighth: 200-275, quarter: 300-400, half: 475-575, threeQ: 675-
 
 export default function QuotePage() {
   const params  = useParams();
-  const slug = params?.id as string;
+  const slug = decodeURIComponent(params?.id as string)?.replace(/,/g, '').trim();
+console.log("cleaned slug:", slug);
 const [opId, setOpId] = useState<string>("");
 const [opName, setOpName] = useState<string>("");
 const [opWebsite, setOpWebsite] = useState<string>("");
@@ -79,6 +80,7 @@ useEffect(() => {
       .select("id, business_name, website")
       .eq("slug", slug)
       .single();
+      console.log("slug:", slug, "operator data:", data);
     if (data) {
   setOpId(data.id);
   setOpName(data.business_name);
@@ -133,6 +135,7 @@ useEffect(() => {
   const runEstimate = async () => {
     setStep(4);
     setLoadMsg("COMPRESSING PHOTOS...");
+    console.log("opId value:", opId);
     try {
       const compressed = await Promise.all(photos.map(p => compressImage(p)));
       setLoadMsg("AI IS READING YOUR JOB...");
@@ -154,8 +157,22 @@ useEffect(() => {
 const ai = await resp.json();
 console.log("API response:", ai);
 if (ai.error) throw new Error(ai.error);
+setLoadMsg("UPLOADING PHOTOS...");
+
+      // Upload photos to Supabase storage
+      // Upload photos via API
+      const uploadRes = await fetch("/api/upload-photos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images: compressed }),
+      });
+      const uploadData = await uploadRes.json();
+      const photoUrls: string[] = uploadData.urls || [];
+      console.log("Photo URLs:", photoUrls);
 
       setLoadMsg("SAVING YOUR REQUEST...");
+
+     
 
       // Save to Supabase
       const { error: dbErr } = await supabase.from("quote_requests").insert({
@@ -172,6 +189,7 @@ if (ai.error) throw new Error(ai.error);
         condition,
         condition_detail:  condDetail,
         extras,
+        photo_urls:         photoUrls,
         ai_description:    ai.plainDescription,
         ai_pricing_mode:   ai.pricingMode,
         ai_load_tier:      ai.loadTier,
@@ -182,7 +200,8 @@ if (ai.error) throw new Error(ai.error);
         status:            "new",
       });
 
-      if (dbErr) console.error("DB error:", dbErr);
+      console.log("opId:", opId);
+      console.log("DB error:", dbErr);
 
       // Send email via Resend
       await fetch("/api/notify", {
@@ -194,6 +213,7 @@ if (ai.error) throw new Error(ai.error);
           aiDescription: ai.plainDescription,
           estimatedMin:  ai.estimatedMin,
           estimatedMax:  ai.estimatedMax,
+          photoUrls,
         })
       });
 
