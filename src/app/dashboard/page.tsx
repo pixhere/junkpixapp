@@ -119,13 +119,55 @@ export default function Dashboard() {
   };
 
   // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
+  // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
   const QuoteModal = ({ quote, onClose }: any) => {
     const s = STATUS_STYLES[quote.status] || STATUS_STYLES.new;
     const [price, setPrice] = useState(String(quote.final_price || quote.estimated_min || ""));
 
+    // AI Replies state
+    const [aiReply, setAiReply]           = useState("");
+    const [loadingReply, setLoadingReply] = useState(false);
+    const [copiedReply, setCopiedReply]   = useState(false);
+    const [activeType, setActiveType]     = useState("");
+
+    const REPLY_TYPES = [
+      { id: "follow_up",          label: "Follow Up",       icon: "💬" },
+      { id: "quote_ready",        label: "Send Quote",      icon: "💰" },
+      { id: "need_more_info",     label: "Need Photos",     icon: "📸" },
+      { id: "booking_confirm",    label: "Confirm Booking", icon: "✅" },
+      { id: "price_negotiation",  label: "Price Pushback",  icon: "🤝" },
+      { id: "no_show_follow_up",  label: "No Response",     icon: "👋" },
+    ];
+
+    const generateReply = async (replyType: string) => {
+      setAiReply("");
+      setCopiedReply(false);
+      setLoadingReply(true);
+      setActiveType(replyType);
+      try {
+        const res = await fetch("/api/suggest-reply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quote, operator, replyType, seed: Date.now() }),
+        });
+        const data = await res.json();
+        setAiReply(data.reply || "Could not generate reply.");
+      } catch {
+        setAiReply("Something went wrong. Try again.");
+      } finally {
+        setLoadingReply(false);
+      }
+    };
+
+    const copyReply = () => {
+      navigator.clipboard.writeText(aiReply);
+      setCopiedReply(true);
+      setTimeout(() => setCopiedReply(false), 2000);
+    };
+
     return (
       <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", zIndex:100, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-        <div onClick={e => e.stopPropagation()} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, width:"100%", maxWidth:520, maxHeight:"90vh", overflowY:"auto" }}>
+        <div onClick={e => e.stopPropagation()} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, width:"100%", maxWidth:560, maxHeight:"92vh", overflowY:"auto" }}>
           
           {/* Header */}
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24 }}>
@@ -169,6 +211,90 @@ export default function Dashboard() {
               <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between" }}>
                 <span style={{ fontSize:".78rem", color:C.muted }}>Estimated range</span>
                 <span style={{ fontSize:".88rem", fontWeight:700, color:C.accent }}>${quote.estimated_min} – ${quote.estimated_max}</span>
+              </div>
+            )}
+          </div>
+
+          {/* AI SUGGESTED REPLIES */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(217,123,79,0.15)` }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ fontSize:"1rem" }}>✨</span>
+                <div style={{ fontSize:".7rem", color:C.accent, letterSpacing:".1em", fontFamily:"monospace", fontWeight:700 }}>AI SUGGESTED REPLIES</div>
+              </div>
+              <div style={{ fontSize:".7rem", color:C.muted }}>Click to generate · Copy to text</div>
+            </div>
+
+            <div style={{ display:"flex", flexWrap:"wrap" as const, gap:8, marginBottom:14 }}>
+              {REPLY_TYPES.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => generateReply(t.id)}
+                  disabled={loadingReply}
+                  style={{
+                    padding:"7px 13px",
+                    borderRadius:20,
+                    border:`1px solid ${activeType === t.id ? C.accent : C.border}`,
+                    background: activeType === t.id ? C.accentDim : "transparent",
+                    color: activeType === t.id ? C.accent : C.muted,
+                    fontSize:".75rem",
+                    fontWeight:600,
+                    cursor: loadingReply ? "not-allowed" : "pointer",
+                    display:"flex",
+                    alignItems:"center",
+                    gap:5,
+                    transition:"all .15s",
+                    opacity: loadingReply && activeType !== t.id ? 0.5 : 1,
+                  }}
+                >
+                  <span>{t.icon}</span> {t.label}
+                </button>
+              ))}
+            </div>
+
+            {(loadingReply || aiReply) && (
+              <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:14 }}>
+                {loadingReply ? (
+                  <div style={{ display:"flex", alignItems:"center", gap:10, color:C.muted, fontSize:".84rem", padding:"8px 0" }}>
+                    <span style={{ animation:"spin 1s linear infinite", display:"inline-block" }}>⟳</span>
+                    Drafting reply…
+                    <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ fontSize:".84rem", color:C.text, lineHeight:1.65, padding:"10px 14px", background:C.card, borderRadius:8, border:`1px solid ${C.border}`, marginBottom:10, whiteSpace:"pre-wrap" as const }}>
+                      {aiReply}
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <button
+                        onClick={copyReply}
+                        style={{ flex:1, padding:"9px 0", borderRadius:8, border:"none", background: copiedReply ? "rgba(34,197,94,0.15)" : C.accentDim, color: copiedReply ? C.green : C.accent, fontWeight:700, cursor:"pointer", fontSize:".82rem", transition:"all .2s" }}
+                      >
+                        {copiedReply ? "Copied ✓" : "📋 Copy Message"}
+                      </button>
+                      
+                        <button
+                        onClick={() => { window.open("sms:" + quote.customer_phone + "?body=" + encodeURIComponent(aiReply)); }}
+                        style={{ padding:"9px 16px", borderRadius:8, border:"1px solid " + C.border, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".82rem" }}
+                      >
+                        💬 Open in SMS
+                      </button>
+                      <button
+                        onClick={() => generateReply(activeType)}
+                        style={{ padding:"9px 14px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".82rem" }}
+                        title="Regenerate"
+                      >
+                        ↺
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {!loadingReply && !aiReply && (
+              <div style={{ fontSize:".78rem", color:C.muted, textAlign:"center" as const, padding:"6px 0" }}>
+                Pick a reply type above — AI will draft a text message you can copy or send
               </div>
             )}
           </div>
