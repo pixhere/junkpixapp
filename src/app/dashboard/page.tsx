@@ -438,7 +438,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }} className="stats-grid">
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }} className="stats-grid">
         {[
           { label:"New Requests",  value:newCount,       color:C.blue,   sub:"Need your review" },
           { label:"Booked Jobs",   value:bookedCount,    color:C.green,  sub:"Confirmed this week" },
