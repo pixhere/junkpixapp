@@ -801,8 +801,8 @@ export default function Dashboard() {
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:C.bg, fontFamily:"system-ui, sans-serif", color:C.text }}>
 
-      {/* Sidebar */}
-      <div style={{ width:200, background:C.surface, borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", padding:"24px 14px", gap:4, flexShrink:0 }}>
+      {/* Sidebar — desktop only */}
+      <div style={{ width:200, background:C.surface, borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", padding:"24px 14px", gap:4, flexShrink:0 }} className="desktop-sidebar">
         <div style={{ padding:"8px 12px", marginBottom:24 }}>
           <div style={{ fontSize:"1.2rem", fontWeight:800 }}>
             <span style={{ color:C.accent }}>Junk</span>
@@ -829,12 +829,35 @@ export default function Dashboard() {
       </div>
 
       {/* Main content */}
-      <div style={{ flex:1, padding:32, overflowY:"auto" }}>
+      <div style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }}>
         <Screen />
       </div>
 
       {/* Quote detail modal */}
       {selected && <QuoteModal quote={selected} onClose={() => setSelected(null)} />}
+        {/* Bottom nav — mobile only */}
+      <div style={{ display:"none" }} className="mobile-nav">
+        <style>{`
+          @media (max-width: 768px) {
+            .desktop-sidebar { display: none !important; }
+            .mobile-nav { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: #111111; borderTop: 1px solid #222222; padding: 8px 0 24px; z-index: 50; justify-content: space-around; align-items: center; }
+          }
+        `}</style>
+        {[
+          { id:"overview",  label:"Home",      icon:"▦" },
+          { id:"quotes",    label:"Quotes",    icon:"📋" },
+          { id:"analytics", label:"Analytics", icon:"📊" },
+          { id:"settings",  label:"Settings",  icon:"⚙️" },
+        ].map(item => (
+          <button key={item.id} onClick={() => setActive(item.id)} style={{ background:"none", border:"none", color: active===item.id ? C.accent : C.muted, cursor:"pointer", display:"flex", flexDirection:"column" as const, alignItems:"center", gap:4, padding:"4px 16px", position:"relative" as const }}>
+            <span style={{ fontSize:"1.3rem" }}>{item.icon}</span>
+            <span style={{ fontSize:".6rem", fontWeight: active===item.id ? 700 : 400 }}>{item.label}</span>
+            {item.id === "quotes" && newCount > 0 && (
+              <span style={{ position:"absolute" as const, top:0, right:8, background:C.accent, color:"#000", borderRadius:10, padding:"1px 5px", fontSize:".55rem", fontWeight:800 }}>{newCount}</span>
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
