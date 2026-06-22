@@ -545,7 +545,9 @@ export default function Dashboard() {
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
                     <span style={{ fontSize:".7rem", fontWeight:700, color:s.color, background:s.bg, padding:"4px 10px", borderRadius:20 }}>{s.label}</span>
-                    <span style={{ color:C.accent, fontWeight:700, fontSize:".9rem" }}>${q.final_price || q.estimated_min}</span>
+                    <span style={{ color:C.accent, fontWeight:700, fontSize:".9rem" }}>
+                      {q.final_price ? `$${q.final_price}` : `$${q.estimated_min}–$${q.estimated_max}`}
+                    </span>
                   </div>
                 </div>
                 <div style={{ fontSize:".78rem", color:C.muted, lineHeight:1.4 }}>{q.ai_description?.slice(0,80)}...</div>
