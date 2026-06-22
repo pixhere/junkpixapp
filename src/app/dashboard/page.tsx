@@ -438,7 +438,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }} className="stats-grid">
         {[
           { label:"New Requests",  value:newCount,       color:C.blue,   sub:"Need your review" },
           { label:"Booked Jobs",   value:bookedCount,    color:C.green,  sub:"Confirmed this week" },
@@ -615,14 +615,14 @@ export default function Dashboard() {
       </div>
 
       {/* Key metrics */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }} className="stats-grid">
         <StatBox label="TOTAL QUOTES"      value={total}          sub="All time"               color={C.accent} />
         <StatBox label="CONVERSION RATE"   value={`${conversion}%`} sub="Quotes → booked"     color={C.green} />
         <StatBox label="AVG TICKET VALUE"  value={`$${avgTicket}`} sub="Booked jobs"           color={C.accent} />
         <StatBox label="TOTAL REVENUE"     value={`$${revenue}`}  sub="Completed + booked"    color={C.green} />
       </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }} className="stats-grid">
         <StatBox label="COMPLETED JOBS"    value={completed}      sub="Finished hauls"         />
         <StatBox label="REJECTED / NO-GO"  value={`${rejectedRate}%`} sub="Cancelled quotes"  color={C.red} />
         <StatBox label="NEW REQUESTS"      value={quotes.filter(q=>q.status==="new").length} sub="Awaiting review" color={C.blue} />
@@ -829,7 +829,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main content */}
-      <div style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }}>
+      <div style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }} className="main-content">
         <Screen />
       </div>
 
@@ -838,9 +838,11 @@ export default function Dashboard() {
         {/* Bottom nav — mobile only */}
       <div style={{ display:"none" }} className="mobile-nav">
         <style>{`
-          @media (max-width: 768px) {
+        @media (max-width: 768px) {
             .desktop-sidebar { display: none !important; }
-            .mobile-nav { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: #111111; borderTop: 1px solid #222222; padding: 8px 0 24px; z-index: 50; justify-content: space-around; align-items: center; }
+            .mobile-nav { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: #111111; border-top: 1px solid #222222; padding: 8px 0 24px; z-index: 50; justify-content: space-around; align-items: center; }
+            .main-content { padding: 16px !important; padding-bottom: 90px !important; }
+            .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
           }
         `}</style>
         {[
