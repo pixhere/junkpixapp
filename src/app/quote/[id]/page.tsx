@@ -107,7 +107,7 @@ useEffect(() => {
   const [result, setResult]       = useState<any>(null);
   const [error, setError]         = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const MAX = 5;
+  const MAX = 10;
 
   const canGo2 = photos.length > 0;
   const canGo3 = location && (location !== "other" || locDetail.trim()) && distance && condition && (condition !== "other" || condDetail.trim());
@@ -262,49 +262,121 @@ setLoadMsg("UPLOADING PHOTOS...");
   );
 
   // STEP 1 — Photos
-  if (step === 1) return (
-    <div style={s.app}>
-      {topbar(false, "STEP 1 / 3")}
-      <div style={s.screen}>
-        <div style={s.eyebrow}>START HERE</div>
-        <h1 style={s.title}>Snap the pile.</h1>
-        <p style={s.sub}>Add 1–5 photos. Tap any photo to enlarge and double-check.</p>
+  const sideColStyle = `
+    @media (min-width: 900px) {
+      .side-col { display: flex !important; flex-direction: column; }
+    }
+  `;
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 18 }}>
-          {photos.map((url, i) => (
-            <div key={i} style={{ position: "relative", aspectRatio: "1/1", borderRadius: 6, overflow: "hidden", border: `2px solid ${C.clay}` }}>
-              <img src={url} alt={`Photo ${i+1}`} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} onClick={() => setLightbox(url)} />
-              <div onClick={() => removePhoto(i)} style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(28,27,25,.85)", color: "#FAF6EF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: ".8rem" }}>✕</div>
-              <div style={{ position: "absolute", bottom: 4, left: 4, background: "rgba(28,27,25,.85)", color: "#FAF6EF", fontSize: ".6rem", padding: "2px 6px", borderRadius: 3, fontFamily: "monospace" }}>{i+1}</div>
+  if (step === 1) return (
+    <div style={{ minHeight:"100vh", background:"#0A0A0A", display:"flex", justifyContent:"center", alignItems:"flex-start" }}>
+      <style>{sideColStyle}</style>
+
+      {/* Left column — How it works */}
+      <div style={{ width:320, flexShrink:0, padding:"60px 32px", display:"none" }} className="side-col">
+       <div style={{ color:"#D97B4F", fontSize:".85rem", letterSpacing:".15em", fontFamily:"monospace", marginBottom:24 }}>HOW IT WORKS</div>
+        {[
+          { step:"01", title:"Snap the junk", desc:"Take 1–5 photos from your phone. No app needed." },
+          { step:"02", title:"AI reads the job", desc:"Our AI identifies items, estimates volume, and describes the job instantly." },
+          { step:"03", title:"Get your quote", desc:"The operator reviews your photos and sends a price — usually within the hour." },
+          { step:"04", title:"Book and done", desc:"Confirm the job. Crew shows up. Junk is gone." },
+        ].map((item) => (
+          <div key={item.step} style={{ marginBottom:28 }}>
+            <div style={{ fontSize:".8rem", color:"#D97B4F", fontFamily:"monospace", marginBottom:6 }}>{item.step}</div>
+            <div style={{ fontSize:"1.1rem", fontWeight:700, color:"#F0F0F0", marginBottom:6 }}>{item.title}</div>
+            <div style={{ fontSize:".9rem", color:"#888", lineHeight:1.6 }}>{item.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Form — middle */}
+      <div style={s.app}>
+        {topbar(false, "STEP 1 / 3")}
+        <div style={s.screen}>
+          <div style={s.eyebrow}>START HERE</div>
+          <h1 style={s.title}>Snap the pile.</h1>
+          <p style={s.sub}>Add 1–10 photos. Tap any photo to enlarge and double-check.</p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 18 }}>
+            {photos.map((url, i) => (
+              <div key={i} style={{ position: "relative", aspectRatio: "1/1", borderRadius: 6, overflow: "hidden", border: `2px solid ${C.clay}` }}>
+                <img src={url} alt={`Photo ${i+1}`} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} onClick={() => setLightbox(url)} />
+                <div onClick={() => removePhoto(i)} style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(28,27,25,.85)", color: "#FAF6EF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: ".8rem" }}>✕</div>
+                <div style={{ position: "absolute", bottom: 4, left: 4, background: "rgba(28,27,25,.85)", color: "#FAF6EF", fontSize: ".6rem", padding: "2px 6px", borderRadius: 3, fontFamily: "monospace" }}>{i+1}</div>
+              </div>
+            ))}
+            {photos.length < MAX && (
+              <div onClick={() => fileRef.current?.click()} style={{ aspectRatio: "1/1", borderRadius: 6, border: `2px dashed rgba(61,46,38,.25)`, background: C.bgSoft, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}>
+                <span style={{ fontSize: "1.4rem" }}>📷</span>
+                <span style={{ fontSize: ".6rem", color: C.inkFaint, fontFamily: "monospace" }}>{photos.length === 0 ? "Add photo" : "Add another"}</span>
+              </div>
+            )}
+          </div>
+
+          <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={onFiles} />
+
+          <div style={s.warning}>⚠️ Only photograph what's being hauled away. Anything in frame gets priced into the quote — snap just the junk.</div>
+          
+        {/* Mobile how it works */}
+        <div style={{ marginTop:24, marginBottom:16 }}>
+          <div style={{ fontSize:".65rem", color:C.clay, letterSpacing:".15em", fontFamily:"monospace", marginBottom:16 }}>HOW IT WORKS</div>
+          {[
+            { step:"01", title:"Snap the junk", desc:"Take 1–5 photos from your phone." },
+            { step:"02", title:"AI reads the job", desc:"Identifies items and estimates the price instantly." },
+            { step:"03", title:"Get your quote", desc:"Operator reviews and sends you a price — usually within the hour." },
+            { step:"04", title:"Book and done", desc:"Confirm the job. Crew shows up. Junk is gone." },
+          ].map((item) => (
+            <div key={item.step} style={{ display:"flex", gap:14, marginBottom:18, alignItems:"flex-start" }}>
+              <div style={{ fontSize:".65rem", color:C.clay, fontFamily:"monospace", fontWeight:700, marginTop:2, flexShrink:0, width:20 }}>{item.step}</div>
+              <div>
+                <div style={{ fontSize:".9rem", fontWeight:700, color:C.ink, marginBottom:2 }}>{item.title}</div>
+                <div style={{ fontSize:".8rem", color:C.inkSoft, lineHeight:1.5 }}>{item.desc}</div>
+              </div>
             </div>
           ))}
-          {photos.length < MAX && (
-            <div onClick={() => fileRef.current?.click()} style={{ aspectRatio: "1/1", borderRadius: 6, border: `2px dashed rgba(61,46,38,.25)`, background: C.bgSoft, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}>
-              <span style={{ fontSize: "1.4rem" }}>📷</span>
-              <span style={{ fontSize: ".6rem", color: C.inkFaint, fontFamily: "monospace" }}>{photos.length === 0 ? "Add photo" : "Add another"}</span>
-            </div>
-          )}
         </div>
 
-        <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={onFiles} />
+        s
 
-        <div style={s.warning}>⚠️ Only photograph what's being hauled away. Anything in frame gets priced into the quote — snap just the junk.</div>
+          <div style={s.btnBar}>
+            <button style={s.btnP(!canGo2)} disabled={!canGo2} onClick={() => setStep(2)}>Continue</button>
+          </div>
+        </div>
 
-        <div style={s.btnBar}>
-          <button style={s.btnP(!canGo2)} disabled={!canGo2} onClick={() => setStep(2)}>Continue</button>
+        {lightbox && (
+          <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 20 }}>
+            <img src={lightbox} alt="Full size" style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, objectFit: "contain" }} />
+            <div onClick={() => setLightbox(null)} style={{ position: "absolute", top: 20, right: 20, color: "#fff", fontSize: "1.5rem", cursor: "pointer", background: "rgba(0,0,0,.5)", width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</div>
+          </div>
+        )}
+      </div>
+
+      {/* Right column — Trust signals */}
+      <div style={{ width:320, flexShrink:0, padding:"60px 32px", display:"none" }} className="side-col">
+      <div style={{ color:"#D97B4F", fontSize:".85rem", letterSpacing:".15em", fontFamily:"monospace", marginBottom:24 }}>WHY JUNKPIX</div>
+        {[
+          { icon:"🔒", title:"No spam, no pressure", desc:"Your info is only shared with the operator." },
+          { icon:"📸", title:"Photos stay private", desc:"Only the operator sees your photos." },
+          { icon:"⚡", title:"Quote within the hour", desc:"Most operators respond same day." },
+          { icon:"💬", title:"Operator contacts you", desc:"Real local business, not a call center." },
+          { icon:"🚛", title:"Local & professional", desc:"Vetted junk removal operators in your area." },
+          { icon:"🤖", title:"Powered by JunkPix AI", desc:"Smart quoting so you get a fair price fast." },
+        ].map((item) => (
+          <div key={item.icon} style={{ marginBottom:22, display:"flex", gap:12, alignItems:"flex-start" }}>
+            <span style={{ fontSize:"1.1rem", flexShrink:0 }}>{item.icon}</span>
+            <div>
+              <div style={{ fontSize:"1.1rem", fontWeight:700, color:"#F0F0F0", marginBottom:6 }}>{item.title}</div>
+              <div style={{ fontSize:".9rem", color:"#888", lineHeight:1.6 }}>{item.desc}</div>
+            </div>
+          </div>
+        ))}
+        <div style={{ marginTop:32, paddingTop:20, borderTop:"1px solid #222" }}>
+          <div style={{ fontSize:".65rem", color:"#444", fontFamily:"monospace", textAlign:"center" as const }}>POWERED BY JUNKPIX</div>
         </div>
       </div>
 
-      {lightbox && (
-        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 20 }}>
-          <img src={lightbox} alt="Full size" style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, objectFit: "contain" }} />
-          <div onClick={() => setLightbox(null)} style={{ position: "absolute", top: 20, right: 20, color: "#fff", fontSize: "1.5rem", cursor: "pointer", background: "rgba(0,0,0,.5)", width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</div>
-        </div>
-      )}
     </div>
   );
-
-  // STEP 2 — Questions
   if (step === 2) return (
     <div style={s.app}>
       {topbar(true, "STEP 2 / 3")}
