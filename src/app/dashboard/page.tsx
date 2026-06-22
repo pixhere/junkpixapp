@@ -9,10 +9,10 @@ const supabase = createClient(
 );
 
 const C = {
-  bg: "#0A0A0A",
-  surface: "#111111",
-  card: "#161616",
-  border: "#222222",
+  bg: "#0D0B09",
+  surface: "#141210",
+  card: "#1A1714",
+  border: "#2A2520",
   accent: "#D97B4F",
   accentDim: "rgba(217,123,79,0.1)",
   text: "#F0F0F0",

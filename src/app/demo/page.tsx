@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 
 const C = {
-  bg: "#0A0A0A",
-  card: "#111111",
-  border: "#1E1E1E",
+  bg: "#0D0B09",
+  card: "#141210",
+  border: "#2A2520",
   accent: "#D97B4F",
   text: "#F0F0F0",
   muted: "#666666",

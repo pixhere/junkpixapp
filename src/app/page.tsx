@@ -76,7 +76,7 @@ export default function Home() {
   return (
     <main style={{
       minHeight: "100vh",
-      background: "#0A0A0A",
+      background: "#0D0B09",
       color: "#FFFFFF",
       fontFamily: "system-ui, sans-serif",
       display: "flex",
