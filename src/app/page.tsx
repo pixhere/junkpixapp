@@ -50,14 +50,7 @@ export default function Home() {
         Stop wasting trips. Start booking more jobs.
       </p>
 
-      {/* CTA Buttons */}
-      <div style={{
-        display: "flex",
-        gap: 16,
-        flexWrap: "wrap",
-        justifyContent: "center",
-        marginBottom: 80
-      }}>
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap" as const, justifyContent:"center" }}>
         <a href="/signup" style={{
           background: "#D97B4F",
           color: "#fff",
@@ -69,6 +62,19 @@ export default function Home() {
           letterSpacing: ".04em"
         }}>
           Start Free Trial
+        </a>
+        <a href="/login" style={{
+          background: "transparent",
+          color: "rgba(255,255,255,0.7)",
+          padding: "16px 24px",
+          borderRadius: 8,
+          fontWeight: 600,
+          fontSize: "1rem",
+          textDecoration: "none",
+          border: "1.5px solid rgba(255,255,255,0.15)",
+          letterSpacing: ".04em"
+        }}>
+          Log In
         </a>
         <a href="/demo" style={{
           background: "transparent",
@@ -84,6 +90,7 @@ export default function Home() {
           See How It Works
         </a>
       </div>
+          
 
       {/* How it works */}
       <div style={{
@@ -92,6 +99,7 @@ export default function Home() {
         gap: 24,
         maxWidth: 800,
         width: "100%",
+        marginTop: 48,
         marginBottom: 80
       }}>
         {[
