@@ -534,17 +534,21 @@ export default function Dashboard() {
           ) : filteredQuotes.map(q => {
             const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
             return (
-              <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"grid", gridTemplateColumns:"1fr 1.5fr 100px 90px", gap:16, alignItems:"center" }}
+              <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
-                <div>
-                  <div style={{ fontWeight:600, color:C.text }}>{q.customer_name}</div>
-                  <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.customer_phone}</div>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
+                  <div>
+                    <div style={{ fontWeight:600, color:C.text, fontSize:".9rem" }}>{q.customer_name}</div>
+                    <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.customer_phone}</div>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+                    <span style={{ fontSize:".7rem", fontWeight:700, color:s.color, background:s.bg, padding:"4px 10px", borderRadius:20 }}>{s.label}</span>
+                    <span style={{ color:C.accent, fontWeight:700, fontSize:".9rem" }}>${q.final_price || q.estimated_min}</span>
+                  </div>
                 </div>
-                <div style={{ fontSize:".8rem", color:C.muted, lineHeight:1.4 }}>{q.ai_description?.slice(0,70)}...</div>
-                <span style={{ fontSize:".7rem", fontWeight:700, color:s.color, background:s.bg, padding:"4px 10px", borderRadius:20, textAlign:"center" as const }}>{s.label}</span>
-                <span style={{ color:C.accent, fontWeight:700, textAlign:"right" as const }}>${q.final_price || q.estimated_min}</span>
+                <div style={{ fontSize:".78rem", color:C.muted, lineHeight:1.4 }}>{q.ai_description?.slice(0,80)}...</div>
               </div>
             );
           })}
