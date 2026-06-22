@@ -750,7 +750,45 @@ export default function Dashboard() {
           </button>
         </div>
 
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
+          <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Subscription</div>
+          <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>
+            {operator?.subscription_status === "active" ? "✅ Active subscription" : 
+             operator?.subscription_status === "past_due" ? "⚠️ Payment past due" :
+             operator?.subscription_status === "cancelled" ? "❌ Subscription cancelled" :
+             `🕐 Free trial — ${operator?.trial_ends_at ? Math.max(0, Math.ceil((new Date(operator.trial_ends_at).getTime() - Date.now()) / 86400000)) : 30} days left`}
+          </div>
+          {operator?.subscription_status !== "active" && (
+            <div style={{ display:"flex", flexDirection:"column" as const, gap:10 }}>
+              <div style={{ fontSize:".72rem", color:C.muted, fontFamily:"monospace", letterSpacing:".08em", marginBottom:4 }}>CHOOSE YOUR PLAN</div>
+              {[
+                { label:"Founding Operator", price:"$49/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_FOUNDING, badge:"🔥 19 spots left" },
+                { label:"Standard", price:"$99/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STANDARD, badge:"" },
+                { label:"Agency / Team", price:"$199/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AGENCY, badge:"" },
+              ].map((plan) => (
+                <button
+                  key={plan.label}
+                  onClick={async () => {
+                    const res = await fetch("/api/create-checkout", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ priceId: plan.priceId, operatorId: operator.id, email: operator.email }),
+                    });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                  }}
+                  style={{ padding:"12px 16px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+                >
+                  <span>{plan.label} {plan.badge && <span style={{ fontSize:".7rem", color:C.accent, marginLeft:6 }}>{plan.badge}</span>}</span>
+                  <span style={{ color:C.accent, fontWeight:700 }}>{plan.price}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+              
+
           Log Out
         </button>
       </div>
