@@ -80,6 +80,7 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
 const NAV = [
   { id: "overview",   label: "Overview",   icon: "▦" },
   { id: "quotes",     label: "Quotes",     icon: "📋" },
+  { id: "social",     label: "Social",     icon: "📱" },
   { id: "analytics",  label: "Analytics",  icon: "📊" },
   { id: "settings",   label: "Settings",   icon: "⚙️" },
 ];
@@ -902,8 +903,142 @@ export default function Dashboard() {
       </div>
     );
   };
+  // ── SOCIAL MEDIA ────────────────────────────────────────────────────────────
+  const SocialScreen = () => {
+    const [selectedQuote, setSelectedQuote] = useState<any>(null);
+    const [generating, setGenerating] = useState(false);
+    const [posts, setPosts] = useState<any>(null);
+    const [copied, setCopied] = useState("");
 
-  const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, analytics: Analytics, settings: SettingsScreen };
+    const completedQuotes = quotes.filter(q => q.status === "completed" || q.status === "booked");
+
+    const generate = async (quote: any) => {
+      setSelectedQuote(quote);
+      setGenerating(true);
+      setPosts(null);
+      setCopied("");
+      try {
+        const res = await fetch("/api/generate-social", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quote, operator }),
+        });
+        const data = await res.json();
+        setPosts(data.posts);
+      } catch {
+        setPosts(null);
+      } finally {
+        setGenerating(false);
+      }
+    };
+
+    const copy = (text: string, key: string) => {
+      navigator.clipboard.writeText(text);
+      setCopied(key);
+      setTimeout(() => setCopied(""), 2000);
+    };
+
+    const platforms = [
+      { key: "google", label: "Google Business", icon: "🔍", tip: "City + keywords = local SEO" },
+      { key: "instagram", label: "Instagram", icon: "📸", tip: "Visual, energetic, transformation" },
+      { key: "facebook", label: "Facebook", icon: "👥", tip: "Community focused, friendly" },
+    ];
+
+    return (
+      <div style={{ display:"flex", flexDirection:"column" as const, gap:24 }}>
+        <div>
+          <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Social Media</div>
+          <div style={{ fontSize:".84rem", color:C.muted, marginTop:4 }}>Turn completed jobs into content. AI writes the post — you copy and paste.</div>
+        </div>
+
+        {/* Job selector */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:14 }}>SELECT A COMPLETED JOB</div>
+          {completedQuotes.length === 0 ? (
+            <div style={{ color:C.muted, fontSize:".88rem", textAlign:"center" as const, padding:"20px 0" }}>
+              No completed or booked jobs yet. Mark a job as Booked or Completed to generate posts.
+            </div>
+          ) : (
+            <div style={{ display:"flex", flexDirection:"column" as const, gap:8 }}>
+              {completedQuotes.map(q => (
+                <button
+                  key={q.id}
+                  onClick={() => generate(q)}
+                  disabled={generating}
+                  style={{
+                    padding:"14px 16px",
+                    borderRadius:8,
+                    border:`1px solid ${selectedQuote?.id === q.id ? C.accent : C.border}`,
+                    background: selectedQuote?.id === q.id ? C.accentDim : C.surface,
+                    color:C.text,
+                    cursor:"pointer",
+                    textAlign:"left" as const,
+                    display:"flex",
+                    justifyContent:"space-between",
+                    alignItems:"center",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight:600, fontSize:".9rem" }}>{q.customer_name}</div>
+                    <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.ai_description?.slice(0, 60)}...</div>
+                  </div>
+                  <div style={{ fontSize:".78rem", color:C.accent, fontWeight:700, flexShrink:0, marginLeft:12 }}>
+                    ${q.final_price || q.estimated_min}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Loading */}
+        {generating && (
+          <div style={{ textAlign:"center" as const, padding:32, color:C.muted, fontSize:".88rem" }}>
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            <div style={{ width:32, height:32, border:`2px solid ${C.border}`, borderTopColor:C.accent, borderRadius:"50%", animation:"spin .8s linear infinite", margin:"0 auto 12px" }} />
+            Writing your posts...
+          </div>
+        )}
+
+        {/* Generated posts */}
+        {posts && !generating && (
+          <div style={{ display:"flex", flexDirection:"column" as const, gap:16 }}>
+            <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontWeight:700 }}>✨ AI GENERATED POSTS</div>
+            {platforms.map(p => (
+              <div key={p.key} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ fontSize:"1.1rem" }}>{p.icon}</span>
+                    <div>
+                      <div style={{ fontWeight:700, color:C.text, fontSize:".9rem" }}>{p.label}</div>
+                      <div style={{ fontSize:".7rem", color:C.muted }}>{p.tip}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => copy(posts[p.key], p.key)}
+                    style={{ padding:"7px 14px", borderRadius:8, border:"none", background: copied === p.key ? "rgba(34,197,94,0.15)" : C.accentDim, color: copied === p.key ? C.green : C.accent, fontWeight:700, cursor:"pointer", fontSize:".78rem" }}
+                  >
+                    {copied === p.key ? "Copied ✓" : "📋 Copy"}
+                  </button>
+                </div>
+                <div style={{ fontSize:".85rem", color:C.text, lineHeight:1.65, background:C.surface, borderRadius:8, padding:"12px 14px", whiteSpace:"pre-wrap" as const }}>
+                  {posts[p.key]}
+                </div>
+              </div>
+            ))}
+            <button
+              onClick={() => selectedQuote && generate(selectedQuote)}
+              style={{ padding:"11px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".84rem" }}
+            >
+              ↺ Regenerate All Posts
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, social: SocialScreen, analytics: Analytics, settings: SettingsScreen };
+  
   const Screen = SCREENS[active];
 
   return (
@@ -956,6 +1091,7 @@ export default function Dashboard() {
         {[
           { id:"overview",  label:"Home",      icon:"▦" },
           { id:"quotes",    label:"Quotes",    icon:"📋" },
+          { id:"social",    label:"Social",    icon:"📱" },
           { id:"analytics", label:"Analytics", icon:"📊" },
           { id:"settings",  label:"Settings",  icon:"⚙️" },
         ].map(item => (
