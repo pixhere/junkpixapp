@@ -73,6 +73,8 @@ const [opId, setOpId] = useState<string>("");
 const [opName, setOpName] = useState<string>("");
 const [opWebsite, setOpWebsite] = useState<string>("");
 const [operatorData, setOperatorData] = useState<any>(null);
+const [formConfig, setFormConfig] = useState<any[]>([]);
+const formConfigRef = useRef<any[]>([]);
 
 useEffect(() => {
   const loadOperator = async () => {
@@ -86,12 +88,22 @@ useEffect(() => {
       setOpName(data.business_name);
       setOpWebsite(data.website || "https://junkpix.com");
       setOperatorData(data);
+
+      const { data: config } = await supabase
+        .from("quote_form_config")
+        .select("*")
+        .eq("operator_id", data.id)
+        .eq("is_active", true)
+        .order("sort_order");
+      if (config) {
+        setFormConfig(config);
+        formConfigRef.current = config;
+      }
     }
- };
+  };
   loadOperator();
 }, [slug]);
 
-  const [formConfig, setFormConfig] = useState<any[]>([]);
   const [step, setStep]           = useState(1);
   const [photos, setPhotos]       = useState<string[]>([]);
   const [lightbox, setLightbox]   = useState<string | null>(null);
@@ -217,6 +229,8 @@ setLoadMsg("UPLOADING PHOTOS...");
           photoUrls,
         })
       });
+      console.log("formConfig:", formConfig);
+      console.log("location:", location, "distance:", distance, "condition:", condition, "extras:", extras);
       // Calculate price modifiers from form config
       let priceModifier = 0;
       const selectedLocation = formConfig.find(c => c.field_type === "location" && c.value === location);
