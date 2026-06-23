@@ -807,6 +807,19 @@ export default function Dashboard() {
     const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
     const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
     const [done, setDone]       = useState(false);
+    // Load tier pricing
+    const [priceMinMin, setPriceMinMin] = useState(String(operator?.price_minimum_min || 150));
+    const [priceMinMax, setPriceMinMax] = useState(String(operator?.price_minimum_max || 200));
+    const [priceEighthMin, setPriceEighthMin] = useState(String(operator?.price_eighth_min || 200));
+    const [priceEighthMax, setPriceEighthMax] = useState(String(operator?.price_eighth_max || 275));
+    const [priceQuarterMin, setPriceQuarterMin] = useState(String(operator?.price_quarter_min || 300));
+    const [priceQuarterMax, setPriceQuarterMax] = useState(String(operator?.price_quarter_max || 400));
+    const [priceHalfMin, setPriceHalfMin] = useState(String(operator?.price_half_min || 475));
+    const [priceHalfMax, setPriceHalfMax] = useState(String(operator?.price_half_max || 575));
+    const [priceThreeqMin, setPriceThreeqMin] = useState(String(operator?.price_threeq_min || 675));
+    const [priceThreeqMax, setPriceThreeqMax] = useState(String(operator?.price_threeq_max || 775));
+    const [priceFullMin, setPriceFullMin] = useState(String(operator?.price_full_min || 875));
+    const [priceFullMax, setPriceFullMax] = useState(String(operator?.price_full_max || 975));
     const [reviewLink, setReviewLink] = useState(String(operator?.review_link || ""));
 
     const save = async () => {
@@ -820,6 +833,18 @@ export default function Dashboard() {
         gas_price: parseFloat(gas),
         margin_percent: parseInt(margin),
         review_link: reviewLink,
+        price_minimum_min: parseInt(priceMinMin),
+        price_minimum_max: parseInt(priceMinMax),
+        price_eighth_min: parseInt(priceEighthMin),
+        price_eighth_max: parseInt(priceEighthMax),
+        price_quarter_min: parseInt(priceQuarterMin),
+        price_quarter_max: parseInt(priceQuarterMax),
+        price_half_min: parseInt(priceHalfMin),
+        price_half_max: parseInt(priceHalfMax),
+        price_threeq_min: parseInt(priceThreeqMin),
+        price_threeq_max: parseInt(priceThreeqMax),
+        price_full_min: parseInt(priceFullMin),
+        price_full_max: parseInt(priceFullMax),
       }).eq("id", operator.id);
       setSaving(false);
       if (!error) { setDone(true); setTimeout(() => setDone(false), 2000); }
@@ -870,6 +895,31 @@ export default function Dashboard() {
             <Field label="CREW SIZE TODAY"    value={crew}    setter={setCrew}    note="Update daily" />
             <Field label="GAS PRICE ($)"      value={gas}     setter={setGas}     note="Update weekly" />
             <Field label="YOUR MARGIN (%)"    value={margin}  setter={setMargin}  />
+          </div>
+
+          <div>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4, marginTop:8 }}>Load Tier Pricing</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:16 }}>Set your price ranges per load size. AI uses these when estimating jobs.</div>
+          </div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+            {[
+              { label:"MINIMUM JOB", min:priceMinMin, setMin:setPriceMinMin, max:priceMinMax, setMax:setPriceMinMax },
+              { label:"1/8 LOAD", min:priceEighthMin, setMin:setPriceEighthMin, max:priceEighthMax, setMax:setPriceEighthMax },
+              { label:"1/4 LOAD", min:priceQuarterMin, setMin:setPriceQuarterMin, max:priceQuarterMax, setMax:setPriceQuarterMax },
+              { label:"1/2 LOAD", min:priceHalfMin, setMin:setPriceHalfMin, max:priceHalfMax, setMax:setPriceHalfMax },
+              { label:"3/4 LOAD", min:priceThreeqMin, setMin:setPriceThreeqMin, max:priceThreeqMax, setMax:setPriceThreeqMax },
+              { label:"FULL LOAD", min:priceFullMin, setMin:setPriceFullMin, max:priceFullMax, setMax:setPriceFullMax },
+            ].map(tier => (
+              <div key={tier.label} style={{ background:C.surface, borderRadius:8, padding:12 }}>
+                <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>{tier.label}</div>
+                <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                  <input type="number" value={tier.min} onChange={e => tier.setMin(e.target.value)} style={{ ...inp, padding:"8px 10px", fontSize:".82rem" }} placeholder="Min" />
+                  <span style={{ color:C.muted, fontSize:".8rem", flexShrink:0 }}>–</span>
+                  <input type="number" value={tier.max} onChange={e => tier.setMax(e.target.value)} style={{ ...inp, padding:"8px 10px", fontSize:".82rem" }} placeholder="Max" />
+                </div>
+              </div>
+            ))}
           </div>
 
           <button onClick={save} disabled={saving} style={{ padding:"13px 0", borderRadius:8, border:"none", background:done ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".95rem" }}>

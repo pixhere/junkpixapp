@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const images = body.images;
+    const { images, operatorPrices } = body;
 
     if (!images || images.length === 0) {
       return NextResponse.json({ error: "No images provided" }, { status: 400 });
@@ -12,6 +12,16 @@ export async function POST(req: NextRequest) {
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: "Missing API key" }, { status: 500 });
     }
+
+    // Use operator's custom prices or defaults
+    const prices = {
+      minimum: `${operatorPrices?.price_minimum_min || 150}-${operatorPrices?.price_minimum_max || 200}`,
+      eighth:  `${operatorPrices?.price_eighth_min  || 200}-${operatorPrices?.price_eighth_max  || 275}`,
+      quarter: `${operatorPrices?.price_quarter_min || 300}-${operatorPrices?.price_quarter_max || 400}`,
+      half:    `${operatorPrices?.price_half_min    || 475}-${operatorPrices?.price_half_max    || 575}`,
+      threeQ:  `${operatorPrices?.price_threeq_min  || 675}-${operatorPrices?.price_threeq_max  || 775}`,
+      full:    `${operatorPrices?.price_full_min    || 875}-${operatorPrices?.price_full_max    || 975}`,
+    };
 
     const imageBlocks = images.map((data: string) => ({
       type: "image",
@@ -32,16 +42,26 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 800,
-        system: `You are a junk removal estimator. Analyze the photos and describe the job.
+        system: `You are a junk removal estimator. Analyze the photos and describe the job in plain English.
+
+Describe what items or materials you can clearly see, approximate volume, any access concerns, and anything unusual.
+
+Also decide the load tier and use THESE EXACT price ranges for this operator:
+minimum: $${prices.minimum}
+eighth load: $${prices.eighth}
+quarter load: $${prices.quarter}
+half load: $${prices.half}
+three quarter load: $${prices.threeQ}
+full load: $${prices.full}
 
 Return ONLY valid JSON with no markdown:
 {
   "plainDescription": "description of what you see",
-  "pricingMode": "itemized",
-  "loadTier": "quarter",
-  "estimatedMin": 150,
-  "estimatedMax": 300,
-  "confidence": "medium",
+  "pricingMode": "itemized"|"loadtier",
+  "loadTier": "minimum"|"eighth"|"quarter"|"half"|"threeQ"|"full",
+  "estimatedMin": <number from the range above>,
+  "estimatedMax": <number from the range above>,
+  "confidence": "high"|"medium"|"low",
   "visibleHazardFlag": false
 }`,
         messages: [{
@@ -63,7 +83,7 @@ Return ONLY valid JSON with no markdown:
 
     const data = JSON.parse(raw);
     const txt = data.content?.find((b: any) => b.type === "text")?.text || "";
-    
+
     let result;
     try {
       result = JSON.parse(txt.replace(/```json|```/g, "").trim());
@@ -72,8 +92,8 @@ Return ONLY valid JSON with no markdown:
         plainDescription: txt || "Unable to analyze photo.",
         pricingMode: "loadtier",
         loadTier: "quarter",
-        estimatedMin: 150,
-        estimatedMax: 350,
+        estimatedMin: operatorPrices?.price_quarter_min || 300,
+        estimatedMax: operatorPrices?.price_quarter_max || 400,
         confidence: "low",
         visibleHazardFlag: false
       };

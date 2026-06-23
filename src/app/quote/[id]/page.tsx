@@ -72,21 +72,21 @@ console.log("cleaned slug:", slug);
 const [opId, setOpId] = useState<string>("");
 const [opName, setOpName] = useState<string>("");
 const [opWebsite, setOpWebsite] = useState<string>("");
+const [operatorData, setOperatorData] = useState<any>(null);
 
 useEffect(() => {
   const loadOperator = async () => {
     const { data } = await supabase
       .from("operators")
-      .select("id, business_name, website")
+      .select("id, business_name, website, price_minimum_min, price_minimum_max, price_eighth_min, price_eighth_max, price_quarter_min, price_quarter_max, price_half_min, price_half_max, price_threeq_min, price_threeq_max, price_full_min, price_full_max")
       .eq("slug", slug)
       .single();
-      console.log("slug:", slug, "operator data:", data);
     if (data) {
-  setOpId(data.id);
-  setOpName(data.business_name);
-  setOpWebsite(data.website || "https://junkpix.com");
-  console.log("Operator website:", data.website);
-}
+      setOpId(data.id);
+      setOpName(data.business_name);
+      setOpWebsite(data.website || "https://junkpix.com");
+      setOperatorData(data);
+    }
   };
   loadOperator();
 }, [slug]);
