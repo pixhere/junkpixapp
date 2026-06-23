@@ -68,7 +68,6 @@ minimum: 150-200, eighth: 200-275, quarter: 300-400, half: 475-575, threeQ: 675-
 export default function QuotePage() {
   const params  = useParams();
   const slug = decodeURIComponent(params?.id as string)?.replace(/,/g, '').trim();
-console.log("cleaned slug:", slug);
 const [opId, setOpId] = useState<string>("");
 const [opName, setOpName] = useState<string>("");
 const [opWebsite, setOpWebsite] = useState<string>("");
