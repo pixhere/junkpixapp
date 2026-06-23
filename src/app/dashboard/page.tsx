@@ -821,6 +821,26 @@ export default function Dashboard() {
     const [priceFullMin, setPriceFullMin] = useState(String(operator?.price_full_min || 875));
     const [priceFullMax, setPriceFullMax] = useState(String(operator?.price_full_max || 975));
     const [reviewLink, setReviewLink] = useState(String(operator?.review_link || ""));
+    const [formConfig, setFormConfig] = useState<any[]>([]);
+    const [loadingConfig, setLoadingConfig] = useState(true);
+    const [newItemLabel, setNewItemLabel] = useState("");
+    const [newItemPrice, setNewItemPrice] = useState("0");
+    const [newItemType, setNewItemType] = useState("extra");
+    const [addingItem, setAddingItem] = useState(false);
+    useEffect(() => {
+      const loadConfig = async () => {
+        if (!operator) return;
+        const { data } = await supabase
+          .from("quote_form_config")
+          .select("*")
+          .eq("operator_id", operator.id)
+          .order("field_type")
+          .order("sort_order");
+        if (data) setFormConfig(data);
+        setLoadingConfig(false);
+      };
+      loadConfig();
+    }, [operator]);
 
     const save = async () => {
       if (!operator) return;
@@ -963,9 +983,134 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-        <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
-              
+        
+      {/* Quote Form Settings */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
+          <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Quote Form Options</div>
+          <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>Customize what customers see and set price impacts for each option.</div>
 
+          {loadingConfig ? (
+            <div style={{ color:C.muted, fontSize:".84rem" }}>Loading...</div>
+          ) : (
+            <>
+              {["location", "condition", "distance", "extra"].map(fieldType => (
+                <div key={fieldType} style={{ marginBottom:24 }}>
+                  <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontWeight:700, marginBottom:12 }}>
+                    {fieldType === "location" ? "📍 LOCATION OPTIONS" :
+                     fieldType === "condition" ? "⚠️ CONDITION OPTIONS" :
+                     fieldType === "distance" ? "📏 DISTANCE OPTIONS" :
+                     "➕ EXTRA CHARGES"}
+                  </div>
+                  {formConfig.filter(c => c.field_type === fieldType).map(item => (
+                    <div key={item.id} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:8 }}>
+                      <input
+                        type="text"
+                        value={item.label}
+                        onChange={e => setFormConfig(prev => prev.map(c => c.id === item.id ? { ...c, label: e.target.value } : c))}
+                        style={{ ...inp, flex:2, marginBottom:0 }}
+                        placeholder="Label"
+                      />
+                      <div style={{ display:"flex", alignItems:"center", gap:4, flexShrink:0 }}>
+                        <span style={{ fontSize:".75rem", color:C.muted }}>+$</span>
+                        <input
+                          type="number"
+                          value={item.price_impact}
+                          onChange={e => setFormConfig(prev => prev.map(c => c.id === item.id ? { ...c, price_impact: parseInt(e.target.value) || 0 } : c))}
+                          style={{ ...inp, width:70, marginBottom:0 }}
+                          placeholder="0"
+                        />
+                      </div>
+                      <button
+                        onClick={async () => {
+                          await supabase.from("quote_form_config").delete().eq("id", item.id);
+                          setFormConfig(prev => prev.filter(c => c.id !== item.id));
+                        }}
+                        style={{ padding:"8px 12px", borderRadius:6, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, cursor:"pointer", fontSize:".8rem", flexShrink:0 }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              <button
+                onClick={async () => {
+                  for (const item of formConfig) {
+                    await supabase.from("quote_form_config").update({
+                      label: item.label,
+                      price_impact: item.price_impact,
+                    }).eq("id", item.id);
+                  }
+                  setSaved(true);
+                  setTimeout(() => setSaved(false), 2000);
+                }}
+                style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem", marginBottom:16 }}
+              >
+                Save Form Options
+              </button>
+
+              <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:16 }}>
+                <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", marginBottom:10 }}>ADD NEW OPTION</div>
+                <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                  <select
+                    value={newItemType}
+                    onChange={e => setNewItemType(e.target.value)}
+                    style={{ ...inp, flex:1, marginBottom:0 }}
+                  >
+                    <option value="location">Location</option>
+                    <option value="condition">Condition</option>
+                    <option value="distance">Distance</option>
+                    <option value="extra">Extra Charge</option>
+                  </select>
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <input
+                    type="text"
+                    value={newItemLabel}
+                    onChange={e => setNewItemLabel(e.target.value)}
+                    style={{ ...inp, flex:2, marginBottom:0 }}
+                    placeholder="e.g. Tight hallway"
+                  />
+                  <div style={{ display:"flex", alignItems:"center", gap:4, flexShrink:0 }}>
+                    <span style={{ fontSize:".75rem", color:C.muted }}>+$</span>
+                    <input
+                      type="number"
+                      value={newItemPrice}
+                      onChange={e => setNewItemPrice(e.target.value)}
+                      style={{ ...inp, width:70, marginBottom:0 }}
+                      placeholder="0"
+                    />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!newItemLabel.trim() || !operator) return;
+                      setAddingItem(true);
+                      const { data } = await supabase.from("quote_form_config").insert({
+                        operator_id: operator.id,
+                        field_type: newItemType,
+                        label: newItemLabel,
+                        value: newItemLabel.toLowerCase().replace(/\s+/g, "_"),
+                        price_impact: parseInt(newItemPrice) || 0,
+                        sort_order: formConfig.filter(c => c.field_type === newItemType).length + 1,
+                      }).select().single();
+                      if (data) setFormConfig(prev => [...prev, data]);
+                      setNewItemLabel("");
+                      setNewItemPrice("0");
+                      setAddingItem(false);
+                    }}
+                    disabled={!newItemLabel.trim() || addingItem}
+                    style={{ padding:"8px 16px", borderRadius:8, border:"none", background:newItemLabel.trim() ? C.green : "rgba(34,197,94,0.3)", color:"#000", fontWeight:700, cursor:newItemLabel.trim() ? "pointer" : "not-allowed", fontSize:".82rem", flexShrink:0 }}
+                  >
+                    + Add
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
           Log Out
         </button>
       </div>
