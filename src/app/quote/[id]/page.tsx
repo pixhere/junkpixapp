@@ -72,6 +72,7 @@ const [opId, setOpId] = useState<string>("");
 const [opName, setOpName] = useState<string>("");
 const [opWebsite, setOpWebsite] = useState<string>("");
 const [operatorData, setOperatorData] = useState<any>(null);
+const [opPhone, setOpPhone] = useState<string>("");
 const [formConfig, setFormConfig] = useState<any[]>([]);
 const formConfigRef = useRef<any[]>([]);
 
@@ -79,7 +80,7 @@ useEffect(() => {
   const loadOperator = async () => {
     const { data } = await supabase
       .from("operators")
-      .select("id, business_name, website, price_minimum_min, price_minimum_max, price_eighth_min, price_eighth_max, price_quarter_min, price_quarter_max, price_half_min, price_half_max, price_threeq_min, price_threeq_max, price_full_min, price_full_max")
+      .select("id, business_name, website, phone, price_minimum_min, price_minimum_max, price_eighth_min, price_eighth_max, price_quarter_min, price_quarter_max, price_half_min, price_half_max, price_threeq_min, price_threeq_max, price_full_min, price_full_max")
       .eq("slug", slug)
       .single();
     if (data) {
@@ -87,6 +88,7 @@ useEffect(() => {
       setOpName(data.business_name);
       setOpWebsite(data.website || "https://junkpix.com");
       setOperatorData(data);
+      setOpPhone(data.phone || "");
 
       const { data: config } = await supabase
         .from("quote_form_config")
@@ -370,7 +372,7 @@ setLoadMsg("UPLOADING PHOTOS...");
           ))}
         </div>
 
-        s
+        
 
           <div style={s.btnBar}>
             <button style={s.btnP(!canGo2)} disabled={!canGo2} onClick={() => setStep(2)}>Continue</button>
@@ -574,6 +576,20 @@ if (step === 4) return (
                 </div>
               </div>
             )}
+                {/* Instant booking incentive */}
+            <div style={{ background: "#D97B4F", borderRadius: 12, padding: 20, marginBottom: 16 }}>
+              <div style={{ fontSize: "1.4rem", marginBottom: 8 }}>🔥</div>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 6 }}>Book Today — Save $25</div>
+              <div style={{ fontSize: ".82rem", color: "rgba(255,255,255,.85)", lineHeight: 1.5, marginBottom: 16 }}>
+                Call or text right now and mention <strong style={{ color:"#fff" }}>"same-day deal"</strong> to lock in your discount. Offer expires tonight at midnight.
+              </div>
+              <a href={`tel:${opPhone}`} style={{ display:"inline-block", background:"#fff", color:"#D97B4F", padding:"12px 28px", borderRadius:8, fontWeight:800, fontSize:".95rem", textDecoration:"none", marginBottom:8 }}>
+                📞 {opPhone ? `Call ${opPhone}` : "Call to Book Now"}
+              </a>
+              <div style={{ fontSize:".72rem", color:"rgba(255,255,255,.65)", marginTop:8 }}>
+                ⏰ Same-day availability — spots fill fast
+              </div>
+            </div>
 
             <div style={{ background: C.bgSoft, borderRadius: 8, padding: 20, border: `1px solid ${C.line}` }}>
               <div style={{ fontWeight: 700, fontSize: ".88rem", color: C.ink, marginBottom: 14 }}>What happens next</div>
