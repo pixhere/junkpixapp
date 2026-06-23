@@ -835,7 +835,7 @@ export default function Dashboard() {
 
     return (
       <div style={{ display:"flex", flexDirection:"column", gap:24, maxWidth:520 }}>
-        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Settings</div>
+        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Settings ✓</div>
 
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24 }}>
           <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Business</div>
