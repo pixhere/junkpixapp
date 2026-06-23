@@ -139,9 +139,14 @@ export default function Dashboard() {
 
   const filteredQuotes = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
 
-  const updateStatus = (id: string, status: string) => {
-    setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
-    if (selected?.id === id) setSelected((prev: any) => ({ ...prev, status }));
+  const updateStatus = async (id: string, status: string) => {
+    const updates: any = { status };
+    if (status === "completed") {
+      updates.completed_at = new Date().toISOString();
+    }
+    await supabase.from("quote_requests").update(updates).eq("id", id);
+    setQuotes(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q));
+    if (selected?.id === id) setSelected((prev: any) => ({ ...prev, ...updates }));
   };
 
   const sendQuote = (id: string, price: number) => {
@@ -802,6 +807,7 @@ export default function Dashboard() {
     const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
     const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
     const [done, setDone]       = useState(false);
+    const [reviewLink, setReviewLink] = useState(String(operator?.review_link || ""));
 
     const save = async () => {
       if (!operator) return;
@@ -813,6 +819,7 @@ export default function Dashboard() {
         crew_size: parseInt(crew),
         gas_price: parseFloat(gas),
         margin_percent: parseInt(margin),
+        review_link: reviewLink,
       }).eq("id", operator.id);
       setSaving(false);
       if (!error) { setDone(true); setTimeout(() => setDone(false), 2000); }
@@ -836,6 +843,17 @@ export default function Dashboard() {
           <div style={{ fontSize:".72rem", color:C.muted, marginBottom:4, fontFamily:"monospace" }}>YOUR QUOTE PAGE</div>
           <div style={{ background:C.surface, borderRadius:8, padding:"10px 14px", fontSize:".84rem", color:C.accent, fontFamily:"monospace", marginBottom:0 }}>
             junkpix.com/quote/{operator?.id?.slice(0,8)}
+          </div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>GOOGLE / YELP REVIEW LINK</div>
+          <input
+            type="url"
+            placeholder="https://g.page/your-business/review"
+            value={reviewLink}
+            onChange={e => setReviewLink(e.target.value)}
+            style={{ ...inp, marginBottom:4 }}
+          />
+          <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic" }}>
+            Customers get this link 2 hours after job is marked complete
           </div>
         </div>
 
