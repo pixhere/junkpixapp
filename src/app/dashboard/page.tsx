@@ -8,6 +8,52 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+function scoreLead(quote: any) {
+  let bookingScore = 0;
+  let profitScore = 100;
+  const bookingBreakdown: string[] = [];
+  const profitBreakdown: string[] = [];
+  let isComplex = false;
+
+  const notes = (quote.customer_notes || "").toLowerCase();
+  const photoCount = (quote.photo_urls || []).length;
+  const minPrice = quote.estimated_min || 0;
+
+  // Booking score
+  if (notes.includes("today") || notes.includes("asap") || notes.includes("same day")) {
+    bookingScore += 20; bookingBreakdown.push("+20 Same-day request");
+  } else if (notes.includes("tomorrow") || notes.includes("next day")) {
+    bookingScore += 15; bookingBreakdown.push("+15 Next-day request");
+  }
+  if (photoCount >= 3) { bookingScore += 15; bookingBreakdown.push(`+15 Multiple photos (${photoCount})`); }
+  else if (photoCount >= 1) { bookingScore += 8; bookingBreakdown.push(`+8 Photos uploaded (${photoCount})`); }
+  if (quote.customer_notes && quote.customer_notes.length > 30) { bookingScore += 10; bookingBreakdown.push("+10 Detailed notes"); }
+  if (quote.customer_name && quote.customer_phone && quote.customer_email && quote.customer_address) { bookingScore += 10; bookingBreakdown.push("+10 Complete information"); }
+  if (minPrice >= 300) { bookingScore += 10; bookingBreakdown.push("+10 High value job ($300+)"); }
+  else if (minPrice >= 150) { bookingScore += 5; bookingBreakdown.push("+5 Medium value job"); }
+  if ((quote.view_count || 0) >= 2) { bookingScore += 10; bookingBreakdown.push("+10 Quote viewed multiple times"); }
+  bookingScore = Math.min(100, bookingScore);
+
+  // Profit score
+  if (quote.location_type === "basement") { profitScore -= 20; profitBreakdown.push("-20 Basement access"); isComplex = true; }
+  if ((quote.stairs || 0) >= 2) { profitScore -= 15; profitBreakdown.push(`-15 Multiple stairs (${quote.stairs} flights)`); isComplex = true; }
+  else if ((quote.stairs || 0) === 1) { profitScore -= 8; profitBreakdown.push("-8 One flight of stairs"); }
+  if (quote.distance === "long") { profitScore -= 10; profitBreakdown.push("-10 Long carry distance"); }
+  if (quote.condition === "hazard") { profitScore -= 25; profitBreakdown.push("-25 Hoarder/hazard condition"); isComplex = true; }
+  if (minPrice < 150 && minPrice > 0) { profitScore -= 15; profitBreakdown.push("-15 Low value job"); }
+  if (photoCount === 0) { profitScore -= 20; profitBreakdown.push("-20 No photos"); }
+  else if (photoCount === 1) { profitScore -= 10; profitBreakdown.push("-10 Only one photo"); }
+  if (!quote.customer_notes || quote.customer_notes.length < 10) { profitScore -= 10; profitBreakdown.push("-10 Missing notes"); }
+  if (quote.extras?.includes("heavy") && (quote.location_type === "basement" || (quote.stairs || 0) >= 1)) {
+    profitScore -= 10; profitBreakdown.push("-10 Heavy items + stairs"); isComplex = true;
+  }
+  profitScore = Math.max(0, Math.min(100, profitScore));
+
+  let bookingTier = bookingScore >= 80 ? "hot" : bookingScore >= 50 ? "warm" : "standard";
+
+  return { bookingScore, profitScore, isComplex, bookingTier, breakdown: { booking: bookingBreakdown, profit: profitBreakdown } };
+}
+
 const C = {
   bg: "#0A0A0A",
   surface: "#111111",
@@ -207,6 +253,54 @@ export default function Dashboard() {
               )}
             </div>
           </div>
+          {/* Lead Score */}
+          {(() => {
+            const score = scoreLead(quote);
+            const [showBreakdown, setShowBreakdown] = useState(false);
+            const tierColor = score.bookingTier === "hot" ? "#ef4444" : score.bookingTier === "warm" ? "#f59e0b" : C.muted;
+            const tierIcon = score.bookingTier === "hot" ? "🔥" : score.bookingTier === "warm" ? "🟡" : "⚪";
+            return (
+              <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                  <div style={{ display:"flex", gap:16, alignItems:"center" }}>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:4 }}>BOOKING SCORE</div>
+                      <div style={{ fontSize:"1.4rem", fontWeight:800, color:tierColor }}>{tierIcon} {score.bookingScore}/100</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:4 }}>PROFIT SCORE</div>
+                      <div style={{ fontSize:"1.4rem", fontWeight:800, color: score.profitScore >= 70 ? C.green : score.profitScore >= 40 ? "#f59e0b" : C.red }}>{score.profitScore}/100</div>
+                    </div>
+                    {score.isComplex && (
+                      <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:8, padding:"6px 12px" }}>
+                        <div style={{ fontSize:".65rem", color:C.red, fontWeight:700 }}>🔴 COMPLEX</div>
+                        <div style={{ fontSize:".6rem", color:C.red, opacity:0.8 }}>Verify first</div>
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => setShowBreakdown(!showBreakdown)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.muted, cursor:"pointer", fontSize:".75rem", padding:"4px 10px" }}>
+                    {showBreakdown ? "▲ Hide" : "▼ Why?"}
+                  </button>
+                </div>
+                {showBreakdown && (
+                  <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:12, display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>BOOKING SIGNALS</div>
+                      {score.breakdown.booking.map((b, i) => (
+                        <div key={i} style={{ fontSize:".75rem", color:C.green, marginBottom:4 }}>{b}</div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>PROFIT SIGNALS</div>
+                      {score.breakdown.profit.map((b, i) => (
+                        <div key={i} style={{ fontSize:".75rem", color:C.red, marginBottom:4 }}>{b}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* AI Description */}
           <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
@@ -472,13 +566,21 @@ export default function Dashboard() {
               </div>
               <div style={{ textAlign:"right", flexShrink:0, marginLeft:16 }}>
                 <div style={{ color:C.accent, fontWeight:700, fontSize:"1.1rem" }}>${q.estimated_min}–${q.estimated_max}</div>
-                <div style={{ fontSize:".72rem", color:C.muted, marginTop:4 }}>estimated range</div>
+{(() => {
+  const score = scoreLead(q);
+  const tierColor = score.bookingTier === "hot" ? "#ef4444" : score.bookingTier === "warm" ? "#f59e0b" : C.muted;
+  const tierIcon = score.bookingTier === "hot" ? "🔥" : score.bookingTier === "warm" ? "🟡" : "⚪";
+  return (
+    <div style={{ fontSize:".7rem", color:tierColor, fontWeight:700, marginTop:4 }}>
+      {tierIcon} {score.bookingScore}/100
+    </div>
+  );
+})()}
               </div>
             </div>
           ))}
         </div>
       )}
-
       {/* All recent */}
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
         <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}` }}>
