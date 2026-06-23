@@ -87,10 +87,11 @@ useEffect(() => {
       setOpWebsite(data.website || "https://junkpix.com");
       setOperatorData(data);
     }
-  };
+ };
   loadOperator();
 }, [slug]);
 
+  const [formConfig, setFormConfig] = useState<any[]>([]);
   const [step, setStep]           = useState(1);
   const [photos, setPhotos]       = useState<string[]>([]);
   const [lightbox, setLightbox]   = useState<string | null>(null);
@@ -216,6 +217,26 @@ setLoadMsg("UPLOADING PHOTOS...");
           photoUrls,
         })
       });
+      // Calculate price modifiers from form config
+      let priceModifier = 0;
+      const selectedLocation = formConfig.find(c => c.field_type === "location" && c.value === location);
+      const selectedDistance = formConfig.find(c => c.field_type === "distance" && c.value === distance);
+      const selectedCondition = formConfig.find(c => c.field_type === "condition" && c.value === condition);
+      
+      if (selectedLocation) priceModifier += selectedLocation.price_impact || 0;
+      if (selectedDistance) priceModifier += selectedDistance.price_impact || 0;
+      if (selectedCondition) priceModifier += selectedCondition.price_impact || 0;
+      
+      extras.forEach(extra => {
+        const extraConfig = formConfig.find(c => c.field_type === "extra" && c.value === extra);
+        if (extraConfig) priceModifier += extraConfig.price_impact || 0;
+      });
+
+      // Apply modifier to AI estimate
+      if (priceModifier > 0) {
+        ai.estimatedMin = (ai.estimatedMin || 0) + priceModifier;
+        ai.estimatedMax = (ai.estimatedMax || 0) + priceModifier;
+      }
 
       setResult(ai);
       setError("");
@@ -385,7 +406,15 @@ setLoadMsg("UPLOADING PHOTOS...");
         <h1 style={s.title}>A few quick taps.</h1>
         <p style={s.sub}>This is what changes the price — not just what's there, but how hard it is to get out.</p>
 
-        <ChipGroup label="Where is the junk?" val={location} onChange={setLocation} opts={[{v:"curbside",l:"Curbside / outside"},{v:"inside",l:"Inside the home"},{v:"basement",l:"Basement / multi-floor"},{v:"other",l:"Other"}]} />
+        <ChipGroup 
+          label="Where is the junk?" 
+          val={location} 
+          onChange={setLocation} 
+          opts={formConfig.filter(c => c.field_type === "location").length > 0
+            ? formConfig.filter(c => c.field_type === "location").map(c => ({ v: c.value, l: c.label }))
+            : [{v:"curbside",l:"Curbside / outside"},{v:"inside",l:"Inside the home"},{v:"basement",l:"Basement / multi-floor"},{v:"other",l:"Other"}]
+          } 
+        />
         {location === "other" && <input style={s.input} placeholder="e.g. backyard, garage, attic..." value={locDetail} onChange={e => setLocDetail(e.target.value)} />}
 
         <div style={{ marginBottom: 24 }}>
@@ -398,14 +427,34 @@ setLoadMsg("UPLOADING PHOTOS...");
           </div>
         </div>
 
-        <ChipGroup label="Distance from junk to truck" val={distance} onChange={setDistance} opts={[{v:"short",l:"Under 50ft"},{v:"medium",l:"50–150ft"},{v:"long",l:"150ft+"}]} />
-        <ChipGroup label="Condition" note="be honest, it changes the price" val={condition} onChange={(v: string) => { setCondition(v); setCondDetail(""); }} opts={[{v:"standard",l:"Standard"},{v:"hazard",l:"Hoarder / Odor"},{v:"other",l:"Other"}]} />
+       <ChipGroup 
+          label="Distance from junk to truck" 
+          val={distance} 
+          onChange={setDistance} 
+          opts={formConfig.filter(c => c.field_type === "distance").length > 0
+            ? formConfig.filter(c => c.field_type === "distance").map(c => ({ v: c.value, l: c.label }))
+            : [{v:"short",l:"Under 50ft"},{v:"medium",l:"50–150ft"},{v:"long",l:"150ft+"}]
+          } 
+        />
+        <ChipGroup 
+          label="Condition" 
+          note="be honest, it changes the price" 
+          val={condition} 
+          onChange={(v: string) => { setCondition(v); setCondDetail(""); }} 
+          opts={formConfig.filter(c => c.field_type === "condition").length > 0
+            ? formConfig.filter(c => c.field_type === "condition").map(c => ({ v: c.value, l: c.label }))
+            : [{v:"standard",l:"Standard"},{v:"hazard",l:"Hoarder / Odor"},{v:"other",l:"Other"}]
+          } 
+        />
         {condition === "other" && <input style={s.input} placeholder="e.g. wet, water damage, pest activity..." value={condDetail} onChange={e => setCondDetail(e.target.value)} />}
 
         <div style={{ marginBottom: 24 }}>
           <div style={s.qlabel}>Anything extra? <span style={s.qnote}>tap any that apply</span></div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {[{v:"heavy",l:"Heavy"},{v:"dusty",l:"Dusty"}].map(o => (
+            {(formConfig.filter(c => c.field_type === "extra").length > 0
+              ? formConfig.filter(c => c.field_type === "extra").map(c => ({ v: c.value, l: c.label }))
+              : [{v:"heavy",l:"Heavy"},{v:"dusty",l:"Dusty"}]
+            ).map(o => (
               <div key={o.v} style={s.chip(extras.includes(o.v))} onClick={() => toggleExtra(o.v)}>{o.l}</div>
             ))}
           </div>
