@@ -138,6 +138,7 @@ Answer as the combined wisdom of all 15 sales and business legends. Be direct, s
         model: "claude-sonnet-4-6",
         max_tokens: 2000,
         temperature: 0.9,
+        stream: true,
         system: MASTER_SYSTEM,
         messages: [{ role: "user", content: userPrompt }],
       }),
@@ -147,10 +148,45 @@ Answer as the combined wisdom of all 15 sales and business legends. Be direct, s
       return NextResponse.json({ error: "AI generation failed" }, { status: 500 });
     }
 
-    const data = await response.json();
-    const text = data.content?.find((b: any) => b.type === "text")?.text?.trim() || "";
+    // Stream the response
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+          
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.type === "content_block_delta" && parsed.delta?.text) {
+                  controller.enqueue(encoder.encode(parsed.delta.text));
+                }
+              } catch {
+                // skip malformed chunks
+              }
+            }
+          }
+        }
+        controller.close();
+      }
+    });
 
-    return NextResponse.json({ content: text });
+   return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+      },
+    });
   } catch (err: any) {
     console.error("sales-coach error:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });

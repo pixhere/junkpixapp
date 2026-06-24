@@ -1425,8 +1425,8 @@ export default function Dashboard() {
   
   // ── SALES ACADEMY ───────────────────────────────────────────────────────────
   const SalesScreen = () => {
-    const [activeTab, setActiveTab] = useState("close");
     const [selectedQuote, setSelectedQuote] = useState<any>(null);
+    const [activeTab, setActiveTab] = useState("close");
     const [loading, setLoading] = useState(false);
     const [content, setContent] = useState("");
     const [question, setQuestion] = useState("");
@@ -1524,21 +1524,51 @@ export default function Dashboard() {
     const generate = async (type: string, quote?: any) => {
       setLoading(true);
       setContent("");
+      localStorage.removeItem(`sales_${type}`);
       try {
         const res = await fetch("/api/sales-coach", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type, quote: quote || selectedQuote, operator }),
+          body: JSON.stringify({ type, quote: quote || selectedQuote, operator, question }),
         });
-        const data = await res.json();
-        setContent(data.content || "Something went wrong.");
+
+        if (!res.ok) {
+          setContent("Something went wrong. Try again.");
+          return;
+        }
+
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let full = "";
+        setLoading(false);
+
+       while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          full += chunk;
+          setContent(full);
+        }
+        // Cache the result
+       localStorage.setItem(`sales_${activeTab}`, full);
       } catch {
         setContent("Something went wrong. Try again.");
       } finally {
         setLoading(false);
       }
     };
+useEffect(() => {
+      const lastTab = localStorage.getItem("sales_last_tab");
+      if (lastTab) setActiveTab(lastTab);
+    }, []);
 
+   useEffect(() => {
+      localStorage.setItem("sales_last_tab", activeTab);
+      const cached = localStorage.getItem(`sales_${activeTab}`);
+      console.log("Loading cached content for", activeTab, ":", cached ? "found" : "empty");
+      if (cached) setContent(cached);
+      else setContent("");
+    }, [activeTab]);
    const tabs = [
       { id: "close", label: "🎯 Close a Job", desc: "Full closing playbook for a specific lead" },
       { id: "daily", label: "⚡ Daily Intel", desc: "Today's sales lesson from the masters" },
@@ -1563,7 +1593,7 @@ export default function Dashboard() {
           {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setContent(""); if (tab.id === "notes") setNotesLoaded(false); }}
+              onClick={() => { setActiveTab(tab.id); if (tab.id === "notes") setNotesLoaded(false); }}
               style={{
                 padding:"10px 16px",
                 borderRadius:10,
