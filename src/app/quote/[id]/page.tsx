@@ -314,7 +314,7 @@ setLoadMsg("UPLOADING PHOTOS...");
       <div style={{ width:320, flexShrink:0, padding:"60px 32px", display:"none" }} className="side-col">
        <div style={{ color:"#D97B4F", fontSize:".85rem", letterSpacing:".15em", fontFamily:"monospace", marginBottom:24 }}>HOW IT WORKS</div>
         {[
-          { step:"01", title:"Snap the junk", desc:"Take 1–5 photos from your phone. No app needed." },
+          { step:"01", title:"Snap the junk", desc:"Take 1–10 photos from your phone. No app needed." },
           { step:"02", title:"AI reads the job", desc:"Our AI identifies items, estimates volume, and describes the job instantly." },
           { step:"03", title:"Get your quote", desc:"The operator reviews your photos and sends a price — usually within the hour." },
           { step:"04", title:"Book and done", desc:"Confirm the job. Crew shows up. Junk is gone." },
