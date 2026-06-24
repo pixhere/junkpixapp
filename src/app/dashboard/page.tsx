@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -104,6 +104,7 @@ export default function Dashboard() {
   const [finalPrice, setFinalPrice] = useState("");
   const [saving, setSaving]       = useState(false);
   const [saved, setSaved]         = useState(false);
+  const [settingsTab, setSettingsTab] = useState("business");
 
   useEffect(() => {
   const load = async () => {
@@ -860,7 +861,7 @@ export default function Dashboard() {
     </div>
   );
 };
-  const SettingsScreen = () => {
+  const SettingsScreen = React.memo(() => {
     const [minJob, setMinJob]   = useState(String(operator?.minimum_job || 150));
     const [dump, setDump]       = useState(String(operator?.dump_fee_per_ton || 85));
     const [labor, setLabor]     = useState(String(operator?.labor_rate_per_hour || 25));
@@ -868,7 +869,6 @@ export default function Dashboard() {
     const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
     const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
     const [done, setDone]       = useState(false);
-    const [settingsTab, setSettingsTab] = useState("business");
     const [connectStatus, setConnectStatus] = useState(operator?.stripe_connect_status || "not_connected");
     const [connectLoading, setConnectLoading] = useState(false);
     const [depositAmount, setDepositAmount] = useState(String(operator?.stripe_connect_deposit_amount || 50));
@@ -933,14 +933,20 @@ export default function Dashboard() {
         price_full_max: parseInt(priceFullMax),
       }).eq("id", operator.id);
       setSaving(false);
-      if (!error) { setDone(true); setTimeout(() => setDone(false), 2000); }
+      if (!error) { 
+        setDone(true); 
+        setTimeout(() => setDone(false), 2000);
+        // Refresh operator data
+        const { data: fresh } = await supabase.from("operators").select("*").eq("id", operator.id).single();
+        if (fresh) setOperator(fresh);
+      }
     };
 
     const Field = ({ label, value, setter, note }: any) => (
       <div>
         <label style={{ fontSize:".72rem", color:C.muted, letterSpacing:".08em", fontFamily:"monospace", marginBottom:6, display:"block" }}>{label}</label>
         {note && <div style={{ fontSize:".72rem", color:C.muted, marginBottom:6, fontStyle:"italic" }}>{note}</div>}
-        <input type="number" value={value} onChange={e => setter(e.target.value)} style={inp} />
+        <input key={value} type="number" defaultValue={value} onBlur={e => setter(e.target.value)} style={inp} />
       </div>
     );
 
@@ -1280,7 +1286,7 @@ export default function Dashboard() {
         </button>}
       </div>
     );
-  };
+  });
   
   // ── SOCIAL MEDIA ────────────────────────────────────────────────────────────
   const SocialScreen = () => {
