@@ -868,6 +868,7 @@ export default function Dashboard() {
     const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
     const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
     const [done, setDone]       = useState(false);
+    const [settingsTab, setSettingsTab] = useState("business");
     const [connectStatus, setConnectStatus] = useState(operator?.stripe_connect_status || "not_connected");
     const [connectLoading, setConnectLoading] = useState(false);
     const [depositAmount, setDepositAmount] = useState(String(operator?.stripe_connect_deposit_amount || 50));
@@ -945,9 +946,37 @@ export default function Dashboard() {
 
     return (
       <div style={{ display:"flex", flexDirection:"column", gap:24, maxWidth:520 }}>
-        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Settings ✓</div>
+        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Settings</div>
 
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24 }}>
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap" as const }}>
+          {[
+            { id:"business", label:"🏢 Business" },
+            { id:"pricing", label:"💰 Pricing" },
+            { id:"quoteform", label:"📋 Quote Form" },
+            { id:"payments", label:"💳 Payments" },
+            { id:"subscription", label:"📦 Subscription" },
+            { id:"account", label:"🔐 Account" },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setSettingsTab(tab.id)}
+              style={{
+                padding:"8px 14px",
+                borderRadius:8,
+                border:`1px solid ${settingsTab === tab.id ? C.accent : C.border}`,
+                background: settingsTab === tab.id ? C.accentDim : "transparent",
+                color: settingsTab === tab.id ? C.accent : C.muted,
+                fontWeight: settingsTab === tab.id ? 700 : 400,
+                cursor:"pointer",
+                fontSize:".82rem",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {settingsTab === "business" && <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24 }}>
           <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Business</div>
           <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>{operator?.business_name} · {operator?.city}, {operator?.state}</div>
           <div style={{ fontSize:".72rem", color:C.muted, marginBottom:4, fontFamily:"monospace" }}>YOUR QUOTE PAGE</div>
@@ -965,10 +994,9 @@ export default function Dashboard() {
           <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic" }}>
             Customers get this link 2 hours after job is marked complete
           </div>
-        </div>
+        </div>}
 
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, display:"flex", flexDirection:"column", gap:16 }}>
-          <div>
+{settingsTab === "pricing" && <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, display:"flex", flexDirection:"column", gap:16 }}>          <div>
             <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Pricing Settings</div>
             <div style={{ fontSize:".82rem", color:C.muted }}>Update anytime. Changes apply to all future quotes instantly.</div>
           </div>
@@ -1010,9 +1038,9 @@ export default function Dashboard() {
           <button onClick={save} disabled={saving} style={{ padding:"13px 0", borderRadius:8, border:"none", background:done ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".95rem" }}>
             {saving ? "Saving..." : done ? "Saved ✓" : "Save Changes"}
           </button>
-        </div>
+        </div>}
 
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
+        {settingsTab === "subscription" && <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
           <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Subscription</div>
           <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>
             {operator?.subscription_status === "active" ? "✅ Active subscription" : 
@@ -1047,10 +1075,10 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-        </div>
+        </div>}
         
       {/* Quote Form Settings */}
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
+       {settingsTab === "quoteform" && <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
           <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Quote Form Options</div>
           <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>Customize what customers see and set price impacts for each option.</div>
 
@@ -1173,9 +1201,9 @@ export default function Dashboard() {
               </div>
             </>
           )}
-        </div>
+       </div>}
         {/* Payments / Stripe Connect */}
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
+        {settingsTab === "payments" && <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
           <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>💳 Payments</div>
           <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>
             Connect your Stripe account to collect deposits directly from customers. Money goes straight to you — JunkPix never touches it.
@@ -1245,11 +1273,11 @@ export default function Dashboard() {
               {saved ? "Saved ✓" : "Save Payment Settings"}
             </button>
           </div>
-        </div>
+       </div>}
 
-        <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+        {settingsTab === "account" && <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
           Log Out
-        </button>
+        </button>}
       </div>
     );
   };
