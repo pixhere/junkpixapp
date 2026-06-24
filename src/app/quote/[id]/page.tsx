@@ -191,30 +191,37 @@ setLoadMsg("UPLOADING PHOTOS...");
      
 
       // Save to Supabase
-      const { error: dbErr } = await supabase.from("quote_requests").insert({
-        operator_id:       opId,
-        customer_name:     customer.name,
-        customer_phone:    customer.phone,
-        customer_email:    customer.email,
-        customer_address:  customer.address,
-        customer_notes:    customer.notes,
-        location_type:     location,
-        location_detail:   locDetail,
-        stairs,
-        distance,
-        condition,
-        condition_detail:  condDetail,
-        extras,
-        photo_urls:         photoUrls,
-        ai_description:    ai.plainDescription,
-        ai_pricing_mode:   ai.pricingMode,
-        ai_load_tier:      ai.loadTier,
-        ai_confidence:     ai.confidence,
-        ai_hazard_flag:    ai.visibleHazardFlag,
-        estimated_min:     ai.estimatedMin,
-        estimated_max:     ai.estimatedMax,
-        status:            "new",
+const submitRes = await fetch("/api/submit-quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operator_id:       opId,
+          customer_name:     customer.name,
+          customer_phone:    customer.phone,
+          customer_email:    customer.email,
+          customer_address:  customer.address,
+          customer_notes:    customer.notes,
+          location_type:     location,
+          location_detail:   locDetail,
+          stairs,
+          distance,
+          condition,
+          condition_detail:  condDetail,
+          extras,
+          photo_urls:        photoUrls,
+          ai_description:    ai.plainDescription,
+          ai_pricing_mode:   ai.pricingMode,
+          ai_load_tier:      ai.loadTier,
+          ai_confidence:     ai.confidence,
+          ai_hazard_flag:    ai.visibleHazardFlag,
+          estimated_min:     ai.estimatedMin,
+          estimated_max:     ai.estimatedMax,
+          status:            "new",
+        }),
       });
+      const submitData = await submitRes.json();
+      const insertedQuote = submitData.quote;
+      const dbErr = submitData.error;
 
       console.log("opId:", opId);
       console.log("DB error:", dbErr);
@@ -255,8 +262,14 @@ setLoadMsg("UPLOADING PHOTOS...");
         ai.estimatedMax = (ai.estimatedMax || 0) + priceModifier;
       }
 
+      if (insertedQuote?.id) {
+        ai.statusUrl = `/status/${insertedQuote.id}`;
+      }
       setResult(ai);
       setError("");
+      if (insertedQuote?.id) {
+        ai.statusUrl = `/status/${insertedQuote.id}`;
+      }
     } catch(err: any) {
       setError(err.message || "Something went wrong.");
     }
@@ -592,6 +605,20 @@ if (step === 4) return (
                 ⏰ Same-day availability — spots fill fast
               </div>
             </div>
+
+            {/* Status link */}
+            {result?.statusUrl && (
+              <div style={{ background:C.card, border:`1px solid ${C.line}`, borderRadius:8, padding:16, marginTop:16, textAlign:"center" as const }}>
+                <div style={{ fontSize:".72rem", color:"#888", fontFamily:"monospace", letterSpacing:".1em", marginBottom:8 }}>TRACK YOUR QUOTE</div>
+                <a
+                  href={result.statusUrl}
+                  style={{ color:C.clay, fontWeight:700, fontSize:".88rem", textDecoration:"none" }}
+                >
+                  Check quote status →
+                </a>
+                <div style={{ fontSize:".72rem", color:"#aaa", marginTop:6 }}>Bookmark this link to check back anytime</div>
+              </div>
+            )}
 
             <div style={{ background: C.bgSoft, borderRadius: 8, padding: 20, border: `1px solid ${C.line}` }}>
               <div style={{ fontWeight: 700, fontSize: ".88rem", color: C.ink, marginBottom: 14 }}>What happens next</div>
