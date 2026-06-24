@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     }
 
     const businessName = operator?.business_name || "our team";
+    const ownerName = operator?.owner_name || businessName;
     const reviewLink = operator?.review_link;
 
     if (!quote.customer_email) {
@@ -32,8 +33,7 @@ export async function POST(req: NextRequest) {
     <!-- Header -->
     <div style="background:#0A0A0A;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;">
       <div style="font-size:1.2rem;font-weight:800;color:#D97B4F;letter-spacing:.1em;margin-bottom:8px;">JUNKPIX</div>
-      <div style="font-size:1.3rem;font-weight:800;color:#ffffff;margin-bottom:4px;">Job Complete! 🎉</div>
-      <div style="font-size:.88rem;color:rgba(255,255,255,0.5);">Thank you for choosing ${businessName}</div>
+<div style="font-size:.88rem;color:rgba(255,255,255,0.5);">Thank you for choosing ${businessName} — ${ownerName}</div>      <div style="font-size:.88rem;color:rgba(255,255,255,0.5);">Thank you for choosing ${businessName}</div>
     </div>
 
     <!-- Message -->
@@ -43,8 +43,7 @@ export async function POST(req: NextRequest) {
         How did we do, ${quote.customer_name}?
       </div>
       <div style="font-size:.9rem;color:#555;line-height:1.7;margin-bottom:24px;">
-        We hope your junk removal experience was smooth and hassle-free. If you have a moment, we'd love it if you left us a quick review — it means the world to a small local business.
-      </div>
+We hope your junk removal experience was smooth and hassle-free. If you have a moment, ${ownerName} would love it if you left us a quick review — it means the world to a small local business.      </div>
       <a href="${reviewLink}" style="display:inline-block;background:#D97B4F;color:#ffffff;padding:16px 40px;border-radius:8px;font-weight:800;font-size:1rem;text-decoration:none;letter-spacing:.04em;">
         Leave a Review ⭐
       </a>
@@ -73,8 +72,7 @@ export async function POST(req: NextRequest) {
         "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: `${businessName} <hello@junkpix.com>`,
-        to: [quote.customer_email],
+from: `${ownerName} at ${businessName} <hello@junkpix.com>`,        to: [quote.customer_email],
         subject: `How did we do? ⭐ — ${businessName}`,
         html: emailHtml,
       }),

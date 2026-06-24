@@ -73,6 +73,7 @@ const [opName, setOpName] = useState<string>("");
 const [opWebsite, setOpWebsite] = useState<string>("");
 const [operatorData, setOperatorData] = useState<any>(null);
 const [opPhone, setOpPhone] = useState<string>("");
+const [opOwnerName, setOpOwnerName] = useState<string>("");
 const [formConfig, setFormConfig] = useState<any[]>([]);
 const formConfigRef = useRef<any[]>([]);
 
@@ -80,7 +81,7 @@ useEffect(() => {
   const loadOperator = async () => {
     const { data } = await supabase
       .from("operators")
-      .select("id, business_name, website, phone, price_minimum_min, price_minimum_max, price_eighth_min, price_eighth_max, price_quarter_min, price_quarter_max, price_half_min, price_half_max, price_threeq_min, price_threeq_max, price_full_min, price_full_max")
+      .select("id, business_name, website, phone, owner_name, price_minimum_min, price_minimum_max, price_eighth_min, price_eighth_max, price_quarter_min, price_quarter_max, price_half_min, price_half_max, price_threeq_min, price_threeq_max, price_full_min, price_full_max")
       .eq("slug", slug)
       .single();
     if (data) {
@@ -89,6 +90,7 @@ useEffect(() => {
       setOpWebsite(data.website || "https://junkpix.com");
       setOperatorData(data);
       setOpPhone(data.phone || "");
+      setOpOwnerName(data.owner_name || data.business_name || "the owner");
 
       const { data: config } = await supabase
         .from("quote_form_config")
@@ -561,7 +563,7 @@ if (step === 4) return (
 
             <div style={{ background: C.ink, borderRadius: 12, padding: "28px 24px", marginBottom: 20, textAlign: "center" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>✅</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff", marginBottom: 8 }}>Your photos are with the owner.</div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff", marginBottom: 8 }}>Your photos are with {opOwnerName}.</div>
               <div style={{ fontSize: ".86rem", color: "rgba(255,255,255,.65)", lineHeight: 1.55 }}>
                 We're reviewing your job and will reach out shortly with a price.
               </div>

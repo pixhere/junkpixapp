@@ -887,6 +887,7 @@ export default function Dashboard() {
     const [priceFullMin, setPriceFullMin] = useState(String(operator?.price_full_min || 875));
     const [priceFullMax, setPriceFullMax] = useState(String(operator?.price_full_max || 975));
     const [reviewLink, setReviewLink] = useState(String(operator?.review_link || ""));
+    const [ownerName, setOwnerName] = useState(String(operator?.owner_name || ""));
     const [formConfig, setFormConfig] = useState<any[]>([]);
     const [loadingConfig, setLoadingConfig] = useState(true);
     const [newItemLabel, setNewItemLabel] = useState("");
@@ -919,6 +920,7 @@ export default function Dashboard() {
         gas_price: parseFloat(gas),
         margin_percent: parseInt(margin),
         review_link: reviewLink,
+        owner_name: ownerName,
         price_minimum_min: parseInt(priceMinMin),
         price_minimum_max: parseInt(priceMinMax),
         price_eighth_min: parseInt(priceEighthMin),
@@ -988,6 +990,17 @@ export default function Dashboard() {
           <div style={{ fontSize:".72rem", color:C.muted, marginBottom:4, fontFamily:"monospace" }}>YOUR QUOTE PAGE</div>
           <div style={{ background:C.surface, borderRadius:8, padding:"10px 14px", fontSize:".84rem", color:C.accent, fontFamily:"monospace", marginBottom:0 }}>
             junkpix.com/quote/{operator?.id?.slice(0,8)}
+          </div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>YOUR FIRST NAME</div>
+          <input
+            type="text"
+            placeholder="George"
+            value={ownerName}
+            onChange={e => setOwnerName(e.target.value)}
+            style={{ ...inp, marginBottom:4 }}
+          />
+          <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic", marginBottom:16 }}>
+            Customers see your name on the quote page and emails
           </div>
           <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>GOOGLE / YELP REVIEW LINK</div>
           <input
@@ -1548,9 +1561,8 @@ export default function Dashboard() {
           const chunk = decoder.decode(value);
           full += chunk;
           setContent(full);
+          localStorage.setItem(`sales_${activeTab}`, full);
         }
-        // Cache the result
-       localStorage.setItem(`sales_${activeTab}`, full);
       } catch {
         setContent("Something went wrong. Try again.");
       } finally {
