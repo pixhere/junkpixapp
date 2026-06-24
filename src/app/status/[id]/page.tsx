@@ -153,6 +153,12 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
           </div>
         )}
 
+<button
+          onClick={() => window.location.reload()}
+          style={{ width:"100%", padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, cursor:"pointer", fontSize:".84rem", marginBottom:16 }}
+        >
+          🔄 Refresh Status
+        </button>
         <div style={{ textAlign:"center", fontSize:".72rem", color:C.muted, padding:"16px 0" }}>
           Powered by JunkPix · AI Photo Quoting
         </div>
