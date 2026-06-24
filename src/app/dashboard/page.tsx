@@ -99,6 +99,7 @@ export default function Dashboard() {
   const [quotes, setQuotes] = useState<any[]>([]);
   const [selected, setSelected]   = useState<any>(null);
   const [operator, setOperator]   = useState<any>(null);
+  const [trialExpired, setTrialExpired] = useState(false);
   const [filter, setFilter]       = useState("all");
   const [finalPrice, setFinalPrice] = useState("");
   const [saving, setSaving]       = useState(false);
@@ -114,7 +115,18 @@ export default function Dashboard() {
         .select("*")
         .eq("id", user.id)
         .single();
-      if (op) setOperator(op);
+     if (op) {
+        setOperator(op);
+        // Check trial status
+        if (op.subscription_status === "trial") {
+          const trialEnd = op.trial_ends_at
+            ? new Date(op.trial_ends_at)
+            : new Date(new Date(op.signup_date).getTime() + 30 * 24 * 60 * 60 * 1000);
+          if (new Date() > trialEnd) {
+            setTrialExpired(true);
+          }
+        }
+      }
 
       // Load real quote requests
       const { data: qs } = await supabase
@@ -128,10 +140,58 @@ export default function Dashboard() {
   load();
 }, []);
 
+
   const logout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
+  // Trial expired paywall
+  if (trialExpired) return (
+    <div style={{ background:"#0A0A0A", minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:24, fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ maxWidth:480, width:"100%", textAlign:"center" as const }}>
+        <div style={{ fontSize:"1rem", fontWeight:800, color:"#D97B4F", letterSpacing:".1em", marginBottom:24 }}>JUNKPIX</div>
+        <div style={{ fontSize:"2rem", marginBottom:16 }}>⏰</div>
+        <div style={{ fontSize:"1.4rem", fontWeight:800, color:"#fff", marginBottom:8 }}>Your free trial has ended</div>
+        <div style={{ fontSize:".88rem", color:"rgba(255,255,255,.6)", marginBottom:32, lineHeight:1.6 }}>
+          Choose a plan to keep access to your dashboard, quote page, and all AI features.
+        </div>
+
+        {[
+          { label:"Founding", price:"$49/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_FOUNDING, badge:"🔥 Nearly sold out", desc:"Locked forever — never goes up" },
+          { label:"Standard", price:"$99/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STANDARD, badge:"", desc:"Full access, cancel anytime" },
+          { label:"Agency", price:"$199/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AGENCY, badge:"", desc:"Multiple trucks and operators" },
+        ].map(plan => (
+          <div key={plan.label} style={{ background:"#1a1a1a", border:"1px solid #333", borderRadius:12, padding:20, marginBottom:12, textAlign:"left" as const }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+              <div>
+                <div style={{ fontWeight:700, color:"#fff", fontSize:"1rem" }}>{plan.label} {plan.badge && <span style={{ fontSize:".7rem", color:"#D97B4F" }}>{plan.badge}</span>}</div>
+                <div style={{ fontSize:".78rem", color:"rgba(255,255,255,.4)", marginTop:2 }}>{plan.desc}</div>
+              </div>
+              <div style={{ fontSize:"1.2rem", fontWeight:800, color:"#D97B4F" }}>{plan.price}</div>
+            </div>
+            <button
+              onClick={async () => {
+                const res = await fetch("/api/create-checkout", {
+                  method:"POST",
+                  headers:{"Content-Type":"application/json"},
+                  body: JSON.stringify({ priceId: plan.priceId, operatorId: operator?.id, email: operator?.email }),
+                });
+                const data = await res.json();
+                if (data.url) window.location.href = data.url;
+              }}
+              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background:"#D97B4F", color:"#000", fontWeight:700, cursor:"pointer", fontSize:".9rem", marginTop:8 }}
+            >
+              Get Started →
+            </button>
+          </div>
+        ))}
+
+        <button onClick={logout} style={{ marginTop:16, background:"none", border:"none", color:"rgba(255,255,255,.3)", cursor:"pointer", fontSize:".78rem" }}>
+          Log out
+        </button>
+      </div>
+    </div>
+  );
 
   const newCount       = quotes.filter(q => q.status === "new").length;
   const bookedCount    = quotes.filter(q => q.status === "booked").length;
