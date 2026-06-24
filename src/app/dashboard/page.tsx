@@ -868,6 +868,10 @@ export default function Dashboard() {
     const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
     const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
     const [done, setDone]       = useState(false);
+    const [connectStatus, setConnectStatus] = useState(operator?.stripe_connect_status || "not_connected");
+    const [connectLoading, setConnectLoading] = useState(false);
+    const [depositAmount, setDepositAmount] = useState(String(operator?.stripe_connect_deposit_amount || 50));
+    const [requireDeposit, setRequireDeposit] = useState(operator?.stripe_connect_require_deposit || false);
     // Load tier pricing
     const [priceMinMin, setPriceMinMin] = useState(String(operator?.price_minimum_min || 150));
     const [priceMinMax, setPriceMinMax] = useState(String(operator?.price_minimum_max || 200));
@@ -1170,6 +1174,78 @@ export default function Dashboard() {
             </>
           )}
         </div>
+        {/* Payments / Stripe Connect */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
+          <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>💳 Payments</div>
+          <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>
+            Connect your Stripe account to collect deposits directly from customers. Money goes straight to you — JunkPix never touches it.
+          </div>
+
+          {connectStatus === "active" ? (
+            <div style={{ background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:8, padding:16, marginBottom:16 }}>
+              <div style={{ color:C.green, fontWeight:700, fontSize:".88rem" }}>✅ Stripe Connected</div>
+              <div style={{ color:C.muted, fontSize:".78rem", marginTop:4 }}>You're ready to collect deposits from customers.</div>
+            </div>
+          ) : (
+            <button
+              onClick={async () => {
+                setConnectLoading(true);
+                try {
+                  const res = await fetch("/api/stripe-connect/onboard", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ operatorId: operator?.id, email: operator?.email }),
+                  });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                } catch {
+                  setConnectLoading(false);
+                }
+              }}
+              disabled={connectLoading}
+              style={{ width:"100%", padding:"13px 0", borderRadius:8, border:"none", background: connectLoading ? "rgba(217,123,79,0.3)" : C.accent, color: connectLoading ? "rgba(0,0,0,0.3)" : "#000", fontWeight:700, cursor: connectLoading ? "not-allowed" : "pointer", fontSize:".9rem", marginBottom:16 }}
+            >
+              {connectLoading ? "Connecting..." : "Connect Your Stripe Account →"}
+            </button>
+          )}
+
+          <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:16, marginTop:4 }}>
+            <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", marginBottom:12 }}>DEPOSIT SETTINGS</div>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+              <div>
+                <div style={{ fontSize:".86rem", color:C.text, fontWeight:600 }}>Require deposit at booking</div>
+                <div style={{ fontSize:".75rem", color:C.muted }}>Customer pays before job is confirmed</div>
+              </div>
+              <div
+                onClick={() => setRequireDeposit(!requireDeposit)}
+                style={{ width:44, height:24, borderRadius:12, background: requireDeposit ? C.accent : C.border, cursor:"pointer", position:"relative" as const, transition:"background .2s" }}
+              >
+                <div style={{ width:20, height:20, borderRadius:"50%", background:"#fff", position:"absolute" as const, top:2, left: requireDeposit ? 22 : 2, transition:"left .2s" }} />
+              </div>
+            </div>
+            <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", marginBottom:6 }}>DEPOSIT AMOUNT ($)</div>
+            <input
+              type="number"
+              value={depositAmount}
+              onChange={e => setDepositAmount(e.target.value)}
+              style={{ ...inp, marginBottom:12 }}
+              placeholder="50"
+            />
+            <button
+              onClick={async () => {
+                await supabase.from("operators").update({
+                  stripe_connect_deposit_amount: parseInt(depositAmount),
+                  stripe_connect_require_deposit: requireDeposit,
+                }).eq("id", operator.id);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+              }}
+              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background: C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}
+            >
+              {saved ? "Saved ✓" : "Save Payment Settings"}
+            </button>
+          </div>
+        </div>
 
         <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
           Log Out
@@ -1177,6 +1253,7 @@ export default function Dashboard() {
       </div>
     );
   };
+  
   // ── SOCIAL MEDIA ────────────────────────────────────────────────────────────
   const SocialScreen = () => {
     const [selectedQuote, setSelectedQuote] = useState<any>(null);
