@@ -595,21 +595,21 @@ export default function Dashboard() {
           {/* Action buttons */}
           <div style={{ display:"flex", gap:10 }}>
             {quote.status === "new" && (
-              <button onClick={() => updateStatus(quote.id, "reviewed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "reviewed"); }} style={{ flex:1, padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
                 Mark Reviewed
               </button>
             )}
             {quote.status === "quoted" && (
-              <button onClick={() => updateStatus(quote.id, "booked")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "booked"); }} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
                 Mark Booked ✓
               </button>
             )}
             {quote.status === "booked" && (
-              <button onClick={() => updateStatus(quote.id, "completed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "completed"); }} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
                 Mark Complete ✓
               </button>
             )}
-            <button onClick={() => updateStatus(quote.id, "cancelled")} style={{ padding:"12px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "cancelled"); }} style={{ padding:"12px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
               Cancel
             </button>
           </div>
