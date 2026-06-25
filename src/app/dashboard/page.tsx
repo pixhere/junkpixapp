@@ -202,6 +202,7 @@ export default function Dashboard() {
   const filteredQuotes = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
 
   const updateStatus = async (id: string, status: string) => {
+    const pos = window.scrollY;
     const updates: any = { status };
     if (status === "completed") {
       updates.completed_at = new Date().toISOString();
@@ -209,6 +210,7 @@ export default function Dashboard() {
     await supabase.from("quote_requests").update(updates).eq("id", id);
     setQuotes(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q));
     if (selected?.id === id) setSelected((prev: any) => ({ ...prev, ...updates }));
+    setTimeout(() => window.scrollTo({ top: pos, behavior: "instant" }), 10);
   };
 
   const sendQuote = async (id: string, price: number) => {
