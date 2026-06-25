@@ -211,9 +211,32 @@ export default function Dashboard() {
     if (selected?.id === id) setSelected((prev: any) => ({ ...prev, ...updates }));
   };
 
-  const sendQuote = (id: string, price: number) => {
+  const sendQuote = async (id: string, price: number) => {
+    const quote = quotes.find(q => q.id === id);
+    
+    // Update in Supabase
+    await supabase.from("quote_requests").update({ 
+      status: "quoted", 
+      final_price: price 
+    }).eq("id", id);
+
+    // Update local state
     setQuotes(prev => prev.map(q => q.id === id ? { ...q, status: "quoted", final_price: price } : q));
     if (selected?.id === id) setSelected((prev: any) => ({ ...prev, status: "quoted", final_price: price }));
+
+    // Send customer email with price
+    if (quote?.customer_email) {
+      await fetch("/api/send-customer-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quote: { ...quote, final_price: price },
+          operator,
+          message: `Great news! We've reviewed your photos and your quote is ready.\n\nYour price: $${price}\n\nReply to this email or call us to book your junk removal.`,
+        }),
+      });
+    }
+    
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
