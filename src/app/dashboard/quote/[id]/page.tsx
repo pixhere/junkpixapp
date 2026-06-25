@@ -242,11 +242,29 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
           {aiReply && (
             <div style={{ background:C.surface, borderRadius:8, padding:14, fontSize:".84rem", color:C.text, lineHeight:1.6 }}>
               {aiReply}
-              <button onClick={() => navigator.clipboard.writeText(aiReply)} style={{ marginTop:10, display:"block", background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.muted, cursor:"pointer", fontSize:".75rem", padding:"6px 12px" }}>
-                📋 Copy
-              </button>
+              <div style={{ display:"flex", gap:8, marginTop:10, flexWrap:"wrap" as const }}>
+                <button onClick={() => navigator.clipboard.writeText(aiReply)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.muted, cursor:"pointer", fontSize:".75rem", padding:"6px 12px" }}>
+                  📋 Copy
+                </button>
+                <button onClick={() => setEmailMsg(aiReply)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.accent, cursor:"pointer", fontSize:".75rem", padding:"6px 12px" }}>
+                  ✉️ Use in Email
+                </button>
+                <a href={`sms:${quote.customer_phone}&body=${encodeURIComponent(aiReply)}`} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.green, cursor:"pointer", fontSize:".75rem", padding:"6px 12px", textDecoration:"none" }}>
+                  💬 Send as SMS
+                </a>
+              </div>
             </div>
           )}
+          <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", gap:16 }}>
+            <div>
+              <div style={{ fontSize:".65rem", color:C.muted, marginBottom:2 }}>CUSTOMER EMAIL</div>
+              <a href={`mailto:${quote.customer_email}`} style={{ fontSize:".84rem", color:C.accent, textDecoration:"none", fontWeight:600 }}>{quote.customer_email}</a>
+            </div>
+            <div>
+              <div style={{ fontSize:".65rem", color:C.muted, marginBottom:2 }}>PHONE</div>
+              <a href={`tel:${quote.customer_phone}`} style={{ fontSize:".84rem", color:C.accent, textDecoration:"none", fontWeight:600 }}>{quote.customer_phone}</a>
+            </div>
+          </div>
         </div>
 
         {/* Email Customer */}
