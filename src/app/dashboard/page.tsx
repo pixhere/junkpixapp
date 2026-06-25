@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -104,7 +105,7 @@ export default function Dashboard() {
   const [finalPrice, setFinalPrice] = useState("");
   const [saving, setSaving]       = useState(false);
   const [saved, setSaved]         = useState(false);
-  const mainRef = React.useRef<HTMLDivElement>(null);
+  const scrollRef = React.useRef<number>(0);
   const [settingsTab, setSettingsTab] = useState("business");
 
   useEffect(() => {
@@ -203,7 +204,7 @@ export default function Dashboard() {
   const filteredQuotes = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
 
   const updateStatus = async (id: string, status: string) => {
-    const pos = mainRef.current?.scrollTop || 0;
+    scrollRef.current = window.scrollY;
     const updates: any = { status };
     if (status === "completed") {
       updates.completed_at = new Date().toISOString();
@@ -211,7 +212,6 @@ export default function Dashboard() {
     await supabase.from("quote_requests").update(updates).eq("id", id);
     setQuotes(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q));
     if (selected?.id === id) setSelected((prev: any) => ({ ...prev, ...updates }));
-    setTimeout(() => { if (mainRef.current) mainRef.current.scrollTop = pos; }, 10);
   };
 
   const sendQuote = async (id: string, price: number) => {
@@ -261,7 +261,6 @@ export default function Dashboard() {
     boxSizing: "border-box" as const,
   };
 
-  // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
   // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
   const QuoteModal = ({ quote, onClose }: any) => {
     useEffect(() => {
@@ -598,21 +597,21 @@ export default function Dashboard() {
           {/* Action buttons */}
           <div style={{ display:"flex", gap:10 }}>
             {quote.status === "new" && (
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "reviewed"); }} style={{ flex:1, padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+              <button onClick={() => updateStatus(quote.id, "reviewed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
                 Mark Reviewed
               </button>
             )}
             {quote.status === "quoted" && (
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "booked"); }} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+              <button onClick={() => updateStatus(quote.id, "booked")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
                 Mark Booked ✓
               </button>
             )}
             {quote.status === "booked" && (
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "completed"); }} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+              <button onClick={() => updateStatus(quote.id, "completed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
                 Mark Complete ✓
               </button>
             )}
-            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateStatus(quote.id, "cancelled"); }} style={{ padding:"12px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+            <button onClick={() => updateStatus(quote.id, "cancelled")} style={{ padding:"12px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
               Cancel
             </button>
           </div>
@@ -1861,12 +1860,15 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, sales
       </div>
 
       {/* Main content */}
-      <div ref={mainRef} style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }} className="main-content">
+      <div style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }} className="main-content">
         <Screen />
       </div>
 
       {/* Quote detail modal */}
-      {selected && <QuoteModal quote={selected} onClose={() => setSelected(null)} />}
+      {selected && typeof document !== "undefined" && ReactDOM.createPortal(
+        <QuoteModal quote={selected} onClose={() => setSelected(null)} />,
+        document.body
+      )}
         {/* Bottom nav — mobile only */}
       <div style={{ display:"none" }} className="mobile-nav">
         <style>{`
