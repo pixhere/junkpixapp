@@ -264,16 +264,8 @@ export default function Dashboard() {
   // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
   const QuoteModal = ({ quote, onClose }: any) => {
     useEffect(() => {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        window.scrollTo(0, scrollY);
-      };
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
     }, []);
     const s = STATUS_STYLES[quote.status] || STATUS_STYLES.new;
     const [price, setPrice] = useState(String(quote.final_price || quote.estimated_min || ""));
