@@ -232,9 +232,9 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
           <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>AI SUGGESTED REPLIES</div>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" as const, marginBottom:12 }}>
-            {["Follow Up","Send Quote","Need Photos","Confirm Booking","Price Pushback","No Response"].map(type => (
-              <button key={type} onClick={() => generateReply(type)} style={{ padding:"8px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, cursor:"pointer", fontSize:".78rem" }}>
-                {type}
+            {[{label:"Follow Up",key:"follow_up"},{label:"Send Quote",key:"quote_ready"},{label:"Need Photos",key:"need_more_info"},{label:"Confirm Booking",key:"booking_confirm"},{label:"Price Pushback",key:"price_negotiation"},{label:"No Response",key:"no_show_follow_up"}].map(type => (
+              <button key={type.key} onClick={() => generateReply(type.key)} style={{ padding:"8px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, cursor:"pointer", fontSize:".78rem" }}>
+                {type.label}
               </button>
             ))}
           </div>
