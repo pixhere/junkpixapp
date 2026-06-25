@@ -223,7 +223,10 @@ export default function Dashboard() {
     // Update local state
     setQuotes(prev => prev.map(q => q.id === id ? { ...q, status: "quoted", final_price: price } : q));
     if (selected?.id === id) setSelected((prev: any) => ({ ...prev, status: "quoted", final_price: price }));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
 
+    console.log("Sending quote email to:", quote?.customer_email, "price:", price);
     // Send customer email with price
     if (quote?.customer_email) {
       await fetch("/api/send-customer-email", {
@@ -570,7 +573,7 @@ export default function Dashboard() {
                   style={{ ...inp, flex:1 }}
                 />
                 <button
-                  onClick={() => price && sendQuote(quote.id, parseInt(price))}
+                 onClick={(e) => { e.preventDefault(); price && sendQuote(quote.id, parseInt(price)); }}
                   disabled={!price}
                   style={{ padding:"11px 20px", borderRadius:8, border:"none", background:price ? C.accent : "rgba(217,123,79,0.3)", color:price ? "#000" : "rgba(255,255,255,0.3)", fontWeight:700, cursor:price ? "pointer" : "not-allowed", fontSize:".88rem", whiteSpace:"nowrap" as const }}
                 >
