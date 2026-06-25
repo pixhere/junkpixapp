@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ReactDOM from "react-dom";
 import { createClient } from "@supabase/supabase-js";
 
@@ -97,6 +98,7 @@ const MOCK_QUOTES = [
 
 export default function Dashboard() {
   const [active, setActive]       = useState("overview");
+  const router = useRouter();
   const [quotes, setQuotes] = useState<any[]>([]);
   const [selected, setSelected]   = useState<any>(null);
   const [operator, setOperator]   = useState<any>(null);
@@ -655,7 +657,7 @@ export default function Dashboard() {
             <span style={{ fontSize:".78rem", color:C.accent, fontWeight:600 }}>{newCount} new</span>
           </div>
           {quotes.filter(q => q.status === "new").map(q => (
-            <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+            <div key={q.id} onClick={() => router.push(`/dashboard/quote/${q.id}`)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
               onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             >
@@ -689,7 +691,7 @@ export default function Dashboard() {
         {quotes.slice(0,4).map(q => {
           const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
           return (
-            <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+            <div key={q.id} onClick={() => router.push(`/dashboard/quote/${q.id}`)} style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
               onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             >
@@ -736,7 +738,7 @@ export default function Dashboard() {
           ) : filteredQuotes.map(q => {
             const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
             return (
-              <div key={q.id} onClick={() => setSelected(q)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer" }}
+              <div key={q.id} onClick={() => router.push(`/dashboard/quote/${q.id}`)} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, cursor:"pointer" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
