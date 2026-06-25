@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { quote, operator, replyType, seed } = body;
+    const { quote, operator, replyType, seed, customerMessage } = body;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: "Missing API key" }, { status: 500 });
@@ -11,6 +11,10 @@ export async function POST(req: NextRequest) {
 
     const businessName = operator?.business_name || "our team";
     const ownerName = operator?.owner_name?.split(" ")[0] || "";
+    const finalPrice = quote.final_price ? `$${quote.final_price}` : null;
+    const priceContext = finalPrice 
+      ? `Quoted price: ${finalPrice}` 
+      : `Estimated range: $${quote.estimated_min}–$${quote.estimated_max}`;
 
     const quoteContext = `
 Customer: ${quote.customer_name}
@@ -18,36 +22,56 @@ Address: ${quote.customer_address}
 Phone: ${quote.customer_phone}
 Email: ${quote.customer_email}
 Customer notes: ${quote.customer_notes || "none"}
-AI job description: ${quote.ai_description}
-Estimated price range: $${quote.estimated_min}–$${quote.estimated_max}
-Current status: ${quote.status}
-Final price set: ${quote.final_price ? `$${quote.final_price}` : "not set yet"}
+Job description: ${quote.ai_description}
+${priceContext}
+Status: ${quote.status}
+${customerMessage ? `Customer just said: "${customerMessage}"` : ""}
 `.trim();
 
+    const MASTERS_SYSTEM = `You are a master sales communicator combining the best of:
+- Chris Voss: tactical empathy, mirroring, "that's right" moments
+- Alex Hormozi: value stacking, make the offer irresistible  
+- Grant Cardone: urgency, follow up relentlessly, never accept no
+- Mary Kay Ash: relationship first, make them feel valued
+- Dale Carnegie: genuine interest, remember their situation
+
+You write SMS text messages for ${businessName}, a local junk removal company.${ownerName ? ` The owner is ${ownerName}.` : ""}
+Rules:
+- Write in first person as the business owner
+- Short, human, conversational — like a real text not a corporate email
+- Never use hashtags or salesy buzzwords
+- Create urgency without being pushy
+- Reference the specific job details when relevant
+- Return ONLY the text message. No quotes, no explanation, no subject line.`;
+
     const replyPrompts: Record<string, string> = {
-      follow_up: `Write a short, friendly follow-up text message from ${businessName} to ${quote.customer_name}. They submitted a junk removal quote request but haven't been contacted yet. Keep it under 3 sentences. Sound like a real local business owner — warm, professional, not salesy. Include the price range if it makes sense.`,
-      quote_ready: `Write a short text message sending the quote to ${quote.customer_name} from ${businessName}. The price is $${quote.final_price || quote.estimated_min}. Keep it under 4 sentences. Be direct, friendly, and include a clear call to action to book.`,
-      booking_confirm: `Write a short, warm confirmation text to ${quote.customer_name} from ${businessName}. Their junk removal job at ${quote.customer_address} is booked. Keep it under 3 sentences. Make them feel confident and taken care of.`,
-      need_more_info: `Write a short, polite text to ${quote.customer_name} from ${businessName}. We need to see the junk before finalizing a price for their job at ${quote.customer_address}. Ask them to send a photo or schedule a free 5-min video call. Keep it under 3 sentences.`,
-      price_negotiation: `Write a tactful text to ${quote.customer_name} from ${businessName}. They may be price sensitive. The job is estimated at $${quote.estimated_min}–$${quote.estimated_max}. Briefly explain the value (same-day, no hassle, full cleanup) without discounting. Under 4 sentences.`,
-      no_show_follow_up: `Write a brief, non-pushy follow-up text to ${quote.customer_name} from ${businessName}. They haven't responded to the quote. Check in and keep the door open. Under 2 sentences. No pressure.`,
+      follow_up: `Write a follow-up text to ${quote.customer_name}. ${finalPrice ? `We already sent them a quote for ${finalPrice}.` : `Price range is $${quote.estimated_min}–$${quote.estimated_max}.`} Use Cardone's follow-up energy — persistent but not annoying. Create soft urgency around schedule or availability. Under 3 sentences.`,
+      
+      quote_ready: `Write a text sending the quote to ${quote.customer_name}. Price: ${finalPrice || `$${quote.estimated_min}–$${quote.estimated_max}`}. Use Hormozi's value stacking — remind them what they GET (same-day, no hassle, full cleanup, licensed). End with a clear call to action. Under 4 sentences.`,
+      
+      booking_confirm: `Write a confirmation text to ${quote.customer_name}. Their job at ${quote.customer_address} is booked${finalPrice ? ` for ${finalPrice}` : ""}. Use Mary Kay's warmth — make them feel taken care of and confident. Under 3 sentences.`,
+      
+      need_more_info: `Write a text to ${quote.customer_name} asking for more photos or a quick video call to finalize the price. Use Voss's empathy — acknowledge their situation first, then make the ask feel easy. Under 3 sentences.`,
+      
+      price_negotiation: `Write a response to ${quote.customer_name} who ${customerMessage ? `said: "${customerMessage}"` : "may be price sensitive"}. Price is ${finalPrice || `$${quote.estimated_min}–$${quote.estimated_max}`}. Use Hormozi's value stacking + Voss's tactical empathy. Defend the price by stacking the value. Never discount. Under 4 sentences.`,
+      
+      no_show_follow_up: `Write a non-pushy follow-up to ${quote.customer_name} who hasn't responded. Use Voss's "no-oriented" question technique — give them an easy out that actually keeps the conversation open. Under 2 sentences.`,
     };
 
     const selectedPrompt = replyPrompts[replyType] || replyPrompts.follow_up;
 
     const variations = [
       "Start with the customer's name.",
-      "Do not start with the customer's name.",
-      "Lead with the job details.",
-      "Lead with availability or timing.",
-      "Keep it to one sentence only.",
-      "Be extra casual and brief.",
+      "Do not start with their name — lead with the value or the job.",
+      "Lead with availability or timing urgency.",
+      "Be extra casual and brief — one sentence max.",
+      "Use a question to engage them.",
+      "Lead with a specific detail about their job.",
     ];
 
-    const variation = variations[seed % variations.length];
+    const variation = variations[(seed || Date.now()) % variations.length];
 
-    const systemPrompt = `You write SMS text messages for ${businessName}, a local junk removal company.${ownerName ? ` The owner's name is ${ownerName}.` : ""} You write in first person as the business. Messages are short, human, and conversational — like a real text, not a corporate email. Never use hashtags or salesy phrases. Return ONLY the text message. No subject line, no quotes, no explanation.`;
-
+    // Stream the response
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -59,26 +83,50 @@ Final price set: ${quote.final_price ? `$${quote.final_price}` : "not set yet"}
         model: "claude-sonnet-4-6",
         max_tokens: 300,
         temperature: 1,
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: `Here's the job context:\n${quoteContext}\n\nTask: ${selectedPrompt}\n\nStyle instruction for this version: ${variation}`,
-          },
-        ],
+        stream: true,
+        system: MASTERS_SYSTEM,
+        messages: [{
+          role: "user",
+          content: `Job context:\n${quoteContext}\n\nTask: ${selectedPrompt}\n\nStyle: ${variation}`,
+        }],
       }),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error("Anthropic error:", err);
       return NextResponse.json({ error: "AI generation failed" }, { status: 500 });
     }
 
-    const data = await response.json();
-    const text = data.content?.find((b: any) => b.type === "text")?.text?.trim() || "";
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.type === "content_block_delta" && parsed.delta?.text) {
+                  controller.enqueue(encoder.encode(parsed.delta.text));
+                }
+              } catch { }
+            }
+          }
+        }
+        controller.close();
+      }
+    });
 
-    return NextResponse.json({ reply: text });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+
   } catch (err: any) {
     console.error("suggest-reply error:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });

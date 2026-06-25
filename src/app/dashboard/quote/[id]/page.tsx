@@ -83,6 +83,8 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
     setTimeout(() => setSent(false), 3000);
   };
 
+  const [customerMessage, setCustomerMessage] = useState("");
+
   const generateReply = async (type: string) => {
     setReplyLoading(true);
     setAiReply("");
@@ -90,10 +92,22 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
       const res = await fetch("/api/suggest-reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quote, operator, replyType: type }),
+        body: JSON.stringify({ quote, operator, replyType: type, seed: Date.now(), customerMessage }),
       });
-      const data = await res.json();
-      setAiReply(data.reply || "Could not generate reply.");
+
+      if (!res.ok) { setAiReply("Something went wrong."); return; }
+
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let full = "";
+      setReplyLoading(false);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        full += decoder.decode(value);
+        setAiReply(full);
+      }
     } catch { setAiReply("Something went wrong."); }
     setReplyLoading(false);
   };
@@ -231,6 +245,16 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
         {/* AI Suggested Replies */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
           <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>AI SUGGESTED REPLIES</div>
+          <div style={{ marginBottom:12 }}>
+            <div style={{ fontSize:".72rem", color:C.muted, marginBottom:6 }}>Customer said (optional):</div>
+            <input
+              type="text"
+              value={customerMessage}
+              onChange={e => setCustomerMessage(e.target.value)}
+              placeholder="e.g. that's too expensive, can you do $150?"
+              style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".84rem", outline:"none", boxSizing:"border-box" as const }}
+            />
+          </div>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" as const, marginBottom:12 }}>
             {[{label:"Follow Up",key:"follow_up"},{label:"Send Quote",key:"quote_ready"},{label:"Need Photos",key:"need_more_info"},{label:"Confirm Booking",key:"booking_confirm"},{label:"Price Pushback",key:"price_negotiation"},{label:"No Response",key:"no_show_follow_up"}].map(type => (
               <button key={type.key} onClick={() => generateReply(type.key)} style={{ padding:"8px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, cursor:"pointer", fontSize:".78rem" }}>
