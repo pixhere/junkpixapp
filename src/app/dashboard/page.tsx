@@ -261,6 +261,10 @@ export default function Dashboard() {
   // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
   // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
   const QuoteModal = ({ quote, onClose }: any) => {
+    useEffect(() => {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }, []);
     const s = STATUS_STYLES[quote.status] || STATUS_STYLES.new;
     const [price, setPrice] = useState(String(quote.final_price || quote.estimated_min || ""));
 
