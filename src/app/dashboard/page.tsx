@@ -104,6 +104,7 @@ export default function Dashboard() {
   const [finalPrice, setFinalPrice] = useState("");
   const [saving, setSaving]       = useState(false);
   const [saved, setSaved]         = useState(false);
+  const mainRef = React.useRef<HTMLDivElement>(null);
   const [settingsTab, setSettingsTab] = useState("business");
 
   useEffect(() => {
@@ -202,7 +203,7 @@ export default function Dashboard() {
   const filteredQuotes = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
 
   const updateStatus = async (id: string, status: string) => {
-    const pos = window.scrollY;
+    const pos = mainRef.current?.scrollTop || 0;
     const updates: any = { status };
     if (status === "completed") {
       updates.completed_at = new Date().toISOString();
@@ -210,7 +211,7 @@ export default function Dashboard() {
     await supabase.from("quote_requests").update(updates).eq("id", id);
     setQuotes(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q));
     if (selected?.id === id) setSelected((prev: any) => ({ ...prev, ...updates }));
-    setTimeout(() => window.scrollTo({ top: pos, behavior: "instant" }), 10);
+    setTimeout(() => { if (mainRef.current) mainRef.current.scrollTop = pos; }, 10);
   };
 
   const sendQuote = async (id: string, price: number) => {
@@ -1860,7 +1861,7 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, sales
       </div>
 
       {/* Main content */}
-      <div style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }} className="main-content">
+      <div ref={mainRef} style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }} className="main-content">
         <Screen />
       </div>
 
