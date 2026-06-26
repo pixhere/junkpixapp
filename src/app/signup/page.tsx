@@ -34,6 +34,7 @@ export default function SignupPage() {
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [website, setWebsite] = useState("");
+  const [slug, setSlug] = useState("");
   const [minimumJob, setMinimumJob] = useState("150");
   const [dumpFee, setDumpFee] = useState("85");
   const [laborRate, setLaborRate] = useState("25");
@@ -70,6 +71,7 @@ export default function SignupPage() {
           crew_size: parseInt(crewSize),
           margin_percent: parseInt(margin),
           gas_price: parseFloat(gasPrice),
+          slug: slug.toLowerCase().replace(/[^a-z0-9]/g, ""),
         });
       if (operatorError) throw operatorError;
 
@@ -172,6 +174,13 @@ export default function SignupPage() {
 
             <label style={labelStyle}>BUSINESS NAME</label>
             <input style={inputStyle} placeholder="e.g. The GO TO Junk Removal LLC" value={businessName} onChange={e => setBusinessName(e.target.value)} />
+
+            <label style={labelStyle}>YOUR QUOTE PAGE URL</label>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+              <span style={{ color:"#888", fontSize:".84rem", whiteSpace:"nowrap" }}>junkpix.com/quote/</span>
+              <input style={inputStyle} placeholder="yourbusiness" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))} />
+            </div>
+            <div style={{ fontSize:".72rem", color:"#888", marginBottom:16, fontStyle:"italic" }}>Letters and numbers only. This is the link you share with customers.</div>
 
             <label style={labelStyle}>YOUR NAME</label>
             <input style={inputStyle} placeholder="Owner's full name" value={ownerName} onChange={e => setOwnerName(e.target.value)} />

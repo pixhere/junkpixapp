@@ -922,6 +922,7 @@ export default function Dashboard() {
     const [priceFullMax, setPriceFullMax] = useState(String(operator?.price_full_max || 975));
     const [reviewLink, setReviewLink] = useState(String(operator?.review_link || ""));
     const [ownerName, setOwnerName] = useState(String(operator?.owner_name || ""));
+    const [slug, setSlug] = useState(String(operator?.slug || ""));
     const [formConfig, setFormConfig] = useState<any[]>([]);
     const [loadingConfig, setLoadingConfig] = useState(true);
     const [newItemLabel, setNewItemLabel] = useState("");
@@ -955,6 +956,7 @@ export default function Dashboard() {
         margin_percent: parseInt(margin),
         review_link: reviewLink,
         owner_name: ownerName,
+        slug: slug.toLowerCase().replace(/[^a-z0-9]/g, ""),
         price_minimum_min: parseInt(priceMinMin),
         price_minimum_max: parseInt(priceMinMax),
         price_eighth_min: parseInt(priceEighthMin),
@@ -1025,6 +1027,35 @@ export default function Dashboard() {
           <div style={{ background:C.surface, borderRadius:8, padding:"10px 14px", fontSize:".84rem", color:C.accent, fontFamily:"monospace", marginBottom:0 }}>
             junkpix.com/quote/{operator?.id?.slice(0,8)}
           </div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>YOUR QUOTE PAGE URL</div>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+            <span style={{ color:C.muted, fontSize:".84rem", whiteSpace:"nowrap" as const }}>junkpix.com/quote/</span>
+            <input
+              type="text"
+              value={slug}
+              onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
+              style={{ ...inp, marginBottom:0 }}
+              placeholder="yourbusiness"
+            />
+          </div>
+          <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic", marginBottom:16 }}>
+            Letters and numbers only. Share this link with customers.
+          </div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>YOUR QUOTE PAGE URL</div>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+            <span style={{ color:C.muted, fontSize:".84rem", whiteSpace:"nowrap" as const }}>junkpix.com/quote/</span>
+            <input
+              type="text"
+              value={slug}
+              onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
+              style={{ ...inp, marginBottom:0 }}
+              placeholder="yourbusiness"
+            />
+          </div>
+          <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic", marginBottom:16 }}>
+            Letters and numbers only. Share this link with customers.
+          </div>
+
           <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>YOUR FIRST NAME</div>
           <input
             type="text"
