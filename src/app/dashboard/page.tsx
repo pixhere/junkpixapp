@@ -143,6 +143,26 @@ export default function Dashboard() {
     }
   };
   load();
+
+  // Realtime subscription for new quotes
+  const channel = supabase
+    .channel("quote_requests_changes")
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "quote_requests",
+    }, (payload) => {
+      if (payload.eventType === "INSERT") {
+        setQuotes(prev => [payload.new as any, ...prev]);
+      } else if (payload.eventType === "UPDATE") {
+        setQuotes(prev => prev.map(q => q.id === payload.new.id ? payload.new as any : q));
+      } else if (payload.eventType === "DELETE") {
+        setQuotes(prev => prev.filter(q => q.id !== payload.old.id));
+      }
+    })
+    .subscribe();
+
+  return () => { supabase.removeChannel(channel); };
 }, []);
 
 
