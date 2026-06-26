@@ -1042,7 +1042,6 @@ export default function Dashboard() {
             Letters and numbers only. Share this link with customers.
           </div>
           <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic", marginBottom:16 }}>
-            Letters and numbers only. Share this link with customers.
           </div>
 
           <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>YOUR FIRST NAME</div>
