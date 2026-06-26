@@ -72,6 +72,21 @@ export default function SignupPage() {
           gas_price: parseFloat(gasPrice),
         });
       if (operatorError) throw operatorError;
+
+      // Notify owner of new signup
+      await fetch("/api/notify-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          businessName,
+          ownerName,
+          phone,
+          city,
+          state,
+        }),
+      });
+
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
