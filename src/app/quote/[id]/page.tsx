@@ -226,19 +226,7 @@ const submitRes = await fetch("/api/submit-quote", {
       console.log("opId:", opId);
       console.log("DB error:", dbErr);
 
-      // Send email via Resend
-      await fetch("/api/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          operatorId:   opId,
-          customer,
-          aiDescription: ai.plainDescription,
-          estimatedMin:  ai.estimatedMin,
-          estimatedMax:  ai.estimatedMax,
-          photoUrls,
-        })
-      });
+
       console.log("formConfig:", formConfig);
       console.log("location:", location, "distance:", distance, "condition:", condition, "extras:", extras);
       // Calculate price modifiers from form config
@@ -265,6 +253,21 @@ const submitRes = await fetch("/api/submit-quote", {
       if (insertedQuote?.id) {
         ai.statusUrl = `/status/${insertedQuote.id}`;
       }
+
+      // Send email AFTER price modifiers applied
+      await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operatorId:   opId,
+          customer,
+          aiDescription: ai.plainDescription,
+          estimatedMin:  ai.estimatedMin,
+          estimatedMax:  ai.estimatedMax,
+          photoUrls,
+        })
+      });
+
       setResult(ai);
       setError("");
       if (insertedQuote?.id) {
