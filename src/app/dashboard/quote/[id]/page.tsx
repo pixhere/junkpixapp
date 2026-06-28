@@ -316,7 +316,86 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
+        {/* Schedule Job */}
+        {(quote.status === "booked" || quote.status === "quoted") && (
+          <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+            <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>📅 SCHEDULE JOB</div>
+            
+            {quote.scheduled_date ? (
+              <div style={{ marginBottom:16 }}>
+                <div style={{ fontSize:"1rem", fontWeight:700, color:C.accent, marginBottom:4 }}>
+                  📅 {new Date(quote.scheduled_date + 'T12:00:00').toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" })}
+                  {quote.scheduled_time && ` at ${quote.scheduled_time}`}
+                </div>
+                {quote.schedule_notes && <div style={{ fontSize:".84rem", color:C.muted }}>{quote.schedule_notes}</div>}
+              </div>
+            ) : null}
 
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:10 }}>
+              <div>
+                <div style={{ fontSize:".7rem", color:C.muted, marginBottom:4 }}>DATE</div>
+                <input
+                  type="date"
+                  value={schedDate || quote.scheduled_date || ""}
+                  onChange={e => setSchedDate(e.target.value)}
+                  style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".84rem", outline:"none", boxSizing:"border-box" as const }}
+                />
+              </div>
+              <div>
+                <div style={{ fontSize:".7rem", color:C.muted, marginBottom:4 }}>TIME</div>
+                <select
+                  value={schedTime || quote.scheduled_time || ""}
+                  onChange={e => setSchedTime(e.target.value)}
+                  style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".84rem", outline:"none", boxSizing:"border-box" as const }}
+                >
+                  <option value="">Select time</option>
+                  {["7:00 AM","8:00 AM","9:00 AM","10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM","3:00 PM","4:00 PM","5:00 PM"].map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={schedNotes}
+              onChange={e => setSchedNotes(e.target.value)}
+              placeholder="Notes (e.g. bring extra crew, heavy items)"
+              style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".84rem", outline:"none", boxSizing:"border-box" as const, marginBottom:10 }}
+            />
+            <button
+              onClick={async () => {
+                if (!schedDate) return;
+                await supabase.from("quote_requests").update({
+                  scheduled_date: schedDate,
+                  scheduled_time: schedTime,
+                  schedule_notes: schedNotes,
+                }).eq("id", id);
+                setQuote((prev: any) => ({ ...prev, scheduled_date: schedDate, scheduled_time: schedTime, schedule_notes: schedNotes }));
+                
+                // Email customer
+                if (quote?.customer_email) {
+                  await fetch("/api/send-customer-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      quote,
+                      operator,
+                      message: `Great news! Your junk removal job has been scheduled.\n\nDate: ${new Date(schedDate + 'T12:00:00').toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" })}\nTime: ${schedTime || "TBD"}\n\n${schedNotes ? `Notes: ${schedNotes}\n\n` : ""}We'll see you then! Reply to this email if you need to make any changes.`,
+                    }),
+                  });
+                }
+                
+                setSchedSaved(true);
+                setTimeout(() => setSchedSaved(false), 3000);
+              }}
+              disabled={!schedDate}
+              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background: schedDate ? C.accent : "rgba(217,123,79,0.3)", color: schedDate ? "#000" : "rgba(255,255,255,0.3)", fontWeight:700, cursor: schedDate ? "pointer" : "not-allowed", fontSize:".88rem" }}
+            >
+              {schedSaved ? "Scheduled ✓" : "Save Schedule & Notify Customer"}
+
+            </button>
+          </div>
+        )}
         {/* Email Customer */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
           <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>EMAIL CUSTOMER</div>
