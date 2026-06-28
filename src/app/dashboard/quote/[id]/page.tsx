@@ -34,6 +34,10 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
   const [sent, setSent] = useState(false);
   const [emailMsg, setEmailMsg] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [schedDate, setSchedDate] = useState("");
+  const [schedTime, setSchedTime] = useState("");
+  const [schedNotes, setSchedNotes] = useState("");
+  const [schedSaved, setSchedSaved] = useState(false);
   const [aiReply, setAiReply] = useState("");
   const [replyLoading, setReplyLoading] = useState(false);
 

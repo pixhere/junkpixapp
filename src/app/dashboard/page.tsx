@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ReactDOM from "react-dom";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -81,6 +82,7 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
 const NAV = [
   { id: "overview",   label: "Overview",   icon: "▦" },
   { id: "quotes",     label: "Quotes",     icon: "📋" },
+  { id: "calendar",   label: "Calendar",   icon: "📅" },
   { id: "sales",      label: "Sales",      icon: "🎯" },
   { id: "social",     label: "Social",     icon: "📱" },
   { id: "analytics",  label: "Analytics",  icon: "📊" },
@@ -278,6 +280,365 @@ export default function Dashboard() {
   };
 
   // ── QUOTE DETAIL MODAL ──────────────────────────────────────────────────────
+  const QuoteModal = ({ quote, onClose }: any) => {
+    useEffect(() => {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }, []);
+    const s = STATUS_STYLES[quote.status] || STATUS_STYLES.new;
+    const [price, setPrice] = useState(String(quote.final_price || quote.estimated_min || ""));
+
+    // AI Replies state
+    const [aiReply, setAiReply]           = useState("");
+    const [loadingReply, setLoadingReply] = useState(false);
+    const [copiedReply, setCopiedReply]   = useState(false);
+    const [activeType, setActiveType]     = useState("");
+
+    // Send email state
+    const [emailBody, setEmailBody]       = useState("");
+    const [sendingEmail, setSendingEmail] = useState(false);
+    const [emailSent, setEmailSent]       = useState(false);
+
+    const REPLY_TYPES = [
+      { id: "follow_up",          label: "Follow Up",       icon: "💬" },
+      { id: "quote_ready",        label: "Send Quote",      icon: "💰" },
+      { id: "need_more_info",     label: "Need Photos",     icon: "📸" },
+      { id: "booking_confirm",    label: "Confirm Booking", icon: "✅" },
+      { id: "price_negotiation",  label: "Price Pushback",  icon: "🤝" },
+      { id: "no_show_follow_up",  label: "No Response",     icon: "👋" },
+    ];
+
+    const generateReply = async (replyType: string) => {
+      setAiReply("");
+      setCopiedReply(false);
+      setLoadingReply(true);
+      setActiveType(replyType);
+      try {
+        const res = await fetch("/api/suggest-reply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quote, operator, replyType, seed: Date.now() }),
+        });
+        const data = await res.json();
+        setAiReply(data.reply || "Could not generate reply.");
+      } catch {
+        setAiReply("Something went wrong. Try again.");
+      } finally {
+        setLoadingReply(false);
+      }
+    };
+
+    const copyReply = () => {
+      navigator.clipboard.writeText(aiReply);
+      setCopiedReply(true);
+      setTimeout(() => setCopiedReply(false), 2000);
+    };
+
+    return (
+      <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", zIndex:100, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+        <div onClick={e => e.stopPropagation()} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, width:"100%", maxWidth:560, maxHeight:"92vh", overflowY:"auto" }}>
+          
+          {/* Header */}
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24 }}>
+            <div>
+              <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:4 }}>QUOTE REQUEST</div>
+              <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>{quote.customer_name}</div>
+              <div style={{ fontSize:".84rem", color:C.muted, marginTop:2 }}>{quote.customer_address}</div>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+              <span style={{ fontSize:".72rem", fontWeight:700, color:s.color, background:s.bg, padding:"5px 12px", borderRadius:20 }}>{s.label}</span>
+              <button onClick={onClose} style={{ background:"none", border:"none", color:C.muted, fontSize:"1.2rem", cursor:"pointer" }}>✕</button>
+            </div>
+          </div>
+
+          {/* Customer contact */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>CUSTOMER</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {[
+                ["📞", quote.customer_phone, `tel:${quote.customer_phone}`],
+                ["📧", quote.customer_email, `mailto:${quote.customer_email}`],
+              ].map(([icon, val, href]) => (
+                <a key={String(href)} href={String(href)} style={{ display:"flex", alignItems:"center", gap:10, color:C.accent, textDecoration:"none", fontSize:".88rem" }}>
+                  <span>{icon}</span>{val}
+                </a>
+              ))}
+              {quote.customer_notes && (
+                <div style={{ display:"flex", gap:10, alignItems:"flex-start", marginTop:4 }}>
+                  <span>📝</span>
+                  <span style={{ fontSize:".84rem", color:C.muted, lineHeight:1.45 }}>{quote.customer_notes}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Lead Score */}
+          {(() => {
+            const score = scoreLead(quote);
+            const [showBreakdown, setShowBreakdown] = useState(false);
+            const tierColor = score.bookingTier === "hot" ? "#ef4444" : score.bookingTier === "warm" ? "#f59e0b" : C.muted;
+            const tierIcon = score.bookingTier === "hot" ? "🔥" : score.bookingTier === "warm" ? "🟡" : "⚪";
+            return (
+              <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                  <div style={{ display:"flex", gap:16, alignItems:"center" }}>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:4 }}>BOOKING SCORE</div>
+                      <div style={{ fontSize:"1.4rem", fontWeight:800, color:tierColor }}>{tierIcon} {score.bookingScore}/100</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:4 }}>PROFIT SCORE</div>
+                      <div style={{ fontSize:"1.4rem", fontWeight:800, color: score.profitScore >= 70 ? C.green : score.profitScore >= 40 ? "#f59e0b" : C.red }}>{score.profitScore}/100</div>
+                    </div>
+                    {score.isComplex && (
+                      <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:8, padding:"6px 12px" }}>
+                        <div style={{ fontSize:".65rem", color:C.red, fontWeight:700 }}>🔴 COMPLEX</div>
+                        <div style={{ fontSize:".6rem", color:C.red, opacity:0.8 }}>Verify first</div>
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => setShowBreakdown(!showBreakdown)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.muted, cursor:"pointer", fontSize:".75rem", padding:"4px 10px" }}>
+                    {showBreakdown ? "▲ Hide" : "▼ Why?"}
+                  </button>
+                </div>
+                {showBreakdown && (
+                  <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:12, display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>BOOKING SIGNALS</div>
+                      {score.breakdown.booking.map((b, i) => (
+                        <div key={i} style={{ fontSize:".75rem", color:C.green, marginBottom:4 }}>{b}</div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>PROFIT SIGNALS</div>
+                      {score.breakdown.profit.map((b, i) => (
+                        <div key={i} style={{ fontSize:".75rem", color:C.red, marginBottom:4 }}>{b}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* AI Description */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:10 }}>AI DESCRIPTION</div>
+            <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.6 }}>{quote.ai_description}</div>
+            {quote.estimated_min && (
+              <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between" }}>
+                <span style={{ fontSize:".78rem", color:C.muted }}>Estimated range</span>
+                <span style={{ fontSize:".88rem", fontWeight:700, color:C.accent }}>${quote.estimated_min} – ${quote.estimated_max}</span>
+              </div>
+            )}
+          </div>
+         {/* Photos */}
+          {(() => {
+            const urls = Array.isArray(quote.photo_urls) 
+              ? quote.photo_urls 
+              : typeof quote.photo_urls === 'string' 
+                ? JSON.parse(quote.photo_urls) 
+                : [];
+            return urls.length > 0 ? (
+              <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16 }}>
+                <div style={{ fontSize:".7rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>CUSTOMER PHOTOS</div>
+                <div style={{ display:"flex", gap:10, flexWrap:"wrap" as const }}>
+                  {urls.map((url: string, i: number) => (
+                    <a key={i} href={url} target="_blank" rel="noreferrer">
+                      <img src={url} alt={"Photo " + (i+1)} style={{ width:140, height:105, objectFit:"cover" as const, borderRadius:8, border:`1px solid ${C.border}`, cursor:"pointer" }} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null;
+          })()}
+
+          {/* AI SUGGESTED REPLIES */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(217,123,79,0.15)` }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ fontSize:"1rem" }}>✨</span>
+                <div style={{ fontSize:".7rem", color:C.accent, letterSpacing:".1em", fontFamily:"monospace", fontWeight:700 }}>AI SUGGESTED REPLIES</div>
+              </div>
+              <div style={{ fontSize:".7rem", color:C.muted }}>Click to generate · Copy to text</div>
+            </div>
+
+            <div style={{ display:"flex", flexWrap:"wrap" as const, gap:8, marginBottom:14 }}>
+              {REPLY_TYPES.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => generateReply(t.id)}
+                  disabled={loadingReply}
+                  style={{
+                    padding:"7px 13px",
+                    borderRadius:20,
+                    border:`1px solid ${activeType === t.id ? C.accent : C.border}`,
+                    background: activeType === t.id ? C.accentDim : "transparent",
+                    color: activeType === t.id ? C.accent : C.muted,
+                    fontSize:".75rem",
+                    fontWeight:600,
+                    cursor: loadingReply ? "not-allowed" : "pointer",
+                    display:"flex",
+                    alignItems:"center",
+                    gap:5,
+                    transition:"all .15s",
+                    opacity: loadingReply && activeType !== t.id ? 0.5 : 1,
+                  }}
+                >
+                  <span>{t.icon}</span> {t.label}
+                </button>
+              ))}
+            </div>
+
+            {(loadingReply || aiReply) && (
+              <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:14 }}>
+                {loadingReply ? (
+                  <div style={{ display:"flex", alignItems:"center", gap:10, color:C.muted, fontSize:".84rem", padding:"8px 0" }}>
+                    <span style={{ animation:"spin 1s linear infinite", display:"inline-block" }}>⟳</span>
+                    Drafting reply…
+                    <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ fontSize:".84rem", color:C.text, lineHeight:1.65, padding:"10px 14px", background:C.card, borderRadius:8, border:`1px solid ${C.border}`, marginBottom:10, whiteSpace:"pre-wrap" as const }}>
+                      {aiReply}
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <button
+                        onClick={copyReply}
+                        style={{ flex:1, padding:"9px 0", borderRadius:8, border:"none", background: copiedReply ? "rgba(34,197,94,0.15)" : C.accentDim, color: copiedReply ? C.green : C.accent, fontWeight:700, cursor:"pointer", fontSize:".82rem", transition:"all .2s" }}
+                      >
+                        {copiedReply ? "Copied ✓" : "📋 Copy Message"}
+                      </button>
+                      
+                        <button
+                        onClick={() => { window.open("sms:" + quote.customer_phone + "?body=" + encodeURIComponent(aiReply)); }}
+                        style={{ padding:"9px 16px", borderRadius:8, border:"1px solid " + C.border, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".82rem" }}
+                      >
+                        💬 Open in SMS
+                      </button>
+                      <button
+                        onClick={() => generateReply(activeType)}
+                        style={{ padding:"9px 14px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".82rem" }}
+                        title="Regenerate"
+                      >
+                        ↺
+                      </button>
+                      <button
+                        onClick={() => setEmailBody(aiReply)}
+                        style={{ padding:"9px 14px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".82rem" }}
+                      >
+                        ✉ Use in Email
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {!loadingReply && !aiReply && (
+              <div style={{ fontSize:".78rem", color:C.muted, textAlign:"center" as const, padding:"6px 0" }}>
+                Pick a reply type above — AI will draft a text message you can copy or send
+              </div>
+            )}
+          </div>
+{/* Send Email to Customer */}
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(59,130,246,0.15)` }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+              <span>✉️</span>
+              <div style={{ fontSize:".7rem", color:C.blue, letterSpacing:".1em", fontFamily:"monospace", fontWeight:700 }}>EMAIL CUSTOMER</div>
+              <div style={{ fontSize:".7rem", color:C.muted, marginLeft:"auto" }}>to: {quote.customer_email}</div>
+            </div>
+            <textarea
+              value={emailBody}
+              onChange={e => setEmailBody(e.target.value)}
+              placeholder="Write your message here, or generate one with AI above then click 'Use in Email'..."
+              rows={4}
+              style={{ width:"100%", padding:"11px 14px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontSize:".84rem", fontFamily:"inherit", resize:"vertical" as const, boxSizing:"border-box" as const, marginBottom:10, outline:"none" }}
+            />
+            <div style={{ fontSize:".72rem", color:C.muted, marginBottom:10 }}>
+              Quote details (address, price, job description) are automatically added to the email.
+            </div>
+            <button
+              onClick={async () => {
+                if (!emailBody.trim()) return;
+                setSendingEmail(true);
+                try {
+                  const res = await fetch("/api/send-customer-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ quote, operator, message: emailBody }),
+                  });
+                  const data = await res.json();
+                  if (data.success) { setEmailSent(true); setTimeout(() => setEmailSent(false), 3000); }
+                } catch {
+                  alert("Failed to send email. Try again.");
+                } finally {
+                  setSendingEmail(false);
+                }
+              }}
+              disabled={!emailBody.trim() || sendingEmail}
+              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background: emailSent ? "rgba(34,197,94,0.15)" : emailBody.trim() ? C.blue : "rgba(59,130,246,0.3)", color: emailSent ? C.green : emailBody.trim() ? "#fff" : "rgba(255,255,255,0.3)", fontWeight:700, cursor: emailBody.trim() ? "pointer" : "not-allowed", fontSize:".88rem", transition:"all .2s" }}
+            >
+              {emailSent ? "Email Sent ✓" : sendingEmail ? "Sending..." : "Send Email to Customer"}
+            </button>
+          </div>
+
+          {/* Send quote */}
+        
+          {quote.status === "new" || quote.status === "reviewed" ? (
+            <div style={{ background:C.accentDim, border:`1px solid rgba(217,123,79,0.2)`, borderRadius:10, padding:16, marginBottom:16 }}>
+              <div style={{ fontSize:".7rem", color:C.accent, letterSpacing:".1em", fontFamily:"monospace", marginBottom:12 }}>SET YOUR PRICE</div>
+              <div style={{ display:"flex", gap:10 }}>
+                <input
+                  type="number"
+                  placeholder="Enter your price..."
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  style={{ ...inp, flex:1 }}
+                />
+                <button
+                 onClick={(e) => { e.preventDefault(); price && sendQuote(quote.id, parseInt(price)); }}
+                  disabled={!price}
+                  style={{ padding:"11px 20px", borderRadius:8, border:"none", background:price ? C.accent : "rgba(217,123,79,0.3)", color:price ? "#000" : "rgba(255,255,255,0.3)", fontWeight:700, cursor:price ? "pointer" : "not-allowed", fontSize:".88rem", whiteSpace:"nowrap" as const }}
+                >
+                  {saved ? "Sent ✓" : "Send Quote"}
+                </button>
+              </div>
+            </div>
+          ) : quote.final_price ? (
+            <div style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.2)", borderRadius:10, padding:16, marginBottom:16, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <span style={{ fontSize:".84rem", color:C.muted }}>Quote sent to customer</span>
+              <span style={{ fontSize:"1.4rem", fontWeight:800, color:C.green }}>${quote.final_price}</span>
+            </div>
+          ) : null}
+
+          {/* Action buttons */}
+          <div style={{ display:"flex", gap:10 }}>
+            {quote.status === "new" && (
+              <button onClick={() => updateStatus(quote.id, "reviewed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+                Mark Reviewed
+              </button>
+            )}
+            {quote.status === "quoted" && (
+              <button onClick={() => updateStatus(quote.id, "booked")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+                Mark Booked ✓
+              </button>
+            )}
+            {quote.status === "booked" && (
+              <button onClick={() => updateStatus(quote.id, "completed")} style={{ flex:1, padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+                Mark Complete ✓
+              </button>
+            )}
+            <button onClick={() => updateStatus(quote.id, "cancelled")} style={{ padding:"12px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+              Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+    );
+  };
+
   // ── OVERVIEW ────────────────────────────────────────────────────────────────
   const Overview = () => (
     <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
@@ -724,6 +1085,29 @@ export default function Dashboard() {
           />
           <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic" }}>
             Customers get this link 2 hours after job is marked complete
+          </div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:16, marginBottom:4, fontFamily:"monospace" }}>WEBHOOK INTEGRATION</div>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+            <div>
+              <div style={{ fontSize:".86rem", color:C.text, fontWeight:600 }}>Enable Webhook</div>
+              <div style={{ fontSize:".72rem", color:C.muted }}>Fire events to N8N, Zapier, or any tool</div>
+            </div>
+            <div
+              onClick={() => setWebhookEnabled(!webhookEnabled)}
+              style={{ width:44, height:24, borderRadius:12, background: webhookEnabled ? C.accent : C.border, cursor:"pointer", position:"relative" as const, transition:"background .2s" }}
+            >
+              <div style={{ width:20, height:20, borderRadius:"50%", background:"#fff", position:"absolute" as const, top:2, left: webhookEnabled ? 22 : 2, transition:"left .2s" }} />
+            </div>
+          </div>
+          <input
+            type="url"
+            placeholder="https://your-n8n-instance.com/webhook/junkpix"
+            value={webhookUrl}
+            onChange={e => setWebhookUrl(e.target.value)}
+            style={{ ...inp, marginBottom:4 }}
+          />
+          <div style={{ fontSize:".7rem", color:C.muted, fontStyle:"italic", marginBottom:16 }}>
+            JunkPix will POST to this URL when quotes are submitted or status changes
           </div>
         </div>}
 
@@ -1505,8 +1889,166 @@ useEffect(() => {
       </div>
     );
   };
-const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, sales: SalesScreen, social: SocialScreen, analytics: Analytics, settings: SettingsScreen };
-  
+  // ── CALENDAR ─────────────────────────────────────────────────────────────────
+  const CalendarScreen = () => {
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    const scheduledQuotes = quotes.filter(q => q.scheduled_date);
+
+    const getDaysInMonth = (date: Date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      return { firstDay, daysInMonth, year, month };
+    };
+
+    const { firstDay, daysInMonth, year, month } = getDaysInMonth(currentMonth);
+
+    const getJobsForDay = (day: number) => {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      return scheduledQuotes.filter(q => q.scheduled_date === dateStr);
+    };
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    const selectedJobs = selectedDate ? scheduledQuotes.filter(q => q.scheduled_date === selectedDate) : [];
+
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+    return (
+      <div style={{ display:"flex", flexDirection:"column" as const, gap:20 }}>
+        <div>
+          <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Calendar</div>
+          <div style={{ fontSize:".84rem", color:C.muted, marginTop:4 }}>
+            {scheduledQuotes.length} job{scheduledQuotes.length !== 1 ? "s" : ""} scheduled
+          </div>
+        </div>
+
+        {/* Month navigation */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+            <button onClick={() => setCurrentMonth(new Date(year, month - 1))} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:8, color:C.muted, cursor:"pointer", padding:"6px 12px", fontSize:".84rem" }}>←</button>
+            <div style={{ fontWeight:700, color:C.text, fontSize:"1rem" }}>{monthNames[month]} {year}</div>
+            <button onClick={() => setCurrentMonth(new Date(year, month + 1))} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:8, color:C.muted, cursor:"pointer", padding:"6px 12px", fontSize:".84rem" }}>→</button>
+          </div>
+
+          {/* Day headers */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2, marginBottom:4 }}>
+            {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
+              <div key={d} style={{ textAlign:"center" as const, fontSize:".65rem", color:C.muted, fontFamily:"monospace", padding:"4px 0" }}>{d}</div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2 }}>
+            {Array.from({ length: firstDay }).map((_, i) => (
+              <div key={`empty-${i}`} />
+            ))}
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const day = i + 1;
+              const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const jobs = getJobsForDay(day);
+              const isToday = dateStr === todayStr;
+              const isSelected = dateStr === selectedDate;
+
+              return (
+                <div
+                  key={day}
+                  onClick={() => setSelectedDate(dateStr === selectedDate ? null : dateStr)}
+                  style={{
+                    padding:"6px 4px",
+                    borderRadius:8,
+                    textAlign:"center" as const,
+                    cursor:"pointer",
+                    background: isSelected ? C.accentDim : isToday ? "rgba(255,255,255,0.05)" : "transparent",
+                    border: isSelected ? `1px solid ${C.accent}` : isToday ? `1px solid rgba(255,255,255,0.1)` : "1px solid transparent",
+                  }}
+                >
+                  <div style={{ fontSize:".82rem", fontWeight: isToday ? 700 : 400, color: isToday ? C.accent : C.text }}>{day}</div>
+                  {jobs.length > 0 && (
+                    <div style={{ marginTop:2, display:"flex", justifyContent:"center", gap:2, flexWrap:"wrap" as const }}>
+                      {jobs.slice(0,3).map((_, j) => (
+                        <div key={j} style={{ width:6, height:6, borderRadius:"50%", background:C.accent }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Selected day jobs */}
+        {selectedDate && (
+          <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+            <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>
+              {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" })}
+            </div>
+            {selectedJobs.length === 0 ? (
+              <div style={{ color:C.muted, fontSize:".84rem" }}>No jobs scheduled this day.</div>
+            ) : (
+              <div style={{ display:"flex", flexDirection:"column" as const, gap:10 }}>
+                {selectedJobs.map(q => (
+                  <div
+                    key={q.id}
+                    onClick={() => router.push(`/dashboard/quote/${q.id}`)}
+                    style={{ padding:"14px 16px", borderRadius:8, background:C.surface, border:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+                  >
+                    <div>
+                      <div style={{ fontWeight:600, color:C.text, fontSize:".9rem" }}>{q.customer_name}</div>
+                      <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.customer_address}</div>
+                      {q.scheduled_time && <div style={{ fontSize:".75rem", color:C.accent, marginTop:2 }}>⏰ {q.scheduled_time}</div>}
+                      {q.schedule_notes && <div style={{ fontSize:".72rem", color:C.muted, marginTop:2 }}>{q.schedule_notes}</div>}
+                    </div>
+                    <div style={{ textAlign:"right" as const, flexShrink:0, marginLeft:12 }}>
+                      <div style={{ color:C.accent, fontWeight:700 }}>${q.final_price || q.estimated_min}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Upcoming jobs */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>UPCOMING JOBS</div>
+          {scheduledQuotes.length === 0 ? (
+            <div style={{ color:C.muted, fontSize:".84rem" }}>No jobs scheduled yet. Schedule a booked job from the quote detail page.</div>
+          ) : (
+            <div style={{ display:"flex", flexDirection:"column" as const, gap:10 }}>
+              {scheduledQuotes
+                .sort((a, b) => new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime())
+                .slice(0, 10)
+                .map(q => (
+                  <div
+                    key={q.id}
+                    onClick={() => router.push(`/dashboard/quote/${q.id}`)}
+                    style={{ padding:"14px 16px", borderRadius:8, background:C.surface, border:`1px solid ${C.border}`, cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}
+                  >
+                    <div>
+                      <div style={{ fontWeight:600, color:C.text, fontSize:".9rem" }}>{q.customer_name}</div>
+                      <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.customer_address}</div>
+                      <div style={{ fontSize:".75rem", color:C.accent, marginTop:2 }}>
+                        📅 {new Date(q.scheduled_date + "T12:00:00").toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" })}
+                        {q.scheduled_time && ` · ${q.scheduled_time}`}
+                      </div>
+                    </div>
+                    <div style={{ color:C.accent, fontWeight:700, flexShrink:0, marginLeft:12 }}>
+                      ${q.final_price || q.estimated_min}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calendar: CalendarScreen, social: SocialScreen, sales: SalesScreen, analytics: Analytics, settings: SettingsScreen };  
   const Screen = SCREENS[active];
 
   return (
@@ -1544,7 +2086,11 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, sales
         <Screen />
       </div>
 
-
+      {/* Quote detail modal */}
+      {selected && typeof document !== "undefined" && ReactDOM.createPortal(
+        <QuoteModal quote={selected} onClose={() => setSelected(null)} />,
+        document.body
+      )}
         {/* Bottom nav — mobile only */}
       <div style={{ display:"none" }} className="mobile-nav">
         <style>{`
@@ -1555,9 +2101,10 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, sales
             .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
           }
         `}</style>
-        {[
+       {[
           { id:"overview",  label:"Home",      icon:"▦" },
           { id:"quotes",    label:"Quotes",    icon:"📋" },
+          { id:"calendar",  label:"Calendar",  icon:"📅" },
           { id:"sales",     label:"Sales",     icon:"🎯" },
           { id:"social",    label:"Social",    icon:"📱" },
           { id:"analytics", label:"Analytics", icon:"📊" },
