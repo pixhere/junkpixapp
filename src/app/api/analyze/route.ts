@@ -54,6 +54,21 @@ half load: $${prices.half}
 three quarter load: $${prices.threeQ}
 full load: $${prices.full}
 
+SITE VISIT REQUIRED - DETECT THESE FIRST:
+If you detect ANY of the following, set siteVisitRequired to true and DO NOT estimate a price:
+- Mobile home, trailer home, manufactured home
+- Full house or building demolition
+- Large shed demolition (bigger than 12x12 ft)
+- Swimming pool removal
+- Large garage demolition
+- Any job requiring heavy equipment (excavator, bobcat)
+- Any structure that needs to be torn down
+
+When siteVisitRequired is true:
+- Set estimatedMin and estimatedMax to 0
+- Set plainDescription to explain this needs a site visit and to call for a custom quote
+- Set confidence to "low"
+
 HEAVY MATERIAL DETECTION:
 If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials.
 Apply these EXACT multipliers to your base load tier price:
@@ -91,6 +106,7 @@ Return ONLY valid JSON with no markdown:
   "estimatedMax": <number from the range above>,
   "confidence": "high"|"medium"|"low",
   "visibleHazardFlag": false,
+  "siteVisitRequired": true|false,
   "heavyMaterialFlag": true|false,
   "heavyMaterials": ["list of heavy materials detected"]
 }`,

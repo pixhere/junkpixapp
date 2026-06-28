@@ -587,7 +587,21 @@ if (step === 4) return (
               </div>
             </div>
 
-            {result?.estimatedMin && (
+            {result?.siteVisitRequired && (
+              <div style={{ background: "rgba(217,123,79,0.1)", border: "1px solid rgba(217,123,79,0.4)", borderRadius: 8, padding: 20, marginBottom: 16, textAlign: "center" as const }}>
+                <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📞</div>
+                <div style={{ fontWeight: 800, color: "#D97B4F", fontSize: "1rem", marginBottom: 8 }}>This Job Needs a Custom Quote</div>
+                <div style={{ fontSize: ".84rem", color: "#666", lineHeight: 1.6, marginBottom: 16 }}>
+                  Based on your photos, this job requires an on-site visit to give you an accurate price. Please call or text us directly.
+                </div>
+                {opPhone && (
+                  <a href={`tel:${opPhone}`} style={{ display: "inline-block", background: "#D97B4F", color: "#fff", padding: "12px 28px", borderRadius: 8, fontWeight: 800, fontSize: ".95rem", textDecoration: "none" }}>
+                    📞 Call for a Free Quote
+                  </a>
+                )}
+              </div>
+            )}
+            {result?.estimatedMin && !result?.siteVisitRequired && (
               <div style={{ background: C.bgSoft, borderRadius: 8, padding: 20, marginBottom: 16, border: `1px solid ${C.line}` }}>
                 <div style={{ fontSize: ".62rem", letterSpacing: ".1em", color: C.inkFaint, fontFamily: "monospace", marginBottom: 8 }}>ESTIMATED RANGE</div>
                 <div style={{ fontSize: "2rem", fontWeight: 800, color: C.clay }}>${result.estimatedMin} – ${result.estimatedMax}</div>
