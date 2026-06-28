@@ -1390,6 +1390,37 @@ export default function Dashboard() {
           </div>
        </div>}
 
+        {settingsTab === "support" && (
+          <div>
+            <div style={{ fontSize:"1rem", fontWeight:700, color:C.text, marginBottom:8 }}>Support & Help</div>
+            <div style={{ fontSize:".84rem", color:C.muted, marginBottom:20 }}>Need help? Our team is here for you.</div>
+
+            <div style={{ background:C.surface, borderRadius:12, padding:20, marginBottom:16, border:`1px solid ${C.border}` }}>
+              <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>📧 Email Support</div>
+              <div style={{ fontSize:".84rem", color:C.muted, marginBottom:12 }}>We typically respond within a few hours.</div>
+              <a href="mailto:junkpixapp@gmail.com" style={{ display:"inline-block", padding:"10px 20px", borderRadius:8, background:C.accent, color:"#000", fontWeight:700, fontSize:".88rem", textDecoration:"none" }}>
+                Email Us →
+              </a>
+            </div>
+
+            <div style={{ background:C.surface, borderRadius:12, padding:20, marginBottom:16, border:`1px solid ${C.border}` }}>
+              <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>💬 Feature Requests</div>
+              <div style={{ fontSize:".84rem", color:C.muted, marginBottom:12 }}>Have an idea to make JunkPix better? We want to hear it.</div>
+              <a href="mailto:junkpixapp@gmail.com?subject=Feature Request" style={{ display:"inline-block", padding:"10px 20px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.text, fontWeight:700, fontSize:".88rem", textDecoration:"none" }}>
+                Send Idea →
+              </a>
+            </div>
+
+            <div style={{ background:C.surface, borderRadius:12, padding:20, border:`1px solid ${C.border}` }}>
+              <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>🐛 Report a Bug</div>
+              <div style={{ fontSize:".84rem", color:C.muted, marginBottom:12 }}>Something not working right? Let us know.</div>
+              <a href="mailto:junkpixapp@gmail.com?subject=Bug Report" style={{ display:"inline-block", padding:"10px 20px", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:700, fontSize:".88rem", textDecoration:"none" }}>
+                Report Bug →
+              </a>
+            </div>
+          </div>
+        )}
+
         {settingsTab === "account" && <button onClick={logout} style={{ padding:"12px 0", borderRadius:8, border:`1px solid rgba(239,68,68,0.3)`, background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
           Log Out
         </button>}
