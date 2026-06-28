@@ -604,14 +604,6 @@ if (step === 4) return (
                 </div>
               </div>
             )}
-            {result?.heavyMaterialFlag && (
-              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
-                <div style={{ fontWeight: 700, color: "#ef4444", fontSize: ".88rem", marginBottom: 4 }}>⚠️ Heavy Materials Detected</div>
-                <div style={{ fontSize: ".78rem", color: C.inkSoft, lineHeight: 1.5 }}>
-                  This job contains heavy or construction materials ({result.heavyMaterials?.join(", ")}). The owner will review and confirm your final price before booking.
-                </div>
-              </div>
-            )}
                 {/* Instant booking incentive */}
             <div style={{ background: "#D97B4F", borderRadius: 12, padding: 20, marginBottom: 16 }}>
               <div style={{ fontSize: "1.4rem", marginBottom: 8 }}>🔥</div>
