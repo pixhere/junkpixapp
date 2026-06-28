@@ -1020,6 +1020,7 @@ export default function Dashboard() {
             { id:"payments", label:"💳 Payments" },
             { id:"subscription", label:"📦 Subscription" },
             { id:"account", label:"🔐 Account" },
+            { id:"support", label:"🆘 Support" },
           ].map(tab => (
             <button
               key={tab.id}
