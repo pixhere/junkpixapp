@@ -54,6 +54,20 @@ half load: $${prices.half}
 three quarter load: $${prices.threeQ}
 full load: $${prices.full}
 
+HEAVY MATERIAL DETECTION:
+If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials:
+- Concrete, cement, cinder blocks, masonry, stone, bricks
+- Drywall, plaster, sheetrock (especially in bags or broken pieces)
+- Ceramic tile, flooring materials in large quantities
+- HVAC equipment, ductwork, metal equipment
+- Demolition debris (shed remains, deck boards, structural wood)
+- Dirt, gravel, sand, soil
+
+When heavyMaterialFlag is true:
+- MULTIPLY your estimated price by 1.5x minimum
+- Set confidence to low 
+- Note in plainDescription that heavy materials require custom pricing
+
 Return ONLY valid JSON with no markdown:
 {
   "plainDescription": "description of what you see",
@@ -62,7 +76,9 @@ Return ONLY valid JSON with no markdown:
   "estimatedMin": <number from the range above>,
   "estimatedMax": <number from the range above>,
   "confidence": "high"|"medium"|"low",
-  "visibleHazardFlag": false
+  "visibleHazardFlag": false,
+  "heavyMaterialFlag": true|false,
+  "heavyMaterials": ["list of heavy materials detected"]
 }`,
         messages: [{
           role: "user",

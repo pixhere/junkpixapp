@@ -216,6 +216,8 @@ const submitRes = await fetch("/api/submit-quote", {
           ai_hazard_flag:    ai.visibleHazardFlag,
           estimated_min:     ai.estimatedMin,
           estimated_max:     ai.estimatedMax,
+          heavy_material_flag: ai.heavyMaterialFlag || false,
+          heavy_materials:   ai.heavyMaterials || [],
           status:            "new",
         }),
       });
@@ -591,6 +593,22 @@ if (step === 4) return (
                 <div style={{ fontSize: "2rem", fontWeight: 800, color: C.clay }}>${result.estimatedMin} – ${result.estimatedMax}</div>
                 <div style={{ fontSize: ".78rem", color: C.inkSoft, marginTop: 6, lineHeight: 1.4 }}>
                   This is a ballpark based on your photos. Your exact price comes from the owner after review.
+                </div>
+              </div>
+            )}
+            {result?.heavyMaterialFlag && (
+              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontWeight: 700, color: "#ef4444", fontSize: ".88rem", marginBottom: 4 }}>⚠️ Heavy Materials Detected</div>
+                <div style={{ fontSize: ".78rem", color: C.inkSoft, lineHeight: 1.5 }}>
+                  This job contains heavy or construction materials ({result.heavyMaterials?.join(", ")}). The owner will review and confirm your final price before booking.
+                </div>
+              </div>
+            )}
+            {result?.heavyMaterialFlag && (
+              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontWeight: 700, color: "#ef4444", fontSize: ".88rem", marginBottom: 4 }}>⚠️ Heavy Materials Detected</div>
+                <div style={{ fontSize: ".78rem", color: C.inkSoft, lineHeight: 1.5 }}>
+                  This job contains heavy or construction materials ({result.heavyMaterials?.join(", ")}). The owner will review and confirm your final price before booking.
                 </div>
               </div>
             )}

@@ -208,6 +208,14 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
           <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:8 }}>AI DESCRIPTION</div>
           <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.6 }}>{quote.ai_description}</div>
+          {quote.heavy_material_flag && (
+            <div style={{ marginTop:12, padding:"12px 14px", background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:8 }}>
+              <div style={{ fontWeight:700, color:"#ef4444", fontSize:".84rem", marginBottom:4 }}>⚠️ HEAVY MATERIALS DETECTED</div>
+              <div style={{ fontSize:".78rem", color:C.muted, lineHeight:1.5 }}>
+                {quote.heavy_materials?.join(", ")} — Standard load pricing may not apply. Price accordingly.
+              </div>
+            </div>
+          )}
           <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between" }}>
             <div style={{ fontSize:".7rem", color:C.muted }}>ESTIMATED RANGE</div>
             <div style={{ fontWeight:800, color:C.accent }}>${quote.estimated_min} – ${quote.estimated_max}</div>
