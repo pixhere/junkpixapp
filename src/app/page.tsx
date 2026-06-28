@@ -100,8 +100,11 @@ export default function Home() {
           Get a quote.<br />
           <span style={{ color: "#D97B4F" }}>Book the job.</span>
         </h1>
-        <p style={{ fontSize: "1.15rem", color: "#666", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 48px", fontWeight: 400 }}>
+        <p style={{ fontSize: "1.15rem", color: "#666", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 16px", fontWeight: 400 }}>
           Stop wasting trips. Customers send photos, AI reads the job, and you quote from your phone — before you ever leave the driveway.
+        </p>
+        <p style={{ fontSize: ".95rem", color: "#D97B4F", fontWeight: 700, maxWidth: 520, margin: "0 auto 48px", fontStyle: "italic" }}>
+          Built by a junk removal operator, for junk removal operators. Not a generic tool — a junk removal machine.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" as const, flexWrap: "wrap" as const }}>
           <a href="/signup" style={{ background: "#D97B4F", color: "#fff", padding: "16px 36px", borderRadius: 10, fontWeight: 800, fontSize: "1rem", textDecoration: "none", letterSpacing: ".02em", boxShadow: "0 4px 20px rgba(217,123,79,0.35)" }}>
