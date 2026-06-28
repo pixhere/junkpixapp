@@ -938,6 +938,8 @@ export default function Dashboard() {
     const [reviewLink, setReviewLink] = useState(String(operator?.review_link || ""));
     const [ownerName, setOwnerName] = useState(String(operator?.owner_name || ""));
     const [slug, setSlug] = useState(String(operator?.slug || ""));
+    const [webhookUrl, setWebhookUrl] = useState(String(operator?.webhook_url || ""));
+    const [webhookEnabled, setWebhookEnabled] = useState(operator?.webhook_enabled || false);
     const [formConfig, setFormConfig] = useState<any[]>([]);
     const [loadingConfig, setLoadingConfig] = useState(true);
     const [newItemLabel, setNewItemLabel] = useState("");
@@ -972,6 +974,8 @@ export default function Dashboard() {
         review_link: reviewLink,
         owner_name: ownerName,
         slug: slug.toLowerCase().replace(/[^a-z0-9]/g, ""),
+        webhook_url: webhookUrl,
+        webhook_enabled: webhookEnabled,
         price_minimum_min: parseInt(priceMinMin),
         price_minimum_max: parseInt(priceMinMax),
         price_eighth_min: parseInt(priceEighthMin),

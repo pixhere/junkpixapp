@@ -60,6 +60,28 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
     if (status === "completed") updates.completed_at = new Date().toISOString();
     await supabase.from("quote_requests").update(updates).eq("id", id);
     setQuote((prev: any) => ({ ...prev, ...updates }));
+
+    // Fire webhook
+    if (operator?.id) {
+      fetch("/api/webhook/fire", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operatorId: operator.id,
+          event: `quote.${status}`,
+          data: {
+            quote_id: id,
+            status,
+            customer_name: quote?.customer_name,
+            customer_phone: quote?.customer_phone,
+            customer_email: quote?.customer_email,
+            customer_address: quote?.customer_address,
+            final_price: quote?.final_price,
+            updated_at: new Date().toISOString(),
+          }
+        }),
+      }).catch(() => {});
+    }
   };
 
   const sendQuote = async () => {
