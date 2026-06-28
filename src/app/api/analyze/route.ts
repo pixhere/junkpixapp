@@ -58,7 +58,7 @@ HEAVY MATERIAL DETECTION:
 If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials.
 Apply these EXACT multipliers to your base load tier price:
 
-CONSTRUCTION DEBRIS (1.5x multiplier):
+CONSTRUCTION DEBRIS (2x multiplier):
 - Mixed construction debris, drywall bags, plaster, sheetrock
 - Ceramic tile, flooring materials
 - HVAC equipment, ductwork, metal equipment
