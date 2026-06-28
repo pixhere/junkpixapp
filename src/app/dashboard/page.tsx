@@ -1686,10 +1686,10 @@ export default function Dashboard() {
        while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value);
+          const chunk = decoder.decode(value, { stream: true });
           full += chunk;
+          setContent(full);
         }
-        setContent(full);
         localStorage.setItem(`sales_${activeTab}`, full);
       } catch {
         setContent("Something went wrong. Try again.");
@@ -1913,7 +1913,7 @@ useEffect(() => {
                 📋 Copy
               </button>
             </div>
-            <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.8, whiteSpace:"pre-wrap" as const }}>
+            <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.8, whiteSpace:"pre-wrap" as const, maxHeight:"60vh", overflowY:"auto" as const }}>
               {content}
             </div>
           </div>
