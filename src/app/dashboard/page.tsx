@@ -1688,9 +1688,9 @@ export default function Dashboard() {
           if (done) break;
           const chunk = decoder.decode(value);
           full += chunk;
-          setContent(full);
-          localStorage.setItem(`sales_${activeTab}`, full);
         }
+        setContent(full);
+        localStorage.setItem(`sales_${activeTab}`, full);
       } catch {
         setContent("Something went wrong. Try again.");
       } finally {
