@@ -55,18 +55,32 @@ three quarter load: $${prices.threeQ}
 full load: $${prices.full}
 
 HEAVY MATERIAL DETECTION:
-If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials:
-- Concrete, cement, cinder blocks, masonry, stone, bricks
-- Drywall, plaster, sheetrock (especially in bags or broken pieces)
-- Ceramic tile, flooring materials in large quantities
+If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials.
+Apply these EXACT multipliers to your base load tier price:
+
+CONSTRUCTION DEBRIS (1.5x multiplier):
+- Mixed construction debris, drywall bags, plaster, sheetrock
+- Ceramic tile, flooring materials
 - HVAC equipment, ductwork, metal equipment
 - Demolition debris (shed remains, deck boards, structural wood)
 - Dirt, gravel, sand, soil
 
+CONCRETE/MASONRY - SMALL AMOUNT (2x multiplier):
+- 1-3 concrete blocks, bricks, single slabs, pavers
+- Small concrete pieces, cinder blocks
+- Single masonry items
+
+CONCRETE/MASONRY - LARGE AMOUNT (3x multiplier):
+- Large concrete slabs, multiple concrete pieces
+- Entire concrete areas, foundations, retaining walls
+- When concrete/masonry fills more than half the image
+- Multiple heavy concrete items
+
 When heavyMaterialFlag is true:
-- MULTIPLY your estimated price by 1.5x minimum
-- Set confidence to low 
+- Apply the correct multiplier above to your estimated price
+- Set confidence to low
 - Note in plainDescription that heavy materials require custom pricing
+- If BOTH construction debris AND concrete present, use the HIGHER multiplier
 
 Return ONLY valid JSON with no markdown:
 {
