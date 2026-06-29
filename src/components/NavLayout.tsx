@@ -14,7 +14,6 @@ const NAV_ITEMS = [
   { id: "sales",      label: "Sales",    icon: "🎯", href: "/dashboard/sales" },
   { id: "social",     label: "Social",   icon: "📱", href: "/dashboard/social" },
   { id: "analytics",  label: "Stats",    icon: "📊", href: "/dashboard/analytics" },
-  { id: "settings",   label: "Setup", icon: "⚙️", href: "/dashboard/settings" },
 ];
 
 export default function NavLayout({ children, active, title, backHref }: { 

@@ -86,7 +86,6 @@ const NAV = [
   { id: "sales",      label: "Sales",      icon: "🎯" },
   { id: "social",     label: "Social",     icon: "📱" },
   { id: "analytics",  label: "Analytics",  icon: "📊" },
-  { id: "settings",   label: "Settings",   icon: "⚙️" },
 ];
 
 // ── MOCK DATA (replace with real Supabase data later) ─────────────────────────
