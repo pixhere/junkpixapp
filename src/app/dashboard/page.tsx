@@ -1548,49 +1548,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Loading */}
-        {generating && (
-          <div style={{ textAlign:"center" as const, padding:32, color:C.muted, fontSize:".88rem" }}>
-            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-            <div style={{ width:32, height:32, border:`2px solid ${C.border}`, borderTopColor:C.accent, borderRadius:"50%", animation:"spin .8s linear infinite", margin:"0 auto 12px" }} />
-            Writing your posts...
-          </div>
-        )}
-
-        {/* Generated posts */}
-        {posts && !generating && (
-          <div style={{ display:"flex", flexDirection:"column" as const, gap:16 }}>
-            <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontWeight:700 }}>✨ AI GENERATED POSTS</div>
-            {platforms.map(p => (
-              <div key={p.key} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ fontSize:"1.1rem" }}>{p.icon}</span>
-                    <div>
-                      <div style={{ fontWeight:700, color:C.text, fontSize:".9rem" }}>{p.label}</div>
-                      <div style={{ fontSize:".7rem", color:C.muted }}>{p.tip}</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => copy(posts[p.key], p.key)}
-                    style={{ padding:"7px 14px", borderRadius:8, border:"none", background: copied === p.key ? "rgba(34,197,94,0.15)" : C.accentDim, color: copied === p.key ? C.green : C.accent, fontWeight:700, cursor:"pointer", fontSize:".78rem" }}
-                  >
-                    {copied === p.key ? "Copied ✓" : "📋 Copy"}
-                  </button>
-                </div>
-                <div style={{ fontSize:".85rem", color:C.text, lineHeight:1.65, background:C.surface, borderRadius:8, padding:"12px 14px", whiteSpace:"pre-wrap" as const }}>
-                  {posts[p.key]}
-                </div>
-              </div>
-            ))}
-            <button
-              onClick={() => selectedQuote && generate(selectedQuote)}
-              style={{ padding:"11px 0", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".84rem" }}
-            >
-              ↺ Regenerate All Posts
-            </button>
-          </div>
-        )}
       </div>
     );
   };
