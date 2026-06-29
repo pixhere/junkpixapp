@@ -73,7 +73,7 @@ HEAVY MATERIAL DETECTION:
 If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials.
 Apply these EXACT multipliers to your base load tier price:
 
-CONSTRUCTION DEBRIS (2x multiplier):
+CONSTRUCTION DEBRIS (2.5x multiplier):
 - Mixed construction debris, drywall bags, plaster, sheetrock
 - Ceramic tile, flooring materials
 - HVAC equipment, ductwork, metal equipment
@@ -90,6 +90,20 @@ CONCRETE/MASONRY - LARGE AMOUNT (3x multiplier):
 - Entire concrete areas, foundations, retaining walls
 - When concrete/masonry fills more than half the image
 - Multiple heavy concrete items
+
+YARD WASTE / BRUSH DETECTION:
+If you detect tree branches, brush, leaves, grass, stumps or yard waste:
+- Set yardWasteFlag to true
+- These require a separate disposal trip
+- Add $75-100 to the base estimate minimum
+- Note in description that yard waste has additional disposal fees
+
+TIRE DETECTION:
+If you detect tires:
+- Set tireFlag to true
+- Car/SUV tires: add $25 per tire
+- Truck tires (large): add $35 per tire
+- Count visible tires and multiply accordingly
 
 When heavyMaterialFlag is true:
 - Apply the correct multiplier above to your estimated price
@@ -108,6 +122,9 @@ Return ONLY valid JSON with no markdown:
   "visibleHazardFlag": false,
   "siteVisitRequired": true|false,
   "heavyMaterialFlag": true|false,
+  "yardWasteFlag": true|false,
+  "tireFlag": true|false,
+  "tireCount": <number of tires detected>,
   "heavyMaterials": ["list of heavy materials detected"]
 }`,
         messages: [{

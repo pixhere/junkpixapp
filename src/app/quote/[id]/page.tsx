@@ -610,6 +610,22 @@ if (step === 4) return (
                 </div>
               </div>
             )}
+            {result?.yardWasteFlag && (
+              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontWeight: 700, color: "#16a34a", fontSize: ".88rem", marginBottom: 4 }}>🌿 Yard Waste Detected</div>
+                <div style={{ fontSize: ".78rem", color: "#666", lineHeight: 1.5 }}>
+                  Yard waste requires separate disposal. Additional fees may apply. The owner will confirm your final price.
+                </div>
+              </div>
+            )}
+            {result?.tireFlag && (
+              <div style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontWeight: 700, color: "#2563eb", fontSize: ".88rem", marginBottom: 4 }}>🔄 Tires Detected</div>
+                <div style={{ fontSize: ".78rem", color: "#666", lineHeight: 1.5 }}>
+                  Tire disposal fees apply ($25 per car/SUV tire, $35 per truck tire). Final price includes tire count.
+                </div>
+              </div>
+            )}
             {result?.heavyMaterialFlag && (
               <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
                 <div style={{ fontWeight: 700, color: "#ef4444", fontSize: ".88rem", marginBottom: 4 }}>⚠️ Heavy Materials Detected</div>
