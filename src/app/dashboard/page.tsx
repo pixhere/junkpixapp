@@ -1496,31 +1496,53 @@ export default function Dashboard() {
           ) : (
             <div style={{ display:"flex", flexDirection:"column" as const, gap:8 }}>
               {completedQuotes.map(q => (
-                <button
-                  key={q.id}
-                  onClick={() => generate(q)}
-                  disabled={generating}
-                  style={{
-                    padding:"14px 16px",
-                    borderRadius:8,
-                    border:`1px solid ${selectedQuote?.id === q.id ? C.accent : C.border}`,
-                    background: selectedQuote?.id === q.id ? C.accentDim : C.surface,
-                    color:C.text,
-                    cursor:"pointer",
-                    textAlign:"left" as const,
-                    display:"flex",
-                    justifyContent:"space-between",
-                    alignItems:"center",
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight:600, fontSize:".9rem" }}>{q.customer_name}</div>
-                    <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.ai_description?.slice(0, 60)}...</div>
-                  </div>
-                  <div style={{ fontSize:".78rem", color:C.accent, fontWeight:700, flexShrink:0, marginLeft:12 }}>
-                    ${q.final_price || q.estimated_min}
-                  </div>
-                </button>
+                <div key={q.id}>
+                  <button
+                    onClick={() => generate(q)}
+                    disabled={generating}
+                    style={{
+                      width:"100%",
+                      padding:"14px 16px",
+                      borderRadius:8,
+                      border:`1px solid ${selectedQuote?.id === q.id ? C.accent : C.border}`,
+                      background: selectedQuote?.id === q.id ? C.accentDim : C.surface,
+                      color:C.text,
+                      cursor:"pointer",
+                      textAlign:"left" as const,
+                      display:"flex",
+                      justifyContent:"space-between",
+                      alignItems:"center",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight:600, fontSize:".9rem" }}>{q.customer_name}</div>
+                      <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.ai_description?.slice(0, 60)}...</div>
+                    </div>
+                    <div style={{ fontSize:".78rem", color:C.accent, fontWeight:700, flexShrink:0, marginLeft:12 }}>
+                      ${q.final_price || q.estimated_min}
+                    </div>
+                  </button>
+                  {selectedQuote?.id === q.id && generating && (
+                    <div style={{ padding:"12px 16px", background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", color:C.muted, fontSize:".84rem" }}>
+                      ✨ Generating posts...
+                    </div>
+                  )}
+                  {selectedQuote?.id === q.id && posts && (
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", padding:16 }}>
+                      {Object.entries(posts).map(([platform, post]: any) => (
+                        <div key={platform} style={{ marginBottom:16, paddingBottom:16, borderBottom:`1px solid ${C.border}` }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                            <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", fontWeight:700 }}>{platform.toUpperCase()}</div>
+                            <button onClick={() => { navigator.clipboard.writeText(post); setCopied(platform); setTimeout(() => setCopied(""), 2000); }} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.muted, cursor:"pointer", fontSize:".72rem", padding:"4px 10px" }}>
+                              {copied === platform ? "Copied ✓" : "📋 Copy"}
+                            </button>
+                          </div>
+                          <div style={{ fontSize:".82rem", color:C.text, lineHeight:1.6, whiteSpace:"pre-wrap" as const }}>{post}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
