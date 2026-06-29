@@ -10,11 +10,22 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e", red:"#ef4444",
+  bg: "#0A0A0A", surface: "#111111", card: "#161616", border: "#222222",
+  accent: "#D97B4F", accentDim: "rgba(217,123,79,0.1)", text: "#F0F0F0",
+  muted: "#666666", green: "#22c55e", red: "#ef4444",
 };
 
-const inp = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #222222", background:"#1a1a1a", color:"#F5F4F0", fontSize:".88rem", outline:"none", boxSizing:"border-box" as const, fontFamily:"inherit", marginBottom:12 };
+const inp: any = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #222222", background:"#111111", color:"#F0F0F0", fontSize:".88rem", outline:"none", boxSizing:"border-box", fontFamily:"inherit", marginBottom:12 };
+
+const TABS = [
+  { id:"business",     label:"Business" },
+  { id:"pricing",      label:"Pricing" },
+  { id:"subscription", label:"Subscription" },
+  { id:"quoteform",    label:"Quote Form" },
+  { id:"payments",     label:"Payments" },
+  { id:"account",      label:"Account" },
+  { id:"support",      label:"Support" },
+];
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -22,8 +33,18 @@ export default function SettingsPage() {
   const [tab, setTab] = useState("business");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loadingConfig, setLoadingConfig] = useState(true);
+  const [formConfig, setFormConfig] = useState<any[]>([]);
+  const [newItemType, setNewItemType] = useState("location");
+  const [newItemLabel, setNewItemLabel] = useState("");
+  const [newItemPrice, setNewItemPrice] = useState("0");
+  const [addingItem, setAddingItem] = useState(false);
+  const [connectStatus, setConnectStatus] = useState("");
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [requireDeposit, setRequireDeposit] = useState(false);
+  const [depositAmount, setDepositAmount] = useState("50");
 
-  // Business fields
+  // Business
   const [businessName, setBusinessName] = useState("");
   const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
@@ -33,24 +54,24 @@ export default function SettingsPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [webhookEnabled, setWebhookEnabled] = useState(false);
 
-  // Pricing fields
-  const [minJob, setMinJob] = useState("");
-  const [dump, setDump] = useState("");
-  const [dumpConstruction, setDumpConstruction] = useState("");
-  const [dumpMinimum, setDumpMinimum] = useState("");
-  const [milesToDump, setMilesToDump] = useState("");
-  const [labor, setLabor] = useState("");
-  const [crew, setCrew] = useState("");
-  const [gas, setGas] = useState("");
-  const [margin, setMargin] = useState("");
-  const [priceMinMin, setPriceMinMin] = useState("");
-  const [priceMinMax, setPriceMinMax] = useState("");
-  const [priceQuarterMin, setPriceQuarterMin] = useState("");
-  const [priceQuarterMax, setPriceQuarterMax] = useState("");
-  const [priceHalfMin, setPriceHalfMin] = useState("");
-  const [priceHalfMax, setPriceHalfMax] = useState("");
-  const [priceFullMin, setPriceFullMin] = useState("");
-  const [priceFullMax, setPriceFullMax] = useState("");
+  // Pricing
+  const [minJob, setMinJob] = useState("150");
+  const [dump, setDump] = useState("113.49");
+  const [dumpConstruction, setDumpConstruction] = useState("106");
+  const [dumpMinimum, setDumpMinimum] = useState("40");
+  const [milesToDump, setMilesToDump] = useState("5");
+  const [labor, setLabor] = useState("20");
+  const [crew, setCrew] = useState("2");
+  const [gas, setGas] = useState("3.50");
+  const [margin, setMargin] = useState("300");
+  const [priceMinMin, setPriceMinMin] = useState("150");
+  const [priceMinMax, setPriceMinMax] = useState("200");
+  const [priceQuarterMin, setPriceQuarterMin] = useState("300");
+  const [priceQuarterMax, setPriceQuarterMax] = useState("400");
+  const [priceHalfMin, setPriceHalfMin] = useState("475");
+  const [priceHalfMax, setPriceHalfMax] = useState("575");
+  const [priceFullMin, setPriceFullMin] = useState("875");
+  const [priceFullMax, setPriceFullMax] = useState("975");
 
   useEffect(() => {
     const load = async () => {
@@ -84,7 +105,14 @@ export default function SettingsPage() {
         setPriceHalfMax(String(op.price_half_max || 575));
         setPriceFullMin(String(op.price_full_min || 875));
         setPriceFullMax(String(op.price_full_max || 975));
+        setRequireDeposit(op.stripe_connect_require_deposit || false);
+        setDepositAmount(String(op.stripe_connect_deposit_amount || 50));
       }
+      const { data: fc } = await supabase.from("quote_form_config").select("*").eq("operator_id", user.id).order("sort_order");
+      if (fc) setFormConfig(fc);
+      setLoadingConfig(false);
+      const { data: sc } = await supabase.from("operators").select("stripe_account_id").eq("id", user.id).single();
+      if (sc?.stripe_account_id) setConnectStatus("active");
     };
     load();
   }, []);
@@ -110,59 +138,57 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const TABS = ["business","pricing","subscription","quoteform","payments","account","support"];
-
   const Field = ({ label, value, setter, type="text", note="" }: any) => (
-    <div style={{ marginBottom: 4 }}>
-      <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 4 }}>{label}</div>
+    <div>
+      <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:4 }}>{label}</div>
       <input type={type} value={value} onChange={e => setter(e.target.value)} style={inp} />
-      {note && <div style={{ fontSize: ".68rem", color: C.muted, marginTop: -8, marginBottom: 12, fontStyle: "italic" }}>{note}</div>}
+      {note && <div style={{ fontSize:".68rem", color:C.muted, marginTop:-8, marginBottom:12, fontStyle:"italic" }}>{note}</div>}
     </div>
   );
 
   return (
     <NavLayout active="settings" title="⚙️ Settings">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
+      <div style={{ maxWidth:700, margin:"0 auto", padding:16 }}>
 
         {/* Tab nav */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto" as const }}>
+        <div style={{ display:"flex", gap:8, marginBottom:20, overflowX:"auto" as const, paddingBottom:4 }}>
           {TABS.map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 16px", borderRadius: 20, border: "1px solid " + (tab === t ? C.accent : C.border), background: tab === t ? "rgba(217,123,79,0.15)" : "transparent", color: tab === t ? C.accent : C.muted, cursor: "pointer", fontSize: ".82rem", fontWeight: tab === t ? 700 : 400, whiteSpace: "nowrap" as const, flexShrink: 0, textTransform: "capitalize" as const }}>
-              {t}
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding:"8px 16px", borderRadius:20, border:"1px solid "+(tab===t.id ? C.accent : C.border), background:tab===t.id ? C.accentDim : "transparent", color:tab===t.id ? C.accent : C.muted, cursor:"pointer", fontSize:".82rem", fontWeight:tab===t.id ? 700 : 400, whiteSpace:"nowrap" as const, flexShrink:0 }}>
+              {t.label}
             </button>
           ))}
         </div>
 
-        {/* Business tab */}
+        {/* Business */}
         {tab === "business" && (
-          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
             <Field label="BUSINESS NAME" value={businessName} setter={setBusinessName} />
             <Field label="PHONE" value={phone} setter={setPhone} type="tel" />
             <Field label="WEBSITE" value={website} setter={setWebsite} />
-            <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 4 }}>YOUR QUOTE PAGE URL</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <span style={{ color: C.muted, fontSize: ".84rem", whiteSpace: "nowrap" as const }}>junkpix.com/quote/</span>
-              <input type="text" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g,""))} style={{ ...inp, marginBottom: 0 }} placeholder="yourbusiness" />
+            <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:4 }}>YOUR QUOTE PAGE URL</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+              <span style={{ color:C.muted, fontSize:".84rem", whiteSpace:"nowrap" as const }}>junkpix.com/quote/</span>
+              <input type="text" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g,""))} style={{ ...inp, marginBottom:0 }} placeholder="yourbusiness" />
             </div>
             <Field label="YOUR FIRST NAME" value={ownerName} setter={setOwnerName} note="Shown on quote page and emails" />
             <Field label="GOOGLE/YELP REVIEW LINK" value={reviewLink} setter={setReviewLink} />
-            <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 8 }}>WEBHOOK</div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ fontSize: ".84rem", color: C.text }}>Enable Webhook</div>
-              <div onClick={() => setWebhookEnabled(!webhookEnabled)} style={{ width: 44, height: 24, borderRadius: 12, background: webhookEnabled ? C.accent : C.border, cursor: "pointer", position: "relative" as const }}>
-                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute" as const, top: 2, left: webhookEnabled ? 22 : 2, transition: "left .2s" }} />
+            <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>WEBHOOK</div>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+              <div style={{ fontSize:".84rem", color:C.text }}>Enable Webhook</div>
+              <div onClick={() => setWebhookEnabled(!webhookEnabled)} style={{ width:44, height:24, borderRadius:12, background:webhookEnabled ? C.accent : C.border, cursor:"pointer", position:"relative" as const }}>
+                <div style={{ width:20, height:20, borderRadius:"50%", background:"#fff", position:"absolute" as const, top:2, left:webhookEnabled ? 22 : 2, transition:"left .2s" }} />
               </div>
             </div>
             <input type="url" placeholder="https://your-n8n.com/webhook/junkpix" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} style={inp} />
           </div>
         )}
 
-        {/* Pricing tab */}
+        {/* Pricing */}
         {tab === "pricing" && (
-          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Your Real Costs</div>
-            <div style={{ fontSize: ".78rem", color: C.muted, marginBottom: 16 }}>AI uses these to calculate accurate prices for your market.</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Your Real Costs</div>
+            <div style={{ fontSize:".78rem", color:C.muted, marginBottom:16 }}>AI uses these to calculate accurate prices for your market.</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
               <Field label="REGULAR DUMP $/TON" value={dump} setter={setDump} type="number" />
               <Field label="CONSTRUCTION DUMP $/TON" value={dumpConstruction} setter={setDumpConstruction} type="number" />
               <Field label="MIN DUMP FEE ($)" value={dumpMinimum} setter={setDumpMinimum} type="number" />
@@ -172,9 +198,9 @@ export default function SettingsPage() {
               <Field label="GAS PRICE ($)" value={gas} setter={setGas} type="number" />
               <Field label="MARGIN %" value={margin} setter={setMargin} type="number" />
             </div>
-            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4, marginTop: 8 }}>Load Tier Prices</div>
-            <div style={{ fontSize: ".78rem", color: C.muted, marginBottom: 12 }}>Override AI pricing with fixed ranges.</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4, marginTop:8 }}>Load Tier Prices</div>
+            <div style={{ fontSize:".78rem", color:C.muted, marginBottom:12 }}>Override AI pricing with fixed ranges.</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
               <Field label="MIN JOB MIN ($)" value={priceMinMin} setter={setPriceMinMin} type="number" />
               <Field label="MIN JOB MAX ($)" value={priceMinMax} setter={setPriceMinMax} type="number" />
               <Field label="QUARTER MIN ($)" value={priceQuarterMin} setter={setPriceQuarterMin} type="number" />
@@ -187,39 +213,31 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* Subscription tab */}
+        {/* Subscription */}
         {tab === "subscription" && (
-          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Subscription</div>
-            <div style={{ fontSize: ".82rem", color: C.muted, marginBottom: 20 }}>
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Subscription</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>
               {operator?.subscription_status === "active" ? "✅ Active subscription" :
                operator?.subscription_status === "past_due" ? "⚠️ Payment past due" :
                operator?.subscription_status === "cancelled" ? "❌ Subscription cancelled" :
                "🕐 Free trial — " + (operator?.trial_ends_at ? Math.max(0, Math.ceil((new Date(operator.trial_ends_at).getTime() - Date.now()) / 86400000)) : 30) + " days left"}
             </div>
             {operator?.subscription_status !== "active" && (
-              <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-                <div style={{ fontSize: ".72rem", color: C.muted, fontFamily: "monospace", letterSpacing: ".08em", marginBottom: 4 }}>CHOOSE YOUR PLAN</div>
+              <div style={{ display:"flex", flexDirection:"column" as const, gap:10 }}>
+                <div style={{ fontSize:".72rem", color:C.muted, fontFamily:"monospace", letterSpacing:".08em", marginBottom:4 }}>CHOOSE YOUR PLAN</div>
                 {[
-                  { label: "Founding Operator", price: "$49/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_FOUNDING, badge: "🔥 19 spots left" },
-                  { label: "Standard", price: "$99/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STANDARD, badge: "" },
-                  { label: "Agency / Team", price: "$199/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AGENCY, badge: "" },
+                  { label:"Founding Operator", price:"$49/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_FOUNDING, badge:"🔥 19 spots left" },
+                  { label:"Standard", price:"$99/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STANDARD, badge:"" },
+                  { label:"Agency / Team", price:"$199/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AGENCY, badge:"" },
                 ].map(plan => (
-                  <button
-                    key={plan.label}
-                    onClick={async () => {
-                      const res = await fetch("/api/create-checkout", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ priceId: plan.priceId, operatorId: operator?.id, email: operator?.email }),
-                      });
-                      const data = await res.json();
-                      if (data.url) window.location.href = data.url;
-                    }}
-                    style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid " + C.border, background: C.surface, color: C.text, fontWeight: 600, cursor: "pointer", fontSize: ".88rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}
-                  >
-                    <span>{plan.label} {plan.badge && <span style={{ fontSize: ".7rem", color: C.accent, marginLeft: 6 }}>{plan.badge}</span>}</span>
-                    <span style={{ color: C.accent, fontWeight: 700 }}>{plan.price}</span>
+                  <button key={plan.label} onClick={async () => {
+                    const res = await fetch("/api/create-checkout", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ priceId: plan.priceId, operatorId: operator?.id, email: operator?.email }) });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                  }} style={{ padding:"12px 16px", borderRadius:8, border:"1px solid "+C.border, background:C.surface, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <span>{plan.label} {plan.badge && <span style={{ fontSize:".7rem", color:C.accent, marginLeft:6 }}>{plan.badge}</span>}</span>
+                    <span style={{ color:C.accent, fontWeight:700 }}>{plan.price}</span>
                   </button>
                 ))}
               </div>
@@ -227,77 +245,140 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* Quote Form tab */}
+        {/* Quote Form */}
         {tab === "quoteform" && (
-          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Quote Form</div>
-            <div style={{ fontSize: ".82rem", color: C.muted, marginBottom: 16 }}>Your customer-facing quote page settings.</div>
-            <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 8 }}>YOUR QUOTE LINK</div>
-            <div style={{ background: C.surface, borderRadius: 8, padding: "12px 14px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: ".84rem", color: C.accent }}>junkpix.com/quote/{operator?.slug || "yourslug"}</span>
-              <button onClick={() => navigator.clipboard.writeText("https://junkpix.com/quote/" + (operator?.slug || ""))} style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid " + C.border, background: "transparent", color: C.muted, cursor: "pointer", fontSize: ".72rem" }}>Copy</button>
-            </div>
-            <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 8 }}>SHARE WITH CUSTOMERS</div>
-            <div style={{ fontSize: ".82rem", color: C.muted, lineHeight: 1.6 }}>Share your quote link on your website, Google Business profile, Facebook page, and anywhere customers can find you. They upload photos and get an instant AI estimate.</div>
-          </div>
-        )}
-
-        {/* Payments tab */}
-        {tab === "payments" && (
-          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Payments</div>
-            <div style={{ fontSize: ".82rem", color: C.muted, marginBottom: 16 }}>Accept deposits and payments from customers.</div>
-            {operator?.stripe_account_id ? (
-              <div style={{ padding: "12px 14px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 8, marginBottom: 16 }}>
-                <div style={{ fontWeight: 700, color: C.green, fontSize: ".88rem" }}>✅ Stripe Connected</div>
-                <div style={{ fontSize: ".78rem", color: C.muted, marginTop: 4 }}>You can accept deposits from customers.</div>
-              </div>
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Quote Form Options</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>Customize what customers see and set price impacts for each option.</div>
+            {loadingConfig ? (
+              <div style={{ color:C.muted, fontSize:".84rem" }}>Loading...</div>
             ) : (
-              <div>
-                <div style={{ padding: "12px 14px", background: C.surface, border: "1px solid " + C.border, borderRadius: 8, marginBottom: 16 }}>
-                  <div style={{ fontWeight: 600, color: C.text, fontSize: ".88rem", marginBottom: 4 }}>Connect Stripe</div>
-                  <div style={{ fontSize: ".78rem", color: C.muted }}>Connect your Stripe account to accept deposits when customers book a job.</div>
-                </div>
-                <button
-                  onClick={async () => {
-                    const res = await fetch("/api/stripe-connect/onboard", { method: "POST" });
-                    const data = await res.json();
-                    if (data.url) window.location.href = data.url;
-                  }}
-                  style={{ width: "100%", padding: "12px", borderRadius: 8, border: "none", background: C.accent, color: "#000", fontWeight: 700, cursor: "pointer", fontSize: ".9rem" }}
-                >
-                  Connect Stripe →
+              <>
+                {["location","condition","distance","extra"].map(fieldType => (
+                  <div key={fieldType} style={{ marginBottom:24 }}>
+                    <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontWeight:700, marginBottom:12 }}>
+                      {fieldType === "location" ? "📍 LOCATION OPTIONS" : fieldType === "condition" ? "⚠️ CONDITION OPTIONS" : fieldType === "distance" ? "📏 DISTANCE OPTIONS" : "➕ EXTRA CHARGES"}
+                    </div>
+                    {formConfig.filter(c => c.field_type === fieldType).map(item => (
+                      <div key={item.id} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:8 }}>
+                        <input type="text" value={item.label} onChange={e => setFormConfig(prev => prev.map(c => c.id === item.id ? {...c, label: e.target.value} : c))} style={{ ...inp, flex:2, marginBottom:0 }} placeholder="Label" />
+                        <div style={{ display:"flex", alignItems:"center", gap:4, flexShrink:0 }}>
+                          <span style={{ fontSize:".75rem", color:C.muted }}>+$</span>
+                          <input type="number" value={item.price_impact} onChange={e => setFormConfig(prev => prev.map(c => c.id === item.id ? {...c, price_impact: parseInt(e.target.value)||0} : c))} style={{ ...inp, width:70, marginBottom:0 }} />
+                        </div>
+                        <button onClick={async () => { await supabase.from("quote_form_config").delete().eq("id", item.id); setFormConfig(prev => prev.filter(c => c.id !== item.id)); }} style={{ padding:"8px 12px", borderRadius:6, border:"1px solid rgba(239,68,68,0.3)", background:"transparent", color:C.red, cursor:"pointer", fontSize:".8rem", flexShrink:0 }}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+                <button onClick={async () => {
+                  for (const item of formConfig) {
+                    await supabase.from("quote_form_config").update({ label: item.label, price_impact: item.price_impact }).eq("id", item.id);
+                  }
+                  setSaved(true); setTimeout(() => setSaved(false), 2000);
+                }} style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem", marginBottom:16 }}>
+                  {saved ? "Saved ✓" : "Save Form Options"}
                 </button>
-              </div>
+                <div style={{ borderTop:"1px solid "+C.border, paddingTop:16 }}>
+                  <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", marginBottom:10 }}>ADD NEW OPTION</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                    <select value={newItemType} onChange={e => setNewItemType(e.target.value)} style={{ ...inp, flex:1, marginBottom:0 }}>
+                      <option value="location">Location</option>
+                      <option value="condition">Condition</option>
+                      <option value="distance">Distance</option>
+                      <option value="extra">Extra Charge</option>
+                    </select>
+                  </div>
+                  <div style={{ display:"flex", gap:8 }}>
+                    <input type="text" value={newItemLabel} onChange={e => setNewItemLabel(e.target.value)} style={{ ...inp, flex:2, marginBottom:0 }} placeholder="e.g. Tight hallway" />
+                    <div style={{ display:"flex", alignItems:"center", gap:4, flexShrink:0 }}>
+                      <span style={{ fontSize:".75rem", color:C.muted }}>+$</span>
+                      <input type="number" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)} style={{ ...inp, width:70, marginBottom:0 }} placeholder="0" />
+                    </div>
+                    <button onClick={async () => {
+                      if (!newItemLabel.trim() || !operator) return;
+                      setAddingItem(true);
+                      const { data } = await supabase.from("quote_form_config").insert({ operator_id: operator.id, field_type: newItemType, label: newItemLabel, value: newItemLabel.toLowerCase().replace(/\s+/g,"_"), price_impact: parseInt(newItemPrice)||0, sort_order: formConfig.filter(c => c.field_type === newItemType).length+1 }).select().single();
+                      if (data) setFormConfig(prev => [...prev, data]);
+                      setNewItemLabel(""); setNewItemPrice("0"); setAddingItem(false);
+                    }} disabled={!newItemLabel.trim() || addingItem} style={{ padding:"8px 16px", borderRadius:8, border:"none", background:newItemLabel.trim() ? C.green : "rgba(34,197,94,0.3)", color:"#000", fontWeight:700, cursor:newItemLabel.trim() ? "pointer" : "not-allowed", fontSize:".82rem", flexShrink:0 }}>+ Add</button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
 
-        {/* Account tab */}
-        {tab === "account" && (
-          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Account</div>
-              <div style={{ fontSize: ".84rem", color: C.muted }}>{operator?.email}</div>
+        {/* Payments */}
+        {tab === "payments" && (
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>💳 Payments</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>Connect your Stripe account to collect deposits directly from customers. Money goes straight to you — JunkPix never touches it.</div>
+            {connectStatus === "active" ? (
+              <div style={{ background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:8, padding:16, marginBottom:16 }}>
+                <div style={{ color:C.green, fontWeight:700, fontSize:".88rem" }}>✅ Stripe Connected</div>
+                <div style={{ color:C.muted, fontSize:".78rem", marginTop:4 }}>You're ready to collect deposits from customers.</div>
+              </div>
+            ) : (
+              <button onClick={async () => {
+                setConnectLoading(true);
+                try {
+                  const res = await fetch("/api/stripe-connect/onboard", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ operatorId: operator?.id, email: operator?.email }) });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                } catch { setConnectLoading(false); }
+              }} disabled={connectLoading} style={{ width:"100%", padding:"13px 0", borderRadius:8, border:"none", background:connectLoading ? "rgba(217,123,79,0.3)" : C.accent, color:connectLoading ? "rgba(0,0,0,0.3)" : "#000", fontWeight:700, cursor:connectLoading ? "not-allowed" : "pointer", fontSize:".9rem", marginBottom:16 }}>
+                {connectLoading ? "Connecting..." : "Connect Your Stripe Account →"}
+              </button>
+            )}
+            <div style={{ borderTop:"1px solid "+C.border, paddingTop:16 }}>
+              <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", marginBottom:12 }}>DEPOSIT SETTINGS</div>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                <div>
+                  <div style={{ fontSize:".86rem", color:C.text, fontWeight:600 }}>Require deposit at booking</div>
+                  <div style={{ fontSize:".75rem", color:C.muted }}>Customer pays before job is confirmed</div>
+                </div>
+                <div onClick={() => setRequireDeposit(!requireDeposit)} style={{ width:44, height:24, borderRadius:12, background:requireDeposit ? C.accent : C.border, cursor:"pointer", position:"relative" as const, transition:"background .2s" }}>
+                  <div style={{ width:20, height:20, borderRadius:"50%", background:"#fff", position:"absolute" as const, top:2, left:requireDeposit ? 22 : 2, transition:"left .2s" }} />
+                </div>
+              </div>
+              <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", marginBottom:6 }}>DEPOSIT AMOUNT ($)</div>
+              <input type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} style={inp} placeholder="50" />
+              <button onClick={async () => {
+                await supabase.from("operators").update({ stripe_connect_deposit_amount: parseInt(depositAmount), stripe_connect_require_deposit: requireDeposit }).eq("id", operator.id);
+                setSaved(true); setTimeout(() => setSaved(false), 2000);
+              }} style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+                {saved ? "Saved ✓" : "Save Payment Settings"}
+              </button>
             </div>
-            <button onClick={async () => { await supabase.auth.signOut(); router.push("/login"); }} style={{ width: "100%", padding: "12px 0", borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)", background: "transparent", color: C.red, fontWeight: 600, cursor: "pointer", fontSize: ".9rem" }}>
+          </div>
+        )}
+
+        {/* Account */}
+        {tab === "account" && (
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>Account</div>
+              <div style={{ fontSize:".84rem", color:C.muted }}>{operator?.email}</div>
+            </div>
+            <button onClick={async () => { await supabase.auth.signOut(); router.push("/login"); }} style={{ width:"100%", padding:"12px 0", borderRadius:8, border:"1px solid rgba(239,68,68,0.3)", background:"transparent", color:C.red, fontWeight:600, cursor:"pointer", fontSize:".9rem" }}>
               Log Out
             </button>
           </div>
         )}
 
-        {/* Support tab */}
+        {/* Support */}
         {tab === "support" && (
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 12 }}>
+          <div style={{ display:"flex", flexDirection:"column" as const, gap:12 }}>
             {[
-              { label: "📧 Email Support", desc: "We typically respond within a few hours.", href: "mailto:junkpixapp@gmail.com", btnLabel: "Email Us →", color: C.accent },
-              { label: "💬 Feature Requests", desc: "Have an idea to make JunkPix better?", href: "mailto:junkpixapp@gmail.com?subject=Feature Request", btnLabel: "Send Idea →", color: C.muted },
-              { label: "🐛 Report a Bug", desc: "Something not working right?", href: "mailto:junkpixapp@gmail.com?subject=Bug Report", btnLabel: "Report Bug →", color: C.red },
+              { label:"📧 Email Support", desc:"We typically respond within a few hours.", href:"mailto:junkpixapp@gmail.com", btnLabel:"Email Us →", color:C.accent, bg:C.accent },
+              { label:"💬 Feature Requests", desc:"Have an idea to make JunkPix better?", href:"mailto:junkpixapp@gmail.com?subject=Feature Request", btnLabel:"Send Idea →", color:C.text, bg:"transparent" },
+              { label:"🐛 Report a Bug", desc:"Something not working right?", href:"mailto:junkpixapp@gmail.com?subject=Bug Report", btnLabel:"Report Bug →", color:C.red, bg:"transparent" },
             ].map(item => (
-              <div key={item.label} style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
-                <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>{item.label}</div>
-                <div style={{ fontSize: ".84rem", color: C.muted, marginBottom: 12 }}>{item.desc}</div>
-                <a href={item.href} style={{ display: "inline-block", padding: "10px 20px", borderRadius: 8, background: "transparent", border: "1px solid " + C.border, color: item.color, fontWeight: 700, fontSize: ".88rem", textDecoration: "none" }}>{item.btnLabel}</a>
+              <div key={item.label} style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+                <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>{item.label}</div>
+                <div style={{ fontSize:".84rem", color:C.muted, marginBottom:12 }}>{item.desc}</div>
+                <a href={item.href} style={{ display:"inline-block", padding:"10px 20px", borderRadius:8, background:item.bg, border:"1px solid "+(item.color === C.accent ? C.accent : item.color === C.red ? "rgba(239,68,68,0.3)" : C.border), color:item.color === C.accent ? "#000" : item.color, fontWeight:700, fontSize:".88rem", textDecoration:"none" }}>{item.btnLabel}</a>
               </div>
             ))}
           </div>
@@ -305,7 +386,7 @@ export default function SettingsPage() {
 
         {/* Save button */}
         {(tab === "business" || tab === "pricing") && (
-          <button onClick={save} disabled={saving} style={{ width: "100%", padding: "14px 0", borderRadius: 8, border: "none", background: saved ? C.green : C.accent, color: "#000", fontWeight: 700, cursor: "pointer", fontSize: ".95rem", marginTop: 16 }}>
+          <button onClick={save} disabled={saving} style={{ width:"100%", padding:"14px 0", borderRadius:8, border:"none", background:saved ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".95rem", marginTop:16 }}>
             {saving ? "Saving..." : saved ? "Saved ✓" : "Save Settings"}
           </button>
         )}
