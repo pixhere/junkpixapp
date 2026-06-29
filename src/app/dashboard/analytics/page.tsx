@@ -10,9 +10,18 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e",
+  bg:"#0A0A0A", surface:"#111111", card:"#161616", border:"#222222",
+  accent:"#D97B4F", accentDim:"rgba(217,123,79,0.1)", text:"#F0F0F0",
+  muted:"#666666", green:"#22c55e", red:"#ef4444", blue:"#3b82f6",
 };
+
+const StatBox = ({ label, value, sub, color }: any) => (
+  <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"20px 18px" }}>
+    <div style={{ fontSize:".65rem", color:C.muted, letterSpacing:".1em", fontFamily:"monospace", marginBottom:8 }}>{label}</div>
+    <div style={{ fontSize:"2rem", fontWeight:800, color:color||C.text, lineHeight:1 }}>{value}</div>
+    {sub && <div style={{ fontSize:".75rem", color:C.muted, marginTop:6 }}>{sub}</div>}
+  </div>
+);
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -22,80 +31,122 @@ export default function AnalyticsPage() {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
-      const { data: qs } = await supabase.from("quote_requests").select("*").eq("operator_id", user.id);
+      const { data: qs } = await supabase.from("quote_requests").select("*").eq("operator_id", user.id).order("created_at", { ascending: false });
       if (qs) setQuotes(qs);
     };
     load();
   }, []);
 
-  const total = quotes.length;
-  const booked = quotes.filter(q => q.status === "booked" || q.status === "completed").length;
-  const completed = quotes.filter(q => q.status === "completed").length;
-  const revenue = quotes.filter(q => q.final_price).reduce((s,q) => s + (q.final_price || 0), 0);
-  const convRate = total > 0 ? Math.round((booked / total) * 100) : 0;
-  const avgJob = booked > 0 ? Math.round(revenue / booked) : 0;
+  const total        = quotes.length;
+  const booked       = quotes.filter(q => q.status === "booked" || q.status === "completed").length;
+  const completed    = quotes.filter(q => q.status === "completed").length;
+  const cancelled    = quotes.filter(q => q.status === "cancelled").length;
+  const conversion   = total ? Math.round((booked / total) * 100) : 0;
+  const rejectedRate = total ? Math.round((cancelled / total) * 100) : 0;
+  const revenue      = quotes.filter(q => q.final_price).reduce((s: number, q: any) => s + (q.final_price || 0), 0);
+  const avgTicket    = booked ? Math.round(revenue / booked) : 0;
 
-  const now = new Date();
-  const weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
-  const weekQuotes = quotes.filter(q => new Date(q.created_at) > weekAgo);
-  const weekRevenue = weekQuotes.filter(q => q.final_price).reduce((s,q) => s + (q.final_price || 0), 0);
+  const weekly: Record<string, { quotes: number; revenue: number }> = {};
+  quotes.forEach(q => {
+    const week = new Date(q.created_at).toLocaleDateString("en-US", { month:"short", day:"numeric" });
+    if (!weekly[week]) weekly[week] = { quotes:0, revenue:0 };
+    weekly[week].quotes++;
+    if (q.final_price) weekly[week].revenue += q.final_price;
+  });
+  const weeklyData = Object.entries(weekly).slice(-8).reverse();
 
-  const statCard = (label: string, value: string, sub?: string, color?: string) => (
-    <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 16 }}>
-      <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", letterSpacing: ".08em", marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: "1.6rem", fontWeight: 800, color: color || C.text }}>{value}</div>
-      {sub && <div style={{ fontSize: ".72rem", color: C.muted, marginTop: 4 }}>{sub}</div>}
-    </div>
-  );
+  const exportCSV = () => {
+    const headers = ["Date","Customer","Phone","Email","Address","AI Description","Status","Est Min","Est Max","Final Price"];
+    const rows = quotes.map(q => [
+      new Date(q.created_at).toLocaleDateString(),
+      q.customer_name, q.customer_phone, q.customer_email, q.customer_address,
+      `"${(q.ai_description || "").replace(/"/g, "'")}"`,
+      q.status, q.estimated_min || "", q.estimated_max || "", q.final_price || "",
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type:"text/csv" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = `junkpix-quotes-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <NavLayout active="analytics" title="📊 Analytics">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
+    <NavLayout active="analytics" title="Analytics">
+      <div style={{ display:"flex", flexDirection:"column" as const, gap:24, padding:24, maxWidth:800, margin:"0 auto" }}>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-          {statCard("TOTAL QUOTES", String(total), "All time")}
-          {statCard("CONVERSION RATE", convRate + "%", "Quotes → booked", convRate > 50 ? C.green : C.accent)}
-          {statCard("TOTAL REVENUE", "$" + revenue.toLocaleString(), "From completed jobs", C.accent)}
-          {statCard("AVG JOB VALUE", "$" + avgJob, "Per booked job")}
-          {statCard("THIS WEEK", weekQuotes.length + " quotes", weekQuotes.length + " new requests")}
-          {statCard("WEEK REVENUE", "$" + weekRevenue.toLocaleString(), "Last 7 days", C.green)}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Analytics</div>
+          <button onClick={exportCSV} style={{ background:C.accent, color:"#000", border:"none", borderRadius:8, padding:"10px 20px", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+            ⬇ Export CSV
+          </button>
         </div>
 
-        {/* Status breakdown */}
-        <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 12 }}>STATUS BREAKDOWN</div>
-          {["new","reviewed","quoted","booked","completed","cancelled"].map(status => {
-            const count = quotes.filter(q => q.status === status).length;
-            const pct = total > 0 ? Math.round((count/total)*100) : 0;
-            return (
-              <div key={status} style={{ marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: ".8rem", color: C.text, textTransform: "capitalize" as const }}>{status}</span>
-                  <span style={{ fontSize: ".8rem", color: C.muted }}>{count} ({pct}%)</span>
-                </div>
-                <div style={{ height: 6, background: C.surface, borderRadius: 3 }}>
-                  <div style={{ height: 6, background: C.accent, borderRadius: 3, width: pct + "%" }} />
-                </div>
-              </div>
-            );
-          })}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
+          <StatBox label="TOTAL QUOTES"     value={total}              sub="All time"            color={C.accent} />
+          <StatBox label="CONVERSION RATE"  value={`${conversion}%`}  sub="Quotes → booked"     color={C.green} />
+          <StatBox label="AVG TICKET VALUE" value={`$${avgTicket}`}   sub="Booked jobs"          color={C.accent} />
+          <StatBox label="TOTAL REVENUE"    value={`$${revenue}`}     sub="Completed + booked"   color={C.green} />
         </div>
 
-        {/* Recent activity */}
-        <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 12 }}>RECENT QUOTES</div>
-          {quotes.slice(0,5).map(q => (
-            <div key={q.id} onClick={() => router.push("/dashboard/quote/"+q.id)} style={{ padding: "10px 0", borderBottom: "1px solid " + C.border, cursor: "pointer", display: "flex", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontSize: ".84rem", fontWeight: 600, color: C.text }}>{q.customer_name}</div>
-                <div style={{ fontSize: ".72rem", color: C.muted }}>{new Date(q.created_at).toLocaleDateString()}</div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
+          <StatBox label="COMPLETED JOBS"   value={completed}          sub="Finished hauls" />
+          <StatBox label="REJECTED / NO-GO" value={`${rejectedRate}%`} sub="Cancelled quotes"    color={C.red} />
+          <StatBox label="NEW REQUESTS"     value={quotes.filter(q=>q.status==="new").length} sub="Awaiting review" color={C.blue} />
+          <StatBox label="BOOKED"           value={booked}             sub="Confirmed jobs"       color={C.green} />
+        </div>
+
+        {/* Weekly activity */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24 }}>
+          <div style={{ fontWeight:700, color:C.text, marginBottom:20 }}>Weekly Activity</div>
+          {weeklyData.length === 0 ? (
+            <div style={{ color:C.muted, fontSize:".88rem", textAlign:"center" as const, padding:40 }}>No data yet. Submit some quotes to see activity.</div>
+          ) : (
+            <div style={{ display:"flex", flexDirection:"column" as const, gap:0 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"120px 1fr 1fr 100px", gap:16, padding:"8px 0", borderBottom:`1px solid ${C.border}`, marginBottom:8 }}>
+                {["Date","Quotes","Revenue",""].map((h,i) => (
+                  <span key={i} style={{ fontSize:".68rem", color:C.muted, letterSpacing:".08em", fontFamily:"monospace" }}>{h}</span>
+                ))}
               </div>
-              <div style={{ textAlign: "right" as const }}>
-                <div style={{ fontSize: ".84rem", fontWeight: 700, color: C.accent }}>${q.final_price || q.estimated_min}</div>
-                <div style={{ fontSize: ".65rem", color: C.muted, textTransform: "capitalize" as const }}>{q.status}</div>
-              </div>
+              {weeklyData.map(([week, data]) => (
+                <div key={week} style={{ display:"grid", gridTemplateColumns:"120px 1fr 1fr 100px", gap:16, padding:"12px 0", borderBottom:`1px solid ${C.border}`, alignItems:"center" }}>
+                  <span style={{ fontSize:".84rem", color:C.muted }}>{week}</span>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ height:8, borderRadius:4, background:C.accent, width:`${Math.min(100, data.quotes*20)}%`, minWidth:4 }} />
+                    <span style={{ fontSize:".84rem", color:C.text }}>{data.quotes}</span>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ height:8, borderRadius:4, background:C.green, width:`${Math.min(100, (data.revenue/500)*100)}%`, minWidth: data.revenue ? 4 : 0 }} />
+                    <span style={{ fontSize:".84rem", color:C.text }}>${data.revenue}</span>
+                  </div>
+                  <span style={{ fontSize:".78rem", color:data.revenue ? C.green : C.muted }}>{data.revenue ? "💰" : "pending"}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
+
+        {/* Pipeline */}
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24 }}>
+          <div style={{ fontWeight:700, color:C.text, marginBottom:16 }}>Quote Pipeline</div>
+          <div style={{ display:"flex", flexDirection:"column" as const, gap:12 }}>
+            {[
+              { label:"New",       count:quotes.filter(q=>q.status==="new").length,       color:C.blue },
+              { label:"Reviewed",  count:quotes.filter(q=>q.status==="reviewed").length,  color:C.accent },
+              { label:"Quoted",    count:quotes.filter(q=>q.status==="quoted").length,    color:"#a855f7" },
+              { label:"Booked",    count:quotes.filter(q=>q.status==="booked").length,    color:C.green },
+              { label:"Completed", count:quotes.filter(q=>q.status==="completed").length, color:C.muted },
+              { label:"Cancelled", count:quotes.filter(q=>q.status==="cancelled").length, color:C.red },
+            ].map(s => (
+              <div key={s.label} style={{ display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:80, fontSize:".82rem", color:C.muted }}>{s.label}</div>
+                <div style={{ flex:1, height:8, background:C.surface, borderRadius:4 }}>
+                  <div style={{ height:8, borderRadius:4, background:s.color, width:total ? `${Math.round((s.count/total)*100)}%` : "0%" }} />
+                </div>
+                <div style={{ width:24, fontSize:".84rem", color:C.text, textAlign:"right" as const }}>{s.count}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>
