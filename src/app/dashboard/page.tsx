@@ -2143,7 +2143,6 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
           { id:"sales",     label:"Sales",     icon:"🎯" },
           { id:"social",    label:"Social",    icon:"📱" },
           { id:"analytics", label:"Analytics", icon:"📊" },
-          { id:"settings",  label:"Settings",  icon:"⚙️" },
         ].map(item => (
           <button key={item.id} onClick={() => (item as any).href ? router.push((item as any).href) : setActive(item.id)} style={{ background:"none", border:"none", color: active===item.id ? C.accent : C.muted, cursor:"pointer", display:"flex", flexDirection:"column" as const, alignItems:"center", gap:4, padding:"4px 16px", position:"relative" as const }}>
             <span style={{ fontSize:"1.3rem" }}>{item.icon}</span>

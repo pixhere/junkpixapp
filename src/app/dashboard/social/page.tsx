@@ -67,20 +67,20 @@ export default function SocialPage() {
           <div style={{ fontSize:".84rem", color:C.muted, marginTop:4 }}>Turn completed jobs into content. AI writes the post — you copy and paste.</div>
         </div>
 
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
-          <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", padding:"16px 20px 12px" }}>SELECT A COMPLETED JOB</div>
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:14 }}>SELECT A COMPLETED JOB</div>
           {completedQuotes.length === 0 ? (
-            <div style={{ color:C.muted, fontSize:".88rem", textAlign:"center" as const, padding:"20px" }}>
+            <div style={{ color:C.muted, fontSize:".88rem", textAlign:"center" as const, padding:"20px 0" }}>
               No completed or booked jobs yet. Mark a job as Booked or Completed to generate posts.
             </div>
           ) : (
-            <div style={{ display:"flex", flexDirection:"column" as const }}>
+            <div style={{ display:"flex", flexDirection:"column" as const, gap:8 }}>
               {completedQuotes.map(q => (
                 <div key={q.id}>
                   <button
                     onClick={() => generate(q)}
                     disabled={generating}
-                    style={{ width:"100%", padding:"14px 20px", border:"none", borderTop:`1px solid ${C.border}`, background:selectedQuote?.id === q.id ? C.accentDim : "transparent", color:C.text, cursor:"pointer", textAlign:"left" as const, display:"flex", justifyContent:"space-between", alignItems:"center" }}
+                    style={{ width:"100%", padding:"14px 16px", borderRadius:8, border:`1px solid ${selectedQuote?.id === q.id ? C.accent : C.border}`, background:selectedQuote?.id === q.id ? C.accentDim : C.surface, color:C.text, cursor:"pointer", textAlign:"left" as const, display:"flex", justifyContent:"space-between", alignItems:"center" }}
                   >
                     <div>
                       <div style={{ fontWeight:600, fontSize:".9rem" }}>{q.customer_name}</div>
