@@ -21,7 +21,7 @@ export default function SalesMenuPage() {
 
   return (
     <NavLayout active="sales" title="🎯 Sales Academy">
-      <div style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
+      <div style={{ padding: 24 }}>
 
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: "1.4rem", fontWeight: 800, color: C.text, marginBottom: 4 }}>Sales Academy</div>

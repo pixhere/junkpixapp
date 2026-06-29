@@ -87,7 +87,7 @@ export default function DailyIntelPage() {
 
   return (
     <NavLayout active="sales" title="⚡ Daily Intel" backHref="/dashboard/sales">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 20 }}>
+      <div style={{ padding: 24 }}>
 
         <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20, marginBottom: 16 }}>
           <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>⚡ Daily Sales Intel</div>
