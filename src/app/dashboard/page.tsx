@@ -1700,6 +1700,7 @@ export default function Dashboard() {
           setContent(full);
         }
         localStorage.setItem(`sales_${activeTab}`, full);
+        localStorage.setItem(`sales_${activeTab}_date`, new Date().toDateString());
       } catch {
         setContent("Something went wrong. Try again.");
       } finally {
@@ -1713,10 +1714,20 @@ useEffect(() => {
 
    useEffect(() => {
       localStorage.setItem("sales_last_tab", activeTab);
+      const today = new Date().toDateString();
+      const cachedDate = localStorage.getItem(`sales_${activeTab}_date`);
       const cached = localStorage.getItem(`sales_${activeTab}`);
-      console.log("Loading cached content for", activeTab, ":", cached ? "found" : "empty");
-      if (cached) setContent(cached);
-      else setContent("");
+      
+      // For daily tab - expire cache every day
+      if (activeTab === "daily" && cachedDate !== today) {
+        localStorage.removeItem(`sales_daily`);
+        localStorage.removeItem(`sales_daily_date`);
+        setContent("");
+      } else if (cached) {
+        setContent(cached);
+      } else {
+        setContent("");
+      }
     }, [activeTab]);
    const tabs = [
       { id: "close", label: "🎯 Close a Job", desc: "Full closing playbook for a specific lead" },
