@@ -1,0 +1,107 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
+import NavLayout from "@/components/NavLayout";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const C = {
+  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
+  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e",
+};
+
+export default function AcademyPage() {
+  const [operator, setOperator] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState("");
+  const [copied, setCopied] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: op } = await supabase.from("operators").select("*").eq("id", user.id).single();
+      if (op) setOperator(op);
+    };
+    load();
+  }, []);
+
+  const generate = async () => {
+    setLoading(true);
+    setContent("");
+    if (contentRef.current) contentRef.current.innerText = "";
+
+    try {
+      const res = await fetch("/api/sales-coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "academy", operator }),
+      });
+
+      if (!res.ok) { setContent("Something went wrong. Try again."); setLoading(false); return; }
+
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let full = "";
+      setLoading(false);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        full += chunk;
+        if (contentRef.current) contentRef.current.innerText = full;
+      }
+      setContent(full);
+    } catch {
+      setContent("Something went wrong. Try again.");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <NavLayout active="sales" title="📚 Sales Academy" backHref="/dashboard/sales">
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: 20 }}>
+
+        <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>📚 Sales Academy</div>
+          <div style={{ fontSize: ".84rem", color: C.muted, marginBottom: 16 }}>
+            Books, curriculum, and daily habits from 15 sales masters. Generate a fresh curriculum anytime.
+          </div>
+          <button onClick={generate} disabled={loading} style={{ padding: "12px 24px", borderRadius: 8, border: "none", background: C.accent, color: "#000", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontSize: ".9rem" }}>
+            {loading ? "Loading..." : "📚 Generate Curriculum"}
+          </button>
+        </div>
+
+        {loading && !content && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 20, color: C.muted }}>
+            <div style={{ width: 20, height: 20, border: "2px solid " + C.border, borderTopColor: C.accent, borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+            <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+            Building your curriculum...
+          </div>
+        )}
+
+        {(loading || content) && (
+          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: ".7rem", color: C.accent, fontFamily: "monospace", fontWeight: 700 }}>✨ FROM THE MASTERS</div>
+              {content && (
+                <button onClick={() => { navigator.clipboard.writeText(content); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid " + C.border, background: "transparent", color: copied ? C.green : C.muted, cursor: "pointer", fontSize: ".75rem" }}>
+                  {copied ? "Copied ✓" : "📋 Copy"}
+                </button>
+              )}
+            </div>
+            <div ref={contentRef} style={{ fontSize: ".88rem", color: C.text, lineHeight: 1.8, whiteSpace: "pre-wrap" as const }}>
+              {content}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </NavLayout>
+  );
+}
