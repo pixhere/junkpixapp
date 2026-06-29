@@ -80,12 +80,12 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
 };
 
 const NAV = [
-  { id: "overview",   label: "Overview",   icon: "▦" },
-  { id: "quotes",     label: "Quotes",     icon: "📋" },
-  { id: "calendar",   label: "Calendar",   icon: "📅" },
-  { id: "sales",      label: "Sales",      icon: "🎯" },
-  { id: "social",     label: "Social",     icon: "📱" },
-  { id: "analytics",  label: "Analytics",  icon: "📊" },
+  { id: "overview",   label: "Overview",   icon: "▦",  href: "" },
+  { id: "quotes",     label: "Quotes",     icon: "📋", href: "/dashboard/quotes" },
+  { id: "calendar",   label: "Calendar",   icon: "📅", href: "/dashboard/calendar" },
+  { id: "sales",      label: "Sales",      icon: "🎯", href: "/dashboard/sales" },
+  { id: "social",     label: "Social",     icon: "📱", href: "/dashboard/social" },
+  { id: "analytics",  label: "Analytics",  icon: "📊", href: "/dashboard/analytics" },
 ];
 
 // ── MOCK DATA (replace with real Supabase data later) ─────────────────────────
