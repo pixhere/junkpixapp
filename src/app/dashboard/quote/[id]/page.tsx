@@ -204,6 +204,16 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
+        {/* Before & After + Costs buttons */}
+        <div style={{ display:"flex", gap:12 }}>
+          <button onClick={() => router.push(`/dashboard/quote/${quote.id}/photos`)} style={{ flex:1, padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+            📸 Before & After Photos
+          </button>
+          <button onClick={() => router.push(`/dashboard/quote/${quote.id}/costs`)} style={{ flex:1, padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+            💰 Job Cost Tracking
+          </button>
+        </div>
+
         {/* AI Description */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
           <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:8 }}>AI DESCRIPTION</div>
