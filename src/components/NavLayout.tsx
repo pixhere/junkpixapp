@@ -38,46 +38,58 @@ export default function NavLayout({ children, active, title, backHref }: {
           {backHref && (
             <button
               onClick={() => router.push(backHref)}
-              style={{ background: "none", border: "1px solid " + C.border, borderRadius: 8, color: C.muted, cursor: "pointer", padding: "6px 12px", fontSize: ".82rem", whiteSpace: "nowrap" as const }}
+              style={{ background: "none", border: "1px solid " + C.border, borderRadius: 8, color: C.muted, cursor: "pointer", padding: "6px 14px", fontSize: ".84rem", whiteSpace: "nowrap" as const, flexShrink: 0 }}
             >
               ←
             </button>
           )}
-          <div style={{ fontWeight: 800, color: C.text, fontSize: "1rem" }}>{title}</div>
+          <div style={{ fontWeight: 800, color: C.text, fontSize: "1rem", flex: 1 }}>{title}</div>
         </div>
       )}
 
-      {/* Main content - scrollable */}
-      <div style={{ paddingBottom: 90, overflowY: "auto" as const }}>
+      {/* Main content */}
+      <div style={{ paddingBottom: 90 }}>
         {children}
       </div>
 
-      {/* Bottom nav - fixed, always visible */}
+      {/* Bottom nav - fixed, always visible, scrollable on mobile */}
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         background: C.card, borderTop: "1px solid " + C.border,
-        display: "flex", justifyContent: "space-around", alignItems: "center",
-        paddingTop: 8,
-        paddingBottom: "env(safe-area-inset-bottom, 16px)",
         zIndex: 100,
+        paddingTop: 6,
+        paddingBottom: "max(env(safe-area-inset-bottom), 8px)",
       }}>
-        {NAV_ITEMS.map(item => (
-          <button
-            key={item.id}
-            onClick={() => router.push(item.href)}
-            style={{
-              background: "none", border: "none",
-              color: active === item.id ? C.accent : C.muted,
-              cursor: "pointer", display: "flex", flexDirection: "column" as const,
-              alignItems: "center", gap: 3, padding: "4px 8px",
-              minWidth: 44, minHeight: 44,
-              WebkitTapHighlightColor: "transparent",
-            }}
-          >
-            <span style={{ fontSize: "1.3rem", lineHeight: 1 }}>{item.icon}</span>
-            <span style={{ fontSize: ".55rem", fontWeight: active === item.id ? 700 : 400, letterSpacing: ".02em" }}>{item.label}</span>
-          </button>
-        ))}
+        <div style={{
+          display: "flex",
+          overflowX: "auto" as const,
+          WebkitOverflowScrolling: "touch" as any,
+          scrollbarWidth: "none" as any,
+          msOverflowStyle: "none" as any,
+          justifyContent: "space-around",
+          minWidth: "100%",
+          padding: "0 4px",
+        }}>
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              onClick={() => router.push(item.href)}
+              style={{
+                background: "none", border: "none",
+                color: active === item.id ? C.accent : C.muted,
+                cursor: "pointer",
+                display: "flex", flexDirection: "column" as const,
+                alignItems: "center", gap: 2,
+                padding: "4px 10px",
+                minWidth: 52, flexShrink: 0,
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <span style={{ fontSize: "1.3rem", lineHeight: 1 }}>{item.icon}</span>
+              <span style={{ fontSize: ".52rem", fontWeight: active === item.id ? 700 : 400, whiteSpace: "nowrap" as const }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
