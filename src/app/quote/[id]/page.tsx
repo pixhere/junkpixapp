@@ -218,6 +218,9 @@ const submitRes = await fetch("/api/submit-quote", {
           estimated_max:     ai.estimatedMax,
           heavy_material_flag: ai.heavyMaterialFlag || false,
           heavy_materials:   ai.heavyMaterials || [],
+          yard_waste_flag:   ai.yardWasteFlag || false,
+          tire_flag:         ai.tireFlag || false,
+          tire_count:        ai.tireCount || 0,
           status:            "new",
         }),
       });

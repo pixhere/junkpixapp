@@ -208,6 +208,18 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
           <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:8 }}>AI DESCRIPTION</div>
           <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.6 }}>{quote.ai_description}</div>
+          {quote.yard_waste_flag && (
+            <div style={{ marginTop:12, padding:"12px 14px", background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:8 }}>
+              <div style={{ fontWeight:700, color:"#16a34a", fontSize:".84rem", marginBottom:4 }}>🌿 YARD WASTE DETECTED</div>
+              <div style={{ fontSize:".78rem", color:C.muted }}>Requires separate disposal trip to Zeager Bros. Add $75-100 minimum.</div>
+            </div>
+          )}
+          {quote.tire_flag && (
+            <div style={{ marginTop:12, padding:"12px 14px", background:"rgba(59,130,246,0.08)", border:"1px solid rgba(59,130,246,0.3)", borderRadius:8 }}>
+              <div style={{ fontWeight:700, color:"#2563eb", fontSize:".84rem", marginBottom:4 }}>🔄 TIRES DETECTED</div>
+              <div style={{ fontSize:".78rem", color:C.muted }}>Car/SUV: $25/tire · Truck: $35/tire · Count: {quote.tire_count || "unknown"}</div>
+            </div>
+          )}
           {quote.heavy_material_flag && (
             <div style={{ marginTop:12, padding:"12px 14px", background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:8 }}>
               <div style={{ fontWeight:700, color:"#ef4444", fontSize:".84rem", marginBottom:4 }}>⚠️ HEAVY MATERIALS DETECTED</div>
