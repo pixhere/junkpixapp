@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, quote, operator, question } = await req.json();
+    const { type, quote, operator, question, dateSeed } = await req.json();
 
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: "Missing API key" }, { status: 500 });
@@ -83,7 +83,7 @@ How to justify the price. How to make $${q.estimated_min} feel like a steal. Val
 Be specific. Be bold. This operator needs to feel ready to pick up the phone RIGHT NOW.`;
 
     } else if (type === "daily_intel") {
-      userPrompt = `Search your knowledge for the most powerful, actionable sales and business insight for today.
+      userPrompt = `Date: ${dateSeed || new Date().toDateString()}. Search your knowledge for the most powerful, actionable sales and business insight for this specific date. Make sure this lesson is DIFFERENT from other days — vary the topic, master, and angle every single day.
 
 Give ${ownerName} ONE thing that will make them more money this week.
 

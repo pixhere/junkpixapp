@@ -60,29 +60,32 @@ export default function SalesPage() {
   }, [activeTab, operator, notesLoaded]);
 
   useEffect(() => {
-    const today = new Date().toDateString();
-    const cachedDate = localStorage.getItem("sales_" + activeTab + "_date");
-    const cached = localStorage.getItem("sales_" + activeTab);
-    if (activeTab === "daily" && cachedDate !== today) {
-      localStorage.removeItem("sales_daily");
-      localStorage.removeItem("sales_daily_date");
-      setContent("");
-    } else if (cached) {
-      setContent(cached);
-    } else {
-      setContent("");
+    // Always clear content when switching tabs
+    setContent("");
+    setLoading(false);
+    
+    // Only load cache for daily tab (and only if today)
+    if (activeTab === "daily") {
+      const today = new Date().toDateString();
+      const cachedDate = localStorage.getItem("sales_daily_intel_date");
+      const cached = localStorage.getItem("sales_daily_intel");
+      if (cachedDate === today && cached) {
+        setContent(cached);
+      }
     }
   }, [activeTab]);
 
   const generate = async (type: string, quote?: any) => {
+    if (!operator) { setContent("Please wait — loading your account..."); return; }
     setLoading(true);
     setContent("");
     localStorage.removeItem("sales_" + type);
+    setContent("");
     try {
       const res = await fetch("/api/sales-coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, quote: quote || selectedQuote, operator, question }),
+        body: JSON.stringify({ type, quote: quote || selectedQuote, operator, question, dateSeed: new Date().toDateString() }),
       });
       if (!res.ok) { setContent("Something went wrong. Try again."); return; }
       const reader = res.body!.getReader();
@@ -149,7 +152,7 @@ export default function SalesPage() {
               )}
             </div>
             {selectedQuote && (
-              <button onClick={() => generate("close", selectedQuote)} disabled={loading} style={{ padding:"14px", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:loading ? "not-allowed" : "pointer", fontSize:".9rem" }}>
+              <button onClick={() => generate("close_job", selectedQuote)} disabled={loading} style={{ padding:"14px", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:loading ? "not-allowed" : "pointer", fontSize:".9rem" }}>
                 {loading ? "Generating..." : "🎯 Generate Closing Playbook"}
               </button>
             )}
@@ -162,7 +165,7 @@ export default function SalesPage() {
             <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
               <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>⚡ Daily Sales Intel</div>
               <div style={{ fontSize:".84rem", color:C.muted, marginBottom:16 }}>Fresh lesson from the masters every day.</div>
-              <button onClick={() => generate("daily")} disabled={loading} style={{ padding:"12px 20px", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:loading ? "not-allowed" : "pointer", fontSize:".88rem" }}>
+              <button onClick={() => generate("daily_intel")} disabled={loading} style={{ padding:"12px 20px", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:loading ? "not-allowed" : "pointer", fontSize:".88rem" }}>
                 {loading ? "Loading..." : content ? "🔄 Refresh" : "⚡ Get Today's Intel"}
               </button>
             </div>
