@@ -54,6 +54,16 @@ export default function SettingsPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [webhookEnabled, setWebhookEnabled] = useState(false);
 
+  // Social Media
+  const [fbPageId, setFbPageId] = useState("");
+  const [igAccountId, setIgAccountId] = useState("");
+  const [googleBizId, setGoogleBizId] = useState("");
+  const [nextdoorId, setNextdoorId] = useState("");
+  const [tiktokId, setTiktokId] = useState("");
+  const [n8nWebhookUrl, setN8nWebhookUrl] = useState("");
+  const [extraSocials, setExtraSocials] = useState<{label:string,value:string}[]>([]);
+  const [socialSaved, setSocialSaved] = useState(false);
+
   // Pricing
   const [minJob, setMinJob] = useState("150");
   const [dump, setDump] = useState("113.49");
@@ -88,6 +98,13 @@ export default function SettingsPage() {
         setReviewLink(op.review_link || "");
         setWebhookUrl(op.webhook_url || "");
         setWebhookEnabled(op.webhook_enabled || false);
+        setFbPageId(op.fb_page_id || "");
+        setIgAccountId(op.ig_account_id || "");
+        setGoogleBizId(op.google_biz_id || "");
+        setNextdoorId(op.nextdoor_id || "");
+        setTiktokId(op.tiktok_id || "");
+        setN8nWebhookUrl(op.n8n_webhook_url || "");
+        setExtraSocials(op.extra_socials || []);
         setMinJob(String(op.minimum_job || 150));
         setDump(String(op.dump_fee_per_ton || 113.49));
         setDumpConstruction(String(op.dump_fee_construction || 106));
@@ -162,6 +179,7 @@ export default function SettingsPage() {
             { id:"subscription", label:"📦 Subscription" },
             { id:"account",      label:"🔐 Account" },
             { id:"support",      label:"🆘 Support" },
+            { id:"social",       label:"📱 Social Media" },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{ padding:"8px 14px", borderRadius:8, border:"1px solid "+(tab===t.id ? C.accent : C.border), background:tab===t.id ? C.accentDim : "transparent", color:tab===t.id ? C.accent : C.muted, cursor:"pointer", fontSize:".82rem", fontWeight:tab===t.id ? 700 : 400 }}>
               {t.label}
@@ -391,6 +409,49 @@ export default function SettingsPage() {
                 <a href={item.href} style={{ display:"inline-block", padding:"10px 20px", borderRadius:8, background:item.bg, border:"1px solid "+(item.color === C.accent ? C.accent : item.color === C.red ? "rgba(239,68,68,0.3)" : C.border), color:item.color === C.accent ? "#000" : item.color, fontWeight:700, fontSize:".88rem", textDecoration:"none" }}>{item.btnLabel}</a>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Social Media */}
+        {tab === "social" && (
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:20 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>📱 Social Media</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>Connect your social accounts so JunkPix can auto-post before/after content via N8N.</div>
+
+            <Field label="FACEBOOK PAGE ID" value={fbPageId} setter={setFbPageId} />
+            <Field label="INSTAGRAM ACCOUNT ID" value={igAccountId} setter={setIgAccountId} />
+            <Field label="GOOGLE BUSINESS ID" value={googleBizId} setter={setGoogleBizId} />
+            <Field label="NEXTDOOR ID" value={nextdoorId} setter={setNextdoorId} />
+            <Field label="TIKTOK ACCOUNT ID" value={tiktokId} setter={setTiktokId} />
+            <Field label="N8N WEBHOOK URL" value={n8nWebhookUrl} setter={setN8nWebhookUrl} note="Receives POST requests when you click POST on generated content" />
+
+            {extraSocials.map((s, i) => (
+              <div key={i} style={{ display:"flex", gap:8, marginBottom:12 }}>
+                <input value={s.label} onChange={e => setExtraSocials(prev => prev.map((x,j) => j===i ? {...x, label:e.target.value} : x))} placeholder="Platform name" style={{ ...inp, flex:1, marginBottom:0 }} />
+                <input value={s.value} onChange={e => setExtraSocials(prev => prev.map((x,j) => j===i ? {...x, value:e.target.value} : x))} placeholder="ID or URL" style={{ ...inp, flex:2, marginBottom:0 }} />
+                <button onClick={() => setExtraSocials(prev => prev.filter((_,j) => j!==i))} style={{ padding:"8px 12px", borderRadius:6, border:"1px solid rgba(239,68,68,0.3)", background:"transparent", color:C.red, cursor:"pointer", fontSize:".8rem" }}>✕</button>
+              </div>
+            ))}
+
+            <button onClick={() => setExtraSocials(prev => [...prev, {label:"", value:""}])} style={{ width:"100%", padding:"10px", borderRadius:8, border:"1px dashed "+C.border, background:"transparent", color:C.muted, cursor:"pointer", fontSize:".84rem", marginBottom:16 }}>
+              + Add More
+            </button>
+
+            <button onClick={async () => {
+              await supabase.from("operators").update({
+                fb_page_id: fbPageId,
+                ig_account_id: igAccountId,
+                google_biz_id: googleBizId,
+                nextdoor_id: nextdoorId,
+                tiktok_id: tiktokId,
+                n8n_webhook_url: n8nWebhookUrl,
+                extra_socials: extraSocials,
+              }).eq("id", operator.id);
+              setSocialSaved(true);
+              setTimeout(() => setSocialSaved(false), 2000);
+            }} style={{ width:"100%", padding:"13px 0", borderRadius:8, border:"none", background:socialSaved ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".9rem" }}>
+              {socialSaved ? "Saved ✓" : "Save Social Settings"}
+            </button>
           </div>
         )}
 

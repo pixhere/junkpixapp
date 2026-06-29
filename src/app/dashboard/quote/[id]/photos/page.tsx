@@ -12,7 +12,7 @@ const supabase = createClient(
 const C = {
   bg:"#0A0A0A", surface:"#111111", card:"#161616", border:"#222222",
   accent:"#D97B4F", accentDim:"rgba(217,123,79,0.1)", text:"#F0F0F0",
-  muted:"#666666", green:"#22c55e", red:"#ef4444",
+  muted:"#666666", green:"#22c55e", red:"#ef4444", blue:"#3b82f6",
 };
 
 export default function PhotosPage() {
@@ -24,8 +24,12 @@ export default function PhotosPage() {
   const [uploading, setUploading] = useState(false);
   const [afterPhotos, setAfterPhotos] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [posts, setPosts] = useState<any>(null);
+  const [posts, setPosts] = useState<Record<string, string> | null>(null);
   const [copied, setCopied] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [posting, setPosting] = useState<Record<string, boolean>>({});
+  const [posted, setPosted] = useState<Record<string, boolean>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -35,10 +39,7 @@ export default function PhotosPage() {
       const { data: op } = await supabase.from("operators").select("*").eq("id", user.id).single();
       if (op) setOperator(op);
       const { data: q } = await supabase.from("quote_requests").select("*").eq("id", id).single();
-      if (q) {
-        setQuote(q);
-        setAfterPhotos(q.after_photo_urls || []);
-      }
+      if (q) { setQuote(q); setAfterPhotos(q.after_photo_urls || []); }
     };
     load();
   }, [id]);
@@ -67,6 +68,17 @@ export default function PhotosPage() {
     setAfterPhotos(newPhotos);
   };
 
+  const sendForgot = async () => {
+    setForgotLoading(true);
+    await fetch("/api/request-after-photos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quoteId: id }),
+    });
+    setForgotSent(true);
+    setForgotLoading(false);
+  };
+
   const generateSocial = async () => {
     setGenerating(true);
     setPosts(null);
@@ -78,11 +90,43 @@ export default function PhotosPage() {
       });
       const data = await res.json();
       setPosts(data.posts);
-    } catch { }
+    } catch {}
     setGenerating(false);
   };
 
-  if (!quote) return <NavLayout active="quotes"><div style={{ padding:24, color:"#666666" }}>Loading...</div></NavLayout>;
+  const removePost = (platform: string) => {
+    if (!posts) return;
+    const updated = { ...posts };
+    delete updated[platform];
+    setPosts(Object.keys(updated).length ? updated : null);
+  };
+
+  const postToN8N = async (platform: string) => {
+    if (!posts) return;
+    setPosting(p => ({ ...p, [platform]: true }));
+    try {
+      await fetch(operator?.n8n_webhook_url || "", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          platform,
+          post: posts[platform],
+          before_photos: quote?.photo_urls || [],
+          after_photos: afterPhotos,
+          operator: {
+            business_name: operator?.business_name,
+            website: operator?.website,
+            phone: operator?.phone,
+            location: operator?.city,
+          },
+        }),
+      });
+      setPosted(p => ({ ...p, [platform]: true }));
+    } catch {}
+    setPosting(p => ({ ...p, [platform]: false }));
+  };
+
+  if (!quote) return <NavLayout active="quotes"><div style={{ padding:24, color:C.muted }}>Loading...</div></NavLayout>;
 
   return (
     <NavLayout active="quotes" title="📸 Before & After" backHref={`/dashboard/quote/${id}`}>
@@ -126,17 +170,24 @@ export default function PhotosPage() {
               </div>
             )}
             <input ref={fileRef} type="file" accept="image/*" multiple onChange={e => e.target.files && uploadAfterPhotos(e.target.files)} style={{ display:"none" }} />
-            <button onClick={() => fileRef.current?.click()} disabled={uploading} style={{ width:"100%", padding:"10px", borderRadius:8, border:`1px dashed ${C.border}`, background:"transparent", color:C.muted, cursor:"pointer", fontSize:".84rem" }}>
-              {uploading ? "Uploading..." : "📷 Upload After Photos"}
-            </button>
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" as const }}>
+              <button onClick={() => fileRef.current?.click()} disabled={uploading} style={{ flex:1, padding:"10px", borderRadius:8, border:`1px dashed ${C.border}`, background:"transparent", color:C.muted, cursor:"pointer", fontSize:".84rem" }}>
+                {uploading ? "Uploading..." : "📷 Upload After Photos"}
+              </button>
+              {afterPhotos.length === 0 && (
+                <button onClick={sendForgot} disabled={forgotLoading || forgotSent} style={{ flex:1, padding:"10px", borderRadius:8, border:`1px solid ${C.accent}`, background:"transparent", color:forgotSent ? C.green : C.accent, cursor: forgotSent ? "default" : "pointer", fontSize:".84rem", fontWeight:600 }}>
+                  {forgotSent ? "✓ Email Sent" : forgotLoading ? "Sending..." : "📩 Forgot?"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Generate social post */}
+        {/* Generate social */}
         {afterPhotos.length > 0 && (
           <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
             <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>🚀 Generate Social Content</div>
-            <div style={{ fontSize:".84rem", color:C.muted, marginBottom:16 }}>AI writes posts using the before/after context for Google, Instagram and Facebook.</div>
+            <div style={{ fontSize:".84rem", color:C.muted, marginBottom:16 }}>AI writes posts using before/after context for Google, Instagram and Facebook.</div>
             <button onClick={generateSocial} disabled={generating} style={{ padding:"12px 24px", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:generating ? "not-allowed" : "pointer", fontSize:".9rem" }}>
               {generating ? "Generating..." : "✨ Generate Posts"}
             </button>
@@ -147,13 +198,21 @@ export default function PhotosPage() {
         {posts && (
           <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
             <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", fontWeight:700, marginBottom:16 }}>✨ AI GENERATED POSTS</div>
-            {Object.entries(posts).map(([platform, post]: any) => (
+            {Object.entries(posts).map(([platform, post]) => (
               <div key={platform} style={{ marginBottom:16, paddingBottom:16, borderBottom:`1px solid ${C.border}` }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
                   <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", fontWeight:700 }}>{platform.toUpperCase()}</div>
-                  <button onClick={() => { navigator.clipboard.writeText(post); setCopied(platform); setTimeout(() => setCopied(""), 2000); }} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:copied === platform ? C.green : C.muted, cursor:"pointer", fontSize:".72rem", padding:"4px 10px" }}>
-                    {copied === platform ? "Copied ✓" : "📋 Copy"}
-                  </button>
+                  <div style={{ display:"flex", gap:8 }}>
+                    <button onClick={() => { navigator.clipboard.writeText(post); setCopied(platform); setTimeout(() => setCopied(""), 2000); }} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:copied === platform ? C.green : C.muted, cursor:"pointer", fontSize:".72rem", padding:"4px 10px" }}>
+                      {copied === platform ? "Copied ✓" : "📋 Copy"}
+                    </button>
+                    <button onClick={() => postToN8N(platform)} disabled={posting[platform] || posted[platform]} style={{ background:"none", border:`1px solid ${C.blue}`, borderRadius:6, color:posted[platform] ? C.green : C.blue, cursor: posted[platform] ? "default" : "pointer", fontSize:".72rem", padding:"4px 10px" }}>
+                      {posted[platform] ? "Posted ✓" : posting[platform] ? "Posting..." : "🚀 POST"}
+                    </button>
+                    <button onClick={() => removePost(platform)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.red, cursor:"pointer", fontSize:".72rem", padding:"4px 10px" }}>
+                      ✕ Remove
+                    </button>
+                  </div>
                 </div>
                 <div style={{ fontSize:".82rem", color:C.text, lineHeight:1.6, whiteSpace:"pre-wrap" as const }}>{post}</div>
               </div>
@@ -161,7 +220,6 @@ export default function PhotosPage() {
           </div>
         )}
 
-        {/* Nav to costs page */}
         <button onClick={() => router.push(`/dashboard/quote/${id}/costs`)} style={{ padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
           💰 View Job Cost Tracking →
         </button>

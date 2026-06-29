@@ -60,6 +60,10 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
   }, [id]);
 
   const updateStatus = async (status: string) => {
+    if (status === "completed" && (!quote?.after_photo_urls || quote.after_photo_urls.length === 0)) {
+      alert("📸 After photos required before marking as completed.\nGo to Before & After to upload them.");
+      return;
+    }
     const updates: any = { status };
     if (status === "completed") updates.completed_at = new Date().toISOString();
     await supabase.from("quote_requests").update(updates).eq("id", id);
