@@ -176,7 +176,7 @@ export default function PhotosPage() {
               </button>
               {afterPhotos.length === 0 && (
                 <button onClick={sendForgot} disabled={forgotLoading || forgotSent} style={{ flex:1, padding:"10px", borderRadius:8, border:`1px solid ${C.accent}`, background:"transparent", color:forgotSent ? C.green : C.accent, cursor: forgotSent ? "default" : "pointer", fontSize:".84rem", fontWeight:600 }}>
-                  {forgotSent ? "✓ Email Sent" : forgotLoading ? "Sending..." : "📩 Forgot?"}
+                  {forgotSent ? "✓ On It" : forgotLoading ? "..." : "📩 Forgot?"}
                 </button>
               )}
             </div>
