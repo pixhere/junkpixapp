@@ -53,7 +53,7 @@ export default function QuotesPage() {
 
   return (
     <NavLayout active="quotes" title="📋 Quotes">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
+      <div style={{ padding: 16 }}>
 
         {/* Filter tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" as const, paddingBottom: 4 }}>

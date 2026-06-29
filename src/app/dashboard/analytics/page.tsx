@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
 
   return (
     <NavLayout active="analytics" title="Analytics">
-      <div style={{ display:"flex", flexDirection:"column" as const, gap:24, padding:24, maxWidth:800, margin:"0 auto" }}>
+      <div style={{ display:"flex", flexDirection:"column" as const, gap:24, padding:24, }}>
 
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Analytics</div>

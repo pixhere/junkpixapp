@@ -66,7 +66,7 @@ export default function CloseJobPage() {
 
   return (
     <NavLayout active="sales" title="🎯 Close a Job" backHref="/dashboard/sales">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
+      <div style={{ padding: 16 }}>
 
         <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", letterSpacing: ".1em", marginBottom: 12 }}>SELECT A LEAD</div>
 

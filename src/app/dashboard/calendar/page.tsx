@@ -47,7 +47,7 @@ export default function CalendarPage() {
 
   return (
     <NavLayout active="calendar" title="📅 Calendar">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
+      <div style={{ padding: 16 }}>
 
         {/* Month nav */}
         <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 16, marginBottom: 16 }}>

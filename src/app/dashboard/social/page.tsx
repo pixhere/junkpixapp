@@ -60,7 +60,7 @@ export default function SocialPage() {
 
   return (
     <NavLayout active="social" title="Social Media">
-      <div style={{ display:"flex", flexDirection:"column" as const, gap:24, padding:24, maxWidth:800, margin:"0 auto" }}>
+      <div style={{ display:"flex", flexDirection:"column" as const, gap:24, padding:24, }}>
 
         <div>
           <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Social Media</div>
