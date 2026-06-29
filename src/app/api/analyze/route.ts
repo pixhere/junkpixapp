@@ -92,11 +92,13 @@ CONCRETE/MASONRY - LARGE AMOUNT (3x multiplier):
 - Multiple heavy concrete items
 
 YARD WASTE / BRUSH DETECTION:
-If you detect tree branches, brush, leaves, grass, stumps or yard waste:
-- Set yardWasteFlag to true
-- These require a separate disposal trip
-- Add $75-100 to the base estimate minimum
-- Note in description that yard waste has additional disposal fees
+ONLY set yardWasteFlag to true if yard waste is the PRIMARY item being removed:
+- Large piles of tree branches or brush being hauled away
+- Bags of leaves or grass clippings as the main job
+- Stumps or large tree sections
+- DO NOT flag if grass is just visible in the background of a photo
+- DO NOT flag if there are only a few small branches mixed with regular junk
+- The yard waste must be a significant portion of what needs to be hauled
 
 TIRE DETECTION:
 If you detect tires:
