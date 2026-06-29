@@ -5,6 +5,30 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { images, operatorPrices } = body;
 
+    // Real operator costs
+    const dumpRegular      = operatorPrices?.dump_fee_per_ton || 113.49;
+    const dumpConstruction = operatorPrices?.dump_fee_construction || 106.00;
+    const dumpMinimum      = operatorPrices?.dump_fee_minimum || 40.00;
+    const milesToDump      = operatorPrices?.dump_miles_to_site || 5;
+    const laborRate        = operatorPrices?.labor_rate_per_hour || 20;
+    const crewSize         = operatorPrices?.crew_size || 2;
+    const fuelPerMile      = operatorPrices?.fuel_cost_per_mile || 0.67;
+    const marginMultiplier = (operatorPrices?.margin_percent || 300) / 100;
+
+    // Calculate real costs per load size
+    const fuelCost = milesToDump * 2 * fuelPerMile;
+    const laborPerHour = crewSize * laborRate;
+
+    // Load estimates (tons per load size)
+    const loadCosts = {
+      minimum: Math.max(dumpMinimum, 0.3 * dumpRegular) + (laborPerHour * 0.5) + fuelCost,
+      eighth:  Math.max(dumpMinimum, 0.5 * dumpRegular) + (laborPerHour * 0.75) + fuelCost,
+      quarter: (0.75 * dumpRegular) + (laborPerHour * 1) + fuelCost,
+      half:    (1.25 * dumpRegular) + (laborPerHour * 1.5) + fuelCost,
+      threeQ:  (1.75 * dumpRegular) + (laborPerHour * 2) + fuelCost,
+      full:    (2.25 * dumpRegular) + (laborPerHour * 2.5) + fuelCost,
+    };
+
     if (!images || images.length === 0) {
       return NextResponse.json({ error: "No images provided" }, { status: 400 });
     }
@@ -14,13 +38,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Use operator's custom prices or defaults
+    // Use operator custom prices if set, otherwise use real cost calculation
     const prices = {
-      minimum: `${operatorPrices?.price_minimum_min || 150}-${operatorPrices?.price_minimum_max || 200}`,
-      eighth:  `${operatorPrices?.price_eighth_min  || 200}-${operatorPrices?.price_eighth_max  || 275}`,
-      quarter: `${operatorPrices?.price_quarter_min || 300}-${operatorPrices?.price_quarter_max || 400}`,
-      half:    `${operatorPrices?.price_half_min    || 475}-${operatorPrices?.price_half_max    || 575}`,
-      threeQ:  `${operatorPrices?.price_threeq_min  || 675}-${operatorPrices?.price_threeq_max  || 775}`,
-      full:    `${operatorPrices?.price_full_min    || 875}-${operatorPrices?.price_full_max    || 975}`,
+      minimum: operatorPrices?.price_minimum_min ? `${operatorPrices.price_minimum_min}-${operatorPrices.price_minimum_max}` : `${Math.round(loadCosts.minimum * marginMultiplier)}-${Math.round(loadCosts.minimum * marginMultiplier * 1.15)}`,
+      eighth:  operatorPrices?.price_eighth_min  ? `${operatorPrices.price_eighth_min}-${operatorPrices.price_eighth_max}`   : `${Math.round(loadCosts.eighth  * marginMultiplier)}-${Math.round(loadCosts.eighth  * marginMultiplier * 1.15)}`,
+      quarter: operatorPrices?.price_quarter_min ? `${operatorPrices.price_quarter_min}-${operatorPrices.price_quarter_max}` : `${Math.round(loadCosts.quarter * marginMultiplier)}-${Math.round(loadCosts.quarter * marginMultiplier * 1.15)}`,
+      half:    operatorPrices?.price_half_min    ? `${operatorPrices.price_half_min}-${operatorPrices.price_half_max}`       : `${Math.round(loadCosts.half    * marginMultiplier)}-${Math.round(loadCosts.half    * marginMultiplier * 1.15)}`,
+      threeQ:  operatorPrices?.price_threeq_min  ? `${operatorPrices.price_threeq_min}-${operatorPrices.price_threeq_max}`   : `${Math.round(loadCosts.threeQ  * marginMultiplier)}-${Math.round(loadCosts.threeQ  * marginMultiplier * 1.15)}`,
+      full:    operatorPrices?.price_full_min    ? `${operatorPrices.price_full_min}-${operatorPrices.price_full_max}`       : `${Math.round(loadCosts.full    * marginMultiplier)}-${Math.round(loadCosts.full    * marginMultiplier * 1.15)}`,
     };
 
     const imageBlocks = images.map((data: string) => ({

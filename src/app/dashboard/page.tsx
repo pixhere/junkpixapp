@@ -918,6 +918,9 @@ export default function Dashboard() {
     const [crew, setCrew]       = useState(String(operator?.crew_size || 2));
     const [gas, setGas]         = useState(String(operator?.gas_price || 3.50));
     const [margin, setMargin]   = useState(String(operator?.margin_percent || 35));
+    const [dumpConstruction, setDumpConstruction] = useState(String(operator?.dump_fee_construction || 106));
+    const [dumpMinimum, setDumpMinimum]             = useState(String(operator?.dump_fee_minimum || 40));
+    const [milesToDump, setMilesToDump]             = useState(String(operator?.dump_miles_to_site || 5));
     const [done, setDone]       = useState(false);
     const [connectStatus, setConnectStatus] = useState(operator?.stripe_connect_status || "not_connected");
     const [connectLoading, setConnectLoading] = useState(false);
@@ -968,6 +971,9 @@ export default function Dashboard() {
       const { error } = await supabase.from("operators").update({
         minimum_job: parseInt(minJob),
         dump_fee_per_ton: parseFloat(dump),
+        dump_fee_construction: parseFloat(dumpConstruction),
+        dump_fee_minimum: parseFloat(dumpMinimum),
+        dump_miles_to_site: parseInt(milesToDump),
         labor_rate_per_hour: parseFloat(labor),
         crew_size: parseInt(crew),
         gas_price: parseFloat(gas),
@@ -1119,7 +1125,10 @@ export default function Dashboard() {
 
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
             <Field label="MINIMUM JOB ($)"    value={minJob}  setter={setMinJob}  />
-            <Field label="DUMP FEE / TON ($)" value={dump}    setter={setDump}    />
+            <Field label="REGULAR DUMP FEE / TON ($)"      value={dump}             setter={setDump}             />
+            <Field label="CONSTRUCTION DUMP FEE / TON ($)" value={dumpConstruction}  setter={setDumpConstruction}  />
+            <Field label="MINIMUM DUMP FEE ($)"           value={dumpMinimum}      setter={setDumpMinimum}       />
+            <Field label="MILES TO DUMP SITE"             value={milesToDump}      setter={setMilesToDump}       />
             <Field label="LABOR / HOUR ($)"   value={labor}   setter={setLabor}   />
             <Field label="CREW SIZE TODAY"    value={crew}    setter={setCrew}    note="Update daily" />
             <Field label="GAS PRICE ($)"      value={gas}     setter={setGas}     note="Update weekly" />
