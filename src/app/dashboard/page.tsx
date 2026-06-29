@@ -1523,8 +1523,9 @@ export default function Dashboard() {
                     </div>
                   </button>
                   {selectedQuote?.id === q.id && generating && (
-                    <div style={{ padding:"12px 16px", background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", color:C.muted, fontSize:".84rem" }}>
-                      ✨ Generating posts...
+                    <div style={{ padding:"16px", background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:18, height:18, border:`2px solid ${C.border}`, borderTopColor:C.accent, borderRadius:"50%", animation:"spin .8s linear infinite", flexShrink:0 }} />
+                      <span style={{ color:C.muted, fontSize:".84rem" }}>✨ Generating posts...</span>
                     </div>
                   )}
                   {selectedQuote?.id === q.id && posts && (
