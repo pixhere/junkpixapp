@@ -167,6 +167,7 @@ useEffect(() => {
   body: JSON.stringify({
     images: compressed,
     prompt: "Describe this junk removal job.",
+    operatorPrices: operatorData,
   }),
 });
 
