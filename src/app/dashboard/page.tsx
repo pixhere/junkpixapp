@@ -2082,6 +2082,7 @@ useEffect(() => {
   };
 const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calendar: CalendarScreen, social: SocialScreen, analytics: Analytics, settings: SettingsScreen };  
   const Screen = SCREENS[active];
+  if (active === "sales") { router.push("/dashboard/sales"); return null; }
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:C.bg, fontFamily:"system-ui, sans-serif", color:C.text }}>
