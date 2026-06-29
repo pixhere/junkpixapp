@@ -642,11 +642,14 @@ export default function Dashboard() {
   // ── OVERVIEW ────────────────────────────────────────────────────────────────
   const Overview = () => (
     <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
-      <div>
-        <div style={{ fontSize:"1.5rem", fontWeight:800, color:C.text }}>
-          Good morning{operator?.owner_name ? `, ${operator.owner_name.split(" ")[0]}` : ""} 👋
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+        <div>
+          <div style={{ fontSize:"1.5rem", fontWeight:800, color:C.text }}>
+            Good morning{operator?.owner_name ? `, ${operator.owner_name.split(" ")[0]}` : ""} 👋
+          </div>
+          <div style={{ fontSize:".88rem", color:C.muted, marginTop:4 }}>Here's what needs your attention today.</div>
         </div>
-        <div style={{ fontSize:".88rem", color:C.muted, marginTop:4 }}>Here's what needs your attention today.</div>
+        <button onClick={() => router.push("/dashboard/settings")} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"8px 10px", fontSize:"1.1rem", flexShrink:0 }}>⚙️</button>
       </div>
 
       {/* Stats */}

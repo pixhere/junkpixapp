@@ -150,10 +150,20 @@ export default function SettingsPage() {
     <NavLayout active="settings" title="⚙️ Settings">
       <div style={{ maxWidth:700, margin:"0 auto", padding:16 }}>
 
+        <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text, marginBottom:16 }}>Settings</div>
+
         {/* Tab nav */}
-        <div style={{ display:"flex", gap:8, marginBottom:20, overflowX:"auto" as const, paddingBottom:4 }}>
-          {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding:"8px 16px", borderRadius:20, border:"1px solid "+(tab===t.id ? C.accent : C.border), background:tab===t.id ? C.accentDim : "transparent", color:tab===t.id ? C.accent : C.muted, cursor:"pointer", fontSize:".82rem", fontWeight:tab===t.id ? 700 : 400, whiteSpace:"nowrap" as const, flexShrink:0 }}>
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap" as const, marginBottom:20 }}>
+          {[
+            { id:"business",     label:"🏢 Business" },
+            { id:"pricing",      label:"💰 Pricing" },
+            { id:"quoteform",    label:"📋 Quote Form" },
+            { id:"payments",     label:"💳 Payments" },
+            { id:"subscription", label:"📦 Subscription" },
+            { id:"account",      label:"🔐 Account" },
+            { id:"support",      label:"🆘 Support" },
+          ].map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding:"8px 14px", borderRadius:8, border:"1px solid "+(tab===t.id ? C.accent : C.border), background:tab===t.id ? C.accentDim : "transparent", color:tab===t.id ? C.accent : C.muted, cursor:"pointer", fontSize:".82rem", fontWeight:tab===t.id ? 700 : 400 }}>
               {t.label}
             </button>
           ))}
