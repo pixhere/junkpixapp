@@ -91,14 +91,14 @@ export default function SocialPage() {
                     </div>
                   </button>
                   {selectedQuote?.id === q.id && generating && (
-                    <div style={{ padding:"16px", background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", display:"flex", alignItems:"center", gap:10 }}>
+                    <div style={{ padding:"16px", background:C.surface, borderTop:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
                       <div style={{ width:18, height:18, border:`2px solid ${C.border}`, borderTopColor:C.accent, borderRadius:"50%", animation:"spin .8s linear infinite", flexShrink:0 }} />
                       <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
                       <span style={{ color:C.muted, fontSize:".84rem" }}>✨ Generating posts...</span>
                     </div>
                   )}
                   {selectedQuote?.id === q.id && posts && (
-                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", padding:16 }}>
+                    <div style={{ background:C.surface, borderTop:`1px solid ${C.border}`, padding:16 }}>
                       {Object.entries(posts).map(([platform, post]: any) => (
                         <div key={platform} style={{ marginBottom:16, paddingBottom:16, borderBottom:`1px solid ${C.border}` }}>
                           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
