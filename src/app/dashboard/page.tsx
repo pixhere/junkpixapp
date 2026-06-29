@@ -2080,7 +2080,7 @@ useEffect(() => {
       </div>
     );
   };
-const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calendar: CalendarScreen, social: SocialScreen, sales: SalesScreen, analytics: Analytics, settings: SettingsScreen };  
+const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calendar: CalendarScreen, social: SocialScreen, analytics: Analytics, settings: SettingsScreen };  
   const Screen = SCREENS[active];
 
   return (
@@ -2097,7 +2097,7 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
         </div>
 
         {NAV.map(item => (
-          <button key={item.id} onClick={() => setActive(item.id)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:8, border:"none", background:active===item.id ? C.accentDim : "transparent", color:active===item.id ? C.accent : C.muted, cursor:"pointer", fontWeight:active===item.id ? 600 : 400, fontSize:".88rem", textAlign:"left" as const }}>
+          <button key={item.id} onClick={() => (item as any).href ? router.push((item as any).href) : setActive(item.id)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:8, border:"none", background:active===item.id ? C.accentDim : "transparent", color:active===item.id ? C.accent : C.muted, cursor:"pointer", fontWeight:active===item.id ? 600 : 400, fontSize:".88rem", textAlign:"left" as const }}>
             <span>{item.icon}</span>{item.label}
             {item.id === "quotes" && newCount > 0 && (
               <span style={{ marginLeft:"auto", background:C.accent, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:".68rem", fontWeight:800 }}>{newCount}</span>
@@ -2142,7 +2142,7 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
           { id:"analytics", label:"Analytics", icon:"📊" },
           { id:"settings",  label:"Settings",  icon:"⚙️" },
         ].map(item => (
-          <button key={item.id} onClick={() => setActive(item.id)} style={{ background:"none", border:"none", color: active===item.id ? C.accent : C.muted, cursor:"pointer", display:"flex", flexDirection:"column" as const, alignItems:"center", gap:4, padding:"4px 16px", position:"relative" as const }}>
+          <button key={item.id} onClick={() => (item as any).href ? router.push((item as any).href) : setActive(item.id)} style={{ background:"none", border:"none", color: active===item.id ? C.accent : C.muted, cursor:"pointer", display:"flex", flexDirection:"column" as const, alignItems:"center", gap:4, padding:"4px 16px", position:"relative" as const }}>
             <span style={{ fontSize:"1.3rem" }}>{item.icon}</span>
             <span style={{ fontSize:".6rem", fontWeight: active===item.id ? 700 : 400 }}>{item.label}</span>
             {item.id === "quotes" && newCount > 0 && (
