@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { id: "calendar",   label: "Calendar", icon: "📅", href: "/dashboard/calendar" },
   { id: "sales",      label: "Sales",    icon: "🎯", href: "/dashboard/sales" },
   { id: "social",     label: "Social",   icon: "📱", href: "/dashboard/social" },
-  { id: "analytics",  label: "Stats",    icon: "📊", href: "/dashboard/analytics" },
+  { id: "analytics",  label: "Analytics", icon: "📊", href: "/dashboard/analytics" },
 ];
 
 export default function NavLayout({ children, active, title, backHref }: { 

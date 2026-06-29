@@ -10,16 +10,10 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e",
+  bg:"#0A0A0A", surface:"#111111", card:"#161616", border:"#222222",
+  accent:"#D97B4F", accentDim:"rgba(217,123,79,0.1)", text:"#F0F0F0",
+  muted:"#666666", green:"#22c55e", red:"#ef4444",
 };
-
-const PLATFORMS = [
-  { key:"facebook",  label:"Facebook",  icon:"📘", tip:"Best for local community groups" },
-  { key:"instagram", label:"Instagram", icon:"📸", tip:"Use before/after photos" },
-  { key:"nextdoor",  label:"Nextdoor",  icon:"🏘️", tip:"Great for neighborhood leads" },
-  { key:"google",    label:"Google",    icon:"🔍", tip:"For your Google Business profile" },
-];
 
 export default function SocialPage() {
   const router = useRouter();
@@ -36,11 +30,13 @@ export default function SocialPage() {
       if (!user) { router.push("/login"); return; }
       const { data: op } = await supabase.from("operators").select("*").eq("id", user.id).single();
       if (op) setOperator(op);
-      const { data: qs } = await supabase.from("quote_requests").select("*").eq("operator_id", user.id).in("status", ["completed","booked"]).order("created_at", { ascending: false });
+      const { data: qs } = await supabase.from("quote_requests").select("*").eq("operator_id", user.id).order("created_at", { ascending: false });
       if (qs) setQuotes(qs);
     };
     load();
   }, []);
+
+  const completedQuotes = quotes.filter(q => q.status === "completed" || q.status === "booked");
 
   const generate = async (quote: any) => {
     setSelectedQuote(quote);
@@ -54,64 +50,66 @@ export default function SocialPage() {
         body: JSON.stringify({ quote, operator }),
       });
       const data = await res.json();
-      if (data.posts) setPosts(data.posts);
-    } catch { }
-    setGenerating(false);
+      setPosts(data.posts);
+    } catch {
+      setPosts(null);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
-    <NavLayout active="social" title="📱 Social Media">
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
+    <NavLayout active="social" title="Social Media">
+      <div style={{ display:"flex", flexDirection:"column" as const, gap:24, padding:24, maxWidth:800, margin:"0 auto" }}>
 
-        {/* Quote selector */}
-        <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 12 }}>SELECT A COMPLETED JOB</div>
-          {quotes.length === 0 ? (
-            <div style={{ color: C.muted, fontSize: ".84rem" }}>No completed jobs yet.</div>
+        <div>
+          <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>Social Media</div>
+          <div style={{ fontSize:".84rem", color:C.muted, marginTop:4 }}>Turn completed jobs into content. AI writes the post — you copy and paste.</div>
+        </div>
+
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:".7rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:14 }}>SELECT A COMPLETED JOB</div>
+          {completedQuotes.length === 0 ? (
+            <div style={{ color:C.muted, fontSize:".88rem", textAlign:"center" as const, padding:"20px 0" }}>
+              No completed or booked jobs yet. Mark a job as Booked or Completed to generate posts.
+            </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-              {quotes.map(q => (
+            <div style={{ display:"flex", flexDirection:"column" as const, gap:8 }}>
+              {completedQuotes.map(q => (
                 <div key={q.id}>
                   <button
                     onClick={() => generate(q)}
                     disabled={generating}
-                    style={{ width: "100%", padding: "14px 16px", borderRadius: 8, border: "1px solid " + (selectedQuote?.id === q.id ? C.accent : C.border), background: selectedQuote?.id === q.id ? "rgba(217,123,79,0.15)" : C.surface, color: C.text, cursor: "pointer", textAlign: "left" as const, display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                    style={{ width:"100%", padding:"14px 16px", borderRadius:8, border:`1px solid ${selectedQuote?.id === q.id ? C.accent : C.border}`, background:selectedQuote?.id === q.id ? C.accentDim : C.surface, color:C.text, cursor:"pointer", textAlign:"left" as const, display:"flex", justifyContent:"space-between", alignItems:"center" }}
                   >
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: ".9rem" }}>{q.customer_name}</div>
-                      <div style={{ fontSize: ".72rem", color: C.muted, marginTop: 2 }}>{q.ai_description?.slice(0,50)}...</div>
+                      <div style={{ fontWeight:600, fontSize:".9rem" }}>{q.customer_name}</div>
+                      <div style={{ fontSize:".75rem", color:C.muted, marginTop:2 }}>{q.ai_description?.slice(0,60)}...</div>
                     </div>
-                    <div style={{ color: C.accent, fontWeight: 700, flexShrink: 0, marginLeft: 12 }}>${q.final_price || q.estimated_min}</div>
+                    <div style={{ fontSize:".78rem", color:C.accent, fontWeight:700, flexShrink:0, marginLeft:12 }}>
+                      ${q.final_price || q.estimated_min}
+                    </div>
                   </button>
-
                   {selectedQuote?.id === q.id && generating && (
-                    <div style={{ padding: "12px 16px", background: C.card, border: "1px solid " + C.border, borderTop: "none", borderRadius: "0 0 8px 8px", display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 16, height: 16, border: "2px solid " + C.border, borderTopColor: C.accent, borderRadius: "50%", animation: "spin .8s linear infinite", flexShrink: 0 }} />
+                    <div style={{ padding:"16px", background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:18, height:18, border:`2px solid ${C.border}`, borderTopColor:C.accent, borderRadius:"50%", animation:"spin .8s linear infinite", flexShrink:0 }} />
                       <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
-                      <span style={{ color: C.muted, fontSize: ".84rem" }}>Generating posts...</span>
+                      <span style={{ color:C.muted, fontSize:".84rem" }}>✨ Generating posts...</span>
                     </div>
                   )}
-
                   {selectedQuote?.id === q.id && posts && (
-                    <div style={{ background: C.card, border: "1px solid " + C.border, borderTop: "none", borderRadius: "0 0 8px 8px", padding: 16 }}>
-                      {PLATFORMS.map(p => (
-                        <div key={p.key} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid " + C.border }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span>{p.icon}</span>
-                              <div>
-                                <div style={{ fontWeight: 700, fontSize: ".88rem", color: C.text }}>{p.label}</div>
-                                <div style={{ fontSize: ".68rem", color: C.muted }}>{p.tip}</div>
-                              </div>
-                            </div>
-                            <button onClick={() => { navigator.clipboard.writeText(posts[p.key]); setCopied(p.key); setTimeout(() => setCopied(""), 2000); }} style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid " + C.border, background: "transparent", color: copied === p.key ? C.green : C.muted, cursor: "pointer", fontSize: ".75rem" }}>
-                              {copied === p.key ? "Copied ✓" : "📋 Copy"}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 8px 8px", padding:16 }}>
+                      {Object.entries(posts).map(([platform, post]: any) => (
+                        <div key={platform} style={{ marginBottom:16, paddingBottom:16, borderBottom:`1px solid ${C.border}` }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                            <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", fontWeight:700 }}>{platform.toUpperCase()}</div>
+                            <button onClick={() => { navigator.clipboard.writeText(post); setCopied(platform); setTimeout(() => setCopied(""), 2000); }} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:6, color:C.muted, cursor:"pointer", fontSize:".72rem", padding:"4px 10px" }}>
+                              {copied === platform ? "Copied ✓" : "📋 Copy"}
                             </button>
                           </div>
-                          <div style={{ fontSize: ".84rem", color: C.text, lineHeight: 1.6, background: C.surface, borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" as const }}>{posts[p.key]}</div>
+                          <div style={{ fontSize:".82rem", color:C.text, lineHeight:1.6, whiteSpace:"pre-wrap" as const }}>{post}</div>
                         </div>
                       ))}
-                      <button onClick={() => generate(selectedQuote)} style={{ padding: "10px 0", width: "100%", borderRadius: 8, border: "1px solid " + C.border, background: "transparent", color: C.muted, cursor: "pointer", fontSize: ".84rem" }}>↺ Regenerate</button>
                     </div>
                   )}
                 </div>
