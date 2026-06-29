@@ -110,7 +110,7 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const TABS = ["business","pricing","account","support"];
+  const TABS = ["business","pricing","subscription","quoteform","payments","account","support"];
 
   const Field = ({ label, value, setter, type="text", note="" }: any) => (
     <div style={{ marginBottom: 4 }}>
@@ -184,6 +184,92 @@ export default function SettingsPage() {
               <Field label="FULL MIN ($)" value={priceFullMin} setter={setPriceFullMin} type="number" />
               <Field label="FULL MAX ($)" value={priceFullMax} setter={setPriceFullMax} type="number" />
             </div>
+          </div>
+        )}
+
+        {/* Subscription tab */}
+        {tab === "subscription" && (
+          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
+            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Subscription</div>
+            <div style={{ fontSize: ".82rem", color: C.muted, marginBottom: 20 }}>
+              {operator?.subscription_status === "active" ? "✅ Active subscription" :
+               operator?.subscription_status === "past_due" ? "⚠️ Payment past due" :
+               operator?.subscription_status === "cancelled" ? "❌ Subscription cancelled" :
+               "🕐 Free trial — " + (operator?.trial_ends_at ? Math.max(0, Math.ceil((new Date(operator.trial_ends_at).getTime() - Date.now()) / 86400000)) : 30) + " days left"}
+            </div>
+            {operator?.subscription_status !== "active" && (
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+                <div style={{ fontSize: ".72rem", color: C.muted, fontFamily: "monospace", letterSpacing: ".08em", marginBottom: 4 }}>CHOOSE YOUR PLAN</div>
+                {[
+                  { label: "Founding Operator", price: "$49/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_FOUNDING, badge: "🔥 19 spots left" },
+                  { label: "Standard", price: "$99/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STANDARD, badge: "" },
+                  { label: "Agency / Team", price: "$199/mo", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AGENCY, badge: "" },
+                ].map(plan => (
+                  <button
+                    key={plan.label}
+                    onClick={async () => {
+                      const res = await fetch("/api/create-checkout", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ priceId: plan.priceId, operatorId: operator?.id, email: operator?.email }),
+                      });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                    }}
+                    style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid " + C.border, background: C.surface, color: C.text, fontWeight: 600, cursor: "pointer", fontSize: ".88rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                  >
+                    <span>{plan.label} {plan.badge && <span style={{ fontSize: ".7rem", color: C.accent, marginLeft: 6 }}>{plan.badge}</span>}</span>
+                    <span style={{ color: C.accent, fontWeight: 700 }}>{plan.price}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Quote Form tab */}
+        {tab === "quoteform" && (
+          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
+            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Quote Form</div>
+            <div style={{ fontSize: ".82rem", color: C.muted, marginBottom: 16 }}>Your customer-facing quote page settings.</div>
+            <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 8 }}>YOUR QUOTE LINK</div>
+            <div style={{ background: C.surface, borderRadius: 8, padding: "12px 14px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: ".84rem", color: C.accent }}>junkpix.com/quote/{operator?.slug || "yourslug"}</span>
+              <button onClick={() => navigator.clipboard.writeText("https://junkpix.com/quote/" + (operator?.slug || ""))} style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid " + C.border, background: "transparent", color: C.muted, cursor: "pointer", fontSize: ".72rem" }}>Copy</button>
+            </div>
+            <div style={{ fontSize: ".65rem", color: C.muted, fontFamily: "monospace", marginBottom: 8 }}>SHARE WITH CUSTOMERS</div>
+            <div style={{ fontSize: ".82rem", color: C.muted, lineHeight: 1.6 }}>Share your quote link on your website, Google Business profile, Facebook page, and anywhere customers can find you. They upload photos and get an instant AI estimate.</div>
+          </div>
+        )}
+
+        {/* Payments tab */}
+        {tab === "payments" && (
+          <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 20 }}>
+            <div style={{ fontWeight: 700, color: C.text, marginBottom: 4 }}>Payments</div>
+            <div style={{ fontSize: ".82rem", color: C.muted, marginBottom: 16 }}>Accept deposits and payments from customers.</div>
+            {operator?.stripe_account_id ? (
+              <div style={{ padding: "12px 14px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 8, marginBottom: 16 }}>
+                <div style={{ fontWeight: 700, color: C.green, fontSize: ".88rem" }}>✅ Stripe Connected</div>
+                <div style={{ fontSize: ".78rem", color: C.muted, marginTop: 4 }}>You can accept deposits from customers.</div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ padding: "12px 14px", background: C.surface, border: "1px solid " + C.border, borderRadius: 8, marginBottom: 16 }}>
+                  <div style={{ fontWeight: 600, color: C.text, fontSize: ".88rem", marginBottom: 4 }}>Connect Stripe</div>
+                  <div style={{ fontSize: ".78rem", color: C.muted }}>Connect your Stripe account to accept deposits when customers book a job.</div>
+                </div>
+                <button
+                  onClick={async () => {
+                    const res = await fetch("/api/stripe-connect/onboard", { method: "POST" });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                  }}
+                  style={{ width: "100%", padding: "12px", borderRadius: 8, border: "none", background: C.accent, color: "#000", fontWeight: 700, cursor: "pointer", fontSize: ".9rem" }}
+                >
+                  Connect Stripe →
+                </button>
+              </div>
+            )}
           </div>
         )}
 
