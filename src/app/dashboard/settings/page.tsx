@@ -282,10 +282,10 @@ export default function SettingsPage() {
               <div style={{ color:C.muted, fontSize:".84rem" }}>Loading...</div>
             ) : (
               <>
-                {["location","condition","distance","extra"].map(fieldType => (
+                {["location","condition","distance","extra","special_item"].map(fieldType => (
                   <div key={fieldType} style={{ marginBottom:24 }}>
                     <div style={{ fontSize:".7rem", color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontWeight:700, marginBottom:12 }}>
-                      {fieldType === "location" ? "📍 LOCATION OPTIONS" : fieldType === "condition" ? "⚠️ CONDITION OPTIONS" : fieldType === "distance" ? "📏 DISTANCE OPTIONS" : "➕ EXTRA CHARGES"}
+                      {fieldType === "location" ? "📍 LOCATION OPTIONS" : fieldType === "condition" ? "⚠️ CONDITION OPTIONS" : fieldType === "distance" ? "📏 DISTANCE OPTIONS" : fieldType === "special_item" ? "🎹 SPECIAL ITEMS (Piano, Safe, Hot Tub, etc.)" : "➕ EXTRA CHARGES"}
                     </div>
                     {formConfig.filter(c => c.field_type === fieldType).map(item => (
                       <div key={item.id} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:8 }}>
@@ -315,6 +315,7 @@ export default function SettingsPage() {
                       <option value="condition">Condition</option>
                       <option value="distance">Distance</option>
                       <option value="extra">Extra Charge</option>
+                      <option value="special_item">Special Item</option>
                     </select>
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
