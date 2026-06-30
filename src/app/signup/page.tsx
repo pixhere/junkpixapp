@@ -41,6 +41,7 @@ export default function SignupPage() {
   const [crewSize, setCrewSize] = useState("2");
   const [margin, setMargin] = useState("35");
   const [gasPrice, setGasPrice] = useState("3.50");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleSignup = async () => {
     setLoading(true);
@@ -72,6 +73,7 @@ export default function SignupPage() {
           margin_percent: parseInt(margin),
           gas_price: parseFloat(gasPrice),
           slug: slug.toLowerCase().replace(/[^a-z0-9]/g, ""),
+          agreed_to_terms_at: new Date().toISOString(),
         });
       if (operatorError) throw operatorError;
 
@@ -262,11 +264,26 @@ export default function SignupPage() {
               💡 Update gas price and crew size daily from your dashboard.
             </p>
 
+            <label style={{ display:"flex", alignItems:"flex-start", gap:10, marginTop:16, marginBottom:8, cursor:"pointer" }}>
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={e => setAgreedToTerms(e.target.checked)}
+                style={{ marginTop:3, accentColor:"#D97B4F", width:16, height:16, flexShrink:0 }}
+              />
+              <span style={{ fontSize:".78rem", color:"rgba(255,255,255,0.6)", lineHeight:1.5 }}>
+                I agree to JunkPix's{" "}
+                <a href="/terms" target="_blank" style={{ color:"#D97B4F", textDecoration:"underline" }}>Terms of Service</a>
+                {" "}and{" "}
+                <a href="/privacy" target="_blank" style={{ color:"#D97B4F", textDecoration:"underline" }}>Privacy Policy</a>
+              </span>
+            </label>
+
             <div style={{ display:"flex", gap:12, marginTop:8 }}>
               <button onClick={() => setStep(2)} style={{ ...btnStyle, background:"transparent", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.6)", flex:1 }}>← Back</button>
               <button
-                style={loading ? { ...btnDisabled, flex:2 } : { ...btnStyle, flex:2 }}
-                disabled={loading}
+                style={loading || !agreedToTerms ? { ...btnDisabled, flex:2 } : { ...btnStyle, flex:2 }}
+                disabled={loading || !agreedToTerms}
                 onClick={handleSignup}
               >
                 {loading ? "Creating account..." : "Launch JunkPix →"}
