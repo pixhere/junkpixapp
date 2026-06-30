@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:system-ui,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:20px;">
-    ${header}
+    <div style="background:#0A0A0A;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#D97B4F;letter-spacing:.15em;font-family:monospace;">JUNKPIX</div><div style="font-size:.78rem;color:rgba(255,255,255,0.75);margin-top:4px;letter-spacing:.05em;">JUNK REMOVAL MADE SIMPLE</div></div>
     <div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid #e5e5e5;">
       <div style="font-size:.7rem;font-weight:700;color:#999;letter-spacing:.1em;margin-bottom:16px;font-family:monospace;">🚛 NEW QUOTE REQUEST</div>
       <table style="width:100%;border-collapse:collapse;">
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     <div style="text-align:center;padding:8px 0 16px;">
       <a href="${dashboardUrl}/dashboard" style="display:inline-block;background:#D97B4F;color:#000;padding:16px 40px;border-radius:8px;font-weight:700;font-size:1rem;text-decoration:none;">View in Dashboard →</a>
     </div>
-    ${footer}
+    <div style="background:#0A0A0A;border-radius:12px;padding:20px;text-align:center;margin-top:16px;"><div style="font-size:.65rem;color:rgba(255,255,255,0.75);letter-spacing:.1em;font-family:monospace;margin-bottom:10px;">QUESTIONS? REACH US ANYTIME</div><div style="font-size:.95rem;font-weight:800;color:#D97B4F;">JunkPix</div><div style="font-size:.84rem;color:rgba(255,255,255,0.6);margin-top:6px;">(717) 416-3617</div><div style="font-size:.84rem;margin-top:4px;"><a href="https://www.junkpix.com" style="color:#D97B4F;text-decoration:none;">www.junkpix.com</a></div></div><div style="text-align:center;font-size:.72rem;color:#bbb;margin-top:16px;">© JunkPix · Harrisburg, PA · <a href="https://www.junkpix.com" style="color:#bbb;">junkpix.com</a></div>
   </div>
 </body>
 </html>`;
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 <html>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:system-ui,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:20px;">
-    ${header}
+    <div style="background:#0A0A0A;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#D97B4F;letter-spacing:.15em;font-family:monospace;">JUNKPIX</div><div style="font-size:.78rem;color:rgba(255,255,255,0.75);margin-top:4px;letter-spacing:.05em;">JUNK REMOVAL MADE SIMPLE</div></div>
     <div style="background:#fff;border-radius:12px;padding:28px;margin-bottom:16px;border:1px solid #e5e5e5;">
       <p style="color:#111;font-size:1rem;font-weight:700;margin:0 0 12px;">Hi ${customer.name?.split(" ")[0]} 👋</p>
       <p style="color:#444;line-height:1.7;font-size:.92rem;margin:0 0 12px;">We received your photos and are reviewing your junk removal request. You will hear back shortly with a price.</p>
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       </div>
       <p style="color:#444;line-height:1.7;font-size:.92rem;margin:0;">Questions? Reply to this email or call us directly.</p>
     </div>
-    ${footer}
+    <div style="background:#0A0A0A;border-radius:12px;padding:20px;text-align:center;margin-top:16px;"><div style="font-size:.65rem;color:rgba(255,255,255,0.75);letter-spacing:.1em;font-family:monospace;margin-bottom:10px;">QUESTIONS? REACH US ANYTIME</div><div style="font-size:.95rem;font-weight:800;color:#D97B4F;">JunkPix</div><div style="font-size:.84rem;color:rgba(255,255,255,0.6);margin-top:6px;">(717) 416-3617</div><div style="font-size:.84rem;margin-top:4px;"><a href="https://www.junkpix.com" style="color:#D97B4F;text-decoration:none;">www.junkpix.com</a></div></div><div style="text-align:center;font-size:.72rem;color:#bbb;margin-top:16px;">© JunkPix · Harrisburg, PA · <a href="https://www.junkpix.com" style="color:#bbb;">junkpix.com</a></div>
   </div>
 </body>
 </html>`;
