@@ -424,7 +424,6 @@ export default function SettingsPage() {
             <Field label="GOOGLE BUSINESS ID" value={googleBizId} setter={setGoogleBizId} />
             <Field label="NEXTDOOR ID" value={nextdoorId} setter={setNextdoorId} />
             <Field label="TIKTOK ACCOUNT ID" value={tiktokId} setter={setTiktokId} />
-            <Field label="N8N WEBHOOK URL" value={n8nWebhookUrl} setter={setN8nWebhookUrl} note="Receives POST requests when you click POST on generated content" />
 
             {extraSocials.map((s, i) => (
               <div key={i} style={{ display:"flex", gap:8, marginBottom:12 }}>

@@ -109,13 +109,13 @@ export default function PhotosPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          webhookUrl: operator?.n8n_webhook_url || "",
           payload: {
             platform,
             post: posts[platform],
             before_photos: quote?.photo_urls || [],
             after_photos: afterPhotos,
             operator: {
+              id: operator?.id,
               business_name: operator?.business_name,
               website: operator?.website,
               phone: operator?.phone,
