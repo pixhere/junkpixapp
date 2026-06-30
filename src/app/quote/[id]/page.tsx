@@ -638,6 +638,20 @@ if (step === 4) return (
                 </div>
               </div>
             )}
+            {result?.specialItemsFlag && result?.specialItems?.length > 0 && (
+              <div style={{ background: "rgba(217,123,79,0.08)", border: "1px solid rgba(217,123,79,0.3)", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontWeight: 700, color: "#D97B4F", fontSize: ".88rem", marginBottom: 8 }}>🎹 Special Items Detected</div>
+                {result.specialItems.map((item: any, i: number) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: ".82rem", color: C.inkSoft, padding: "4px 0" }}>
+                    <span>{item.name}</span>
+                    <span style={{ fontWeight: 700, color: "#D97B4F" }}>+${item.fee}</span>
+                  </div>
+                ))}
+                <div style={{ fontSize: ".74rem", color: C.inkFaint, marginTop: 8, lineHeight: 1.4 }}>
+                  These items require special handling and are added to your final price.
+                </div>
+              </div>
+            )}
                 {/* Instant booking incentive */}
             <div style={{ background: "#D97B4F", borderRadius: 12, padding: 20, marginBottom: 16 }}>
               <div style={{ fontSize: "1.4rem", marginBottom: 8 }}>🔥</div>
