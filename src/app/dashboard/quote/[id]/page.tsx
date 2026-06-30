@@ -252,42 +252,6 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
 
-        {/* Special / Extra Items */}
-        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
-          <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:12 }}>🎹 SPECIAL / EXTRA ITEMS</div>
-          {extraItems.length === 0 ? (
-            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:12 }}>No special items added.</div>
-          ) : (
-            <div style={{ marginBottom:12 }}>
-              {extraItems.map((item, i) => (
-                <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderBottom:`1px solid ${C.border}` }}>
-                  <span style={{ fontSize:".84rem", color:C.text }}>{item.name}</span>
-                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                    <span style={{ fontSize:".84rem", color:C.accent, fontWeight:700 }}>+${item.fee}</span>
-                    <button onClick={() => setExtraItems(prev => prev.filter((_,j) => j!==i))} style={{ background:"none", border:"none", color:C.red, cursor:"pointer", fontSize:".8rem" }}>✕</button>
-                  </div>
-                </div>
-              ))}
-              <div style={{ display:"flex", justifyContent:"space-between", paddingTop:8, fontWeight:700 }}>
-                <span style={{ fontSize:".82rem", color:C.muted }}>Extra Items Total</span>
-                <span style={{ fontSize:".88rem", color:C.accent }}>+${extraItems.reduce((sum,i) => sum + i.fee, 0)}</span>
-              </div>
-            </div>
-          )}
-          <div style={{ display:"flex", gap:8 }}>
-            <input type="text" value={newExtraName} onChange={e => setNewExtraName(e.target.value)} placeholder="e.g. Piano" style={{ flex:2, padding:"9px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".84rem", outline:"none" }} />
-            <input type="number" value={newExtraFee} onChange={e => setNewExtraFee(e.target.value)} placeholder="Fee $" style={{ flex:1, padding:"9px 12px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".84rem", outline:"none" }} />
-            <button onClick={async () => {
-              if (!newExtraName.trim() || !newExtraFee) return;
-              const updated = [...extraItems, { name: newExtraName, fee: parseInt(newExtraFee) || 0 }];
-              setExtraItems(updated);
-              await supabase.from("quote_requests").update({ extra_items: updated }).eq("id", id);
-              setNewExtraName(""); setNewExtraFee("");
-            }} style={{ padding:"9px 16px", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".84rem", whiteSpace:"nowrap" as const }}>
-              + Extra Item
-            </button>
-          </div>
-        </div>
 
         {/* Send Quote */}
         {quote.status !== "completed" && quote.status !== "cancelled" && (
