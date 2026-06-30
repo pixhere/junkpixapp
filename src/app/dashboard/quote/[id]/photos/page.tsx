@@ -105,19 +105,22 @@ export default function PhotosPage() {
     if (!posts) return;
     setPosting(p => ({ ...p, [platform]: true }));
     try {
-      await fetch(operator?.n8n_webhook_url || "", {
+      await fetch("/api/post-to-n8n", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          platform,
-          post: posts[platform],
-          before_photos: quote?.photo_urls || [],
-          after_photos: afterPhotos,
-          operator: {
-            business_name: operator?.business_name,
-            website: operator?.website,
-            phone: operator?.phone,
-            location: operator?.city,
+          webhookUrl: operator?.n8n_webhook_url || "",
+          payload: {
+            platform,
+            post: posts[platform],
+            before_photos: quote?.photo_urls || [],
+            after_photos: afterPhotos,
+            operator: {
+              business_name: operator?.business_name,
+              website: operator?.website,
+              phone: operator?.phone,
+              location: operator?.city,
+            },
           },
         }),
       });
