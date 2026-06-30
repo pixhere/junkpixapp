@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     <!-- Header -->
     <div style="background:#0A0A0A;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;">
       <div style="font-size:1.4rem;font-weight:800;color:#D97B4F;letter-spacing:.15em;font-family:monospace;">JUNKPIX</div>
-      <div style="font-size:.78rem;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:.05em;">JUNK REMOVAL MADE SIMPLE</div>
+      <div style="font-size:.78rem;color:rgba(255,255,255,0.75);margin-top:4px;letter-spacing:.05em;">JUNK REMOVAL MADE SIMPLE</div>
     </div>
 
     <!-- Body -->
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     <!-- Footer contact -->
     <div style="background:#0A0A0A;border-radius:12px;padding:20px;border:1px solid #222;text-align:center;margin-bottom:16px;">
-      <div style="font-size:.65rem;color:rgba(255,255,255,0.3);letter-spacing:.1em;font-family:monospace;margin-bottom:10px;">QUESTIONS? REACH US ANYTIME</div>
+      <div style="font-size:.65rem;color:rgba(255,255,255,0.75);letter-spacing:.1em;font-family:monospace;margin-bottom:10px;">QUESTIONS? REACH US ANYTIME</div>
       <div style="font-size:.95rem;font-weight:800;color:#D97B4F;">JunkPix Quality Team</div>
       <div style="font-size:.84rem;color:rgba(255,255,255,0.6);margin-top:6px;">(717) 416-3617</div>
       <div style="font-size:.84rem;margin-top:4px;"><a href="https://www.junkpix.com" style="color:#D97B4F;text-decoration:none;">www.junkpix.com</a></div>
