@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { images, operatorPrices } = body;
+    const { images, operatorPrices, specialItemsConfig } = body;
+
+    const specialItemsList = specialItemsConfig && specialItemsConfig.length > 0
+      ? specialItemsConfig.map((item: any) => `- ${item.label}: add $${item.price_impact}`).join("\n")
+      : "- No special items configured for this operator. Do not flag any special items.";
 
     // Real operator costs
     const dumpRegular      = operatorPrices?.dump_fee_per_ton || 113.49;
@@ -131,6 +135,12 @@ If you detect tires:
 - Car/SUV tires: add $25 per tire
 - Truck tires (large): add $35 per tire
 - Count visible tires and multiply accordingly
+
+SPECIAL ITEMS DETECTION:
+This operator has set up the following special items with their own custom fees. If you detect ANY of these items in the photos, set specialItemsFlag to true and list them in specialItems with their exact fee:
+${specialItemsList}
+List each detected special item with its name and fee in specialItems array.
+Add up ALL special item fees and include the total in specialItemsTotal.
 
 When heavyMaterialFlag is true:
 - Apply the correct multiplier above to your estimated price

@@ -168,6 +168,7 @@ useEffect(() => {
     images: compressed,
     prompt: "Describe this junk removal job.",
     operatorPrices: operatorData,
+    specialItemsConfig: formConfigRef.current.filter((c: any) => c.field_type === "special_item"),
   }),
 });
 
