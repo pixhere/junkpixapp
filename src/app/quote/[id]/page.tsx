@@ -606,7 +606,7 @@ if (step === 4) return (
                 )}
               </div>
             )}
-            {result?.estimatedMin && !result?.siteVisitRequired && (
+            {false && result?.estimatedMin && !result?.siteVisitRequired && (
               <div style={{ background: C.bgSoft, borderRadius: 8, padding: 20, marginBottom: 16, border: `1px solid ${C.line}` }}>
                 <div style={{ fontSize: ".62rem", letterSpacing: ".1em", color: C.inkFaint, fontFamily: "monospace", marginBottom: 8 }}>ESTIMATED RANGE</div>
                 <div style={{ fontSize: "2rem", fontWeight: 800, color: C.clay }}>${result.estimatedMin} – ${result.estimatedMax}</div>

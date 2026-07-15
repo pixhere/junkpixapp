@@ -70,12 +70,12 @@ export async function POST(req: NextRequest) {
     <div style="background:#fff;border-radius:12px;padding:28px;margin-bottom:16px;border:1px solid #e5e5e5;">
       <p style="color:#111;font-size:1rem;font-weight:700;margin:0 0 12px;">Hi ${customer.name?.split(" ")[0]} 👋</p>
       <p style="color:#444;line-height:1.7;font-size:.92rem;margin:0 0 12px;">We received your photos and are reviewing your junk removal request. You will hear back shortly with a price.</p>
-      <div style="background:#f8f8f8;border-radius:8px;padding:16px;margin:16px 0;">
-        <div style="font-size:.7rem;color:#999;font-family:monospace;margin-bottom:4px;">ESTIMATED RANGE</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#D97B4F;">$${estimatedMin} – $${estimatedMax}</div>
-        <div style="font-size:.78rem;color:#999;margin-top:4px;">Final price confirmed after review</div>
-      </div>
+
       <p style="color:#444;line-height:1.7;font-size:.92rem;margin:0;">Questions? Reply to this email or call us directly.</p>
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e5e5;">
+        <p style="color:#444;line-height:1.7;font-size:.88rem;margin:0 0 12px;">If you had a great experience with us, we'd love a quick Google review — it takes less than 30 seconds and means the world to a small local business like ours. 🙏</p>
+        <a href="https://g.page/r/CTZuIszDTpDCEBM/review" style="display:inline-block;background:#D97B4F;color:#000;padding:12px 24px;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none;">⭐ Leave Us a Review</a>
+      </div>
     </div>
     <div style="background:#0A0A0A;border-radius:12px;padding:20px;text-align:center;margin-top:16px;"><div style="font-size:.65rem;color:rgba(255,255,255,0.75);letter-spacing:.1em;font-family:monospace;margin-bottom:10px;">QUESTIONS? REACH US ANYTIME</div><div style="font-size:.95rem;font-weight:800;color:#D97B4F;">JunkPix</div><div style="font-size:.84rem;color:rgba(255,255,255,0.6);margin-top:6px;">(717) 416-3617</div><div style="font-size:.84rem;margin-top:4px;"><a href="https://www.junkpix.com" style="color:#D97B4F;text-decoration:none;">www.junkpix.com</a></div></div><div style="text-align:center;font-size:.72rem;color:#bbb;margin-top:16px;">© JunkPix · Harrisburg, PA · <a href="https://www.junkpix.com" style="color:#bbb;">junkpix.com</a></div>
   </div>
