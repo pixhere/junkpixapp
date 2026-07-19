@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const header = '<div style="background:#0A0A0A;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#D97B4F;letter-spacing:.15em;font-family:monospace;">JUNKPIX</div><div style="font-size:.78rem;color:rgba(255,255,255,0.75);margin-top:4px;letter-spacing:.05em;">JUNK REMOVAL MADE SIMPLE</div></div>';
 
@@ -12,8 +18,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing Resend API key" }, { status: 500 });
     }
 
-    const operatorEmail = process.env.OWNER_EMAIL || "hello@junkpix.com";
     const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL || "https://junkpix.com";
+
+    // Look up operator email dynamically
+    let operatorEmail = process.env.OWNER_EMAIL || "hello@junkpix.com";
+    if (operatorId) {
+      const { data: op } = await supabase
+        .from("operators")
+        .select("email, business_name")
+        .eq("id", operatorId)
+        .single();
+      if (op?.email) operatorEmail = op.email;
+    }
 
     const operatorHtml = `<!DOCTYPE html>
 <html>
