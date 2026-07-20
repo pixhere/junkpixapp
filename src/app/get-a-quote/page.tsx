@@ -253,27 +253,9 @@ export default function GetAQuotePage() {
                 </div>
               )}
 
-              {photos.length > 0 && !aiResult && (
-                <button onClick={analyzePhotos} disabled={analyzing} style={{ ...btn(analyzing), marginBottom: 0 }}>
-                  {analyzing ? "🤖 Analyzing your photos..." : "🤖 Get AI Estimate"}
-                </button>
-              )}
 
-              {aiResult && (
-                <div style={{ background: C.accentDim, border: `1px solid ${C.accent}`, borderRadius: 8, padding: 16 }}>
-                  <div style={{ fontSize: ".65rem", color: C.accent, fontFamily: "monospace", fontWeight: 700, marginBottom: 8 }}>✨ AI ESTIMATE</div>
-                  {aiResult.siteVisitRequired ? (
-                    <div style={{ fontSize: ".88rem", color: C.muted }}>This job requires an in-person assessment. A local pro will contact you to schedule a free site visit.</div>
-                  ) : (
-                    <>
-                      <div style={{ fontSize: "1.6rem", fontWeight: 800, color: C.accent, marginBottom: 4 }}>${aiResult.estimatedMin} – ${aiResult.estimatedMax}</div>
-                      <div style={{ fontSize: ".78rem", color: C.muted, lineHeight: 1.6 }}>{aiResult.plainDescription}</div>
-                      {aiResult.heavyMaterialFlag && <div style={{ marginTop: 8, fontSize: ".75rem", color: "#ef4444", fontWeight: 600 }}>⚠️ Heavy materials detected — final price confirmed on arrival</div>}
-                      {aiResult.tireFlag && <div style={{ marginTop: 4, fontSize: ".75rem", color: "#3b82f6", fontWeight: 600 }}>🔄 Tires detected — additional disposal fees apply</div>}
-                    </>
-                  )}
-                </div>
-              )}
+
+
             </div>
 
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
