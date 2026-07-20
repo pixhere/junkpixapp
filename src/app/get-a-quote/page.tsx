@@ -3,15 +3,15 @@
 import { useState, useRef } from "react";
 
 const C = {
-  bg: "#0A0A0A",
-  card: "#111111",
-  border: "#222222",
+  bg: "#F8F6F2",
+  card: "#FFFFFF",
+  border: "#E5E0D8",
   accent: "#D97B4F",
-  accentDim: "rgba(217,123,79,0.1)",
-  text: "#F0F0F0",
-  muted: "#666666",
+  accentDim: "rgba(217,123,79,0.08)",
+  text: "#1A1A1A",
+  muted: "#6B6B6B",
   green: "#22c55e",
-  surface: "#161616",
+  surface: "#F2EEE8",
 };
 
 const LEAD_SOURCES = [
