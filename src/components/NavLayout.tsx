@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { id: "sales",      label: "Sales",    icon: "🎯", href: "/dashboard/sales" },
   { id: "social",     label: "Social",   icon: "📱", href: "/dashboard/social" },
   { id: "analytics",  label: "Analytics",icon: "📊", href: "/dashboard/analytics" },
+  { id: "leads",      label: "Leads",     icon: "🌐", href: "/dashboard/leads" },
 ];
 
 export default function NavLayout({ children, active, title, backHref }: { 
