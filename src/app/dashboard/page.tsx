@@ -98,6 +98,8 @@ const MOCK_QUOTES = [
 
 export default function Dashboard() {
   const [active, setActive]       = useState("overview");
+  const [myLeads, setMyLeads]       = useState<any[]>([]);
+  const [leadsLoaded, setLeadsLoaded] = useState(false);
   const router = useRouter();
   const [quotes, setQuotes] = useState<any[]>([]);
   const [selected, setSelected]   = useState<any>(null);
@@ -143,6 +145,20 @@ export default function Dashboard() {
     }
   };
   load();
+
+  // Load operator leads
+  useEffect(() => {
+    if (!operator?.id || leadsLoaded) return;
+    supabase
+      .from("leads")
+      .select("*")
+      .eq("assigned_operator_id", operator.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setMyLeads(data);
+        setLeadsLoaded(true);
+      });
+  }, [operator, leadsLoaded]);
 
   // Poll for new quotes every 30 seconds
   const interval = setInterval(async () => {
@@ -701,6 +717,47 @@ export default function Dashboard() {
           ))}
         </div>
       )}
+      {/* My Leads */}
+      {myLeads.length > 0 && (
+        <div style={{ background:C.card, border:`1px solid ${C.accent}`, borderRadius:12, overflow:"hidden" }}>
+          <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <span style={{ fontWeight:700, color:C.text }}>🌐 My Leads</span>
+            <span style={{ fontSize:".72rem", color:C.muted }}>{myLeads.filter(l => l.status === "assigned").length} pending</span>
+          </div>
+          {myLeads.map(lead => (
+            <div key={lead.id} style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                <div>
+                  <div style={{ fontWeight:700, color:C.text, fontSize:".9rem" }}>{lead.name}</div>
+                  <div style={{ fontSize:".75rem", color:C.muted }}>{lead.city}, {lead.state}</div>
+                  <a href={`tel:${lead.phone}`} style={{ fontSize:".78rem", color:C.accent, textDecoration:"none", fontWeight:600 }}>{lead.phone}</a>
+                </div>
+                <span style={{ fontSize:".6rem", fontWeight:700, padding:"3px 8px", borderRadius:20, fontFamily:"monospace",
+                  background: lead.status === "won" ? "rgba(34,197,94,0.15)" : lead.status === "lost" ? "rgba(102,102,102,0.15)" : "rgba(217,123,79,0.15)",
+                  color: lead.status === "won" ? "#22c55e" : lead.status === "lost" ? "#666" : C.accent }}>
+                  {lead.status?.toUpperCase()}
+                </span>
+              </div>
+              {lead.description && <div style={{ fontSize:".78rem", color:C.muted, marginBottom:8, lineHeight:1.5 }}>{lead.description.slice(0,100)}{lead.description.length > 100 ? "..." : ""}</div>}
+              {lead.status === "assigned" && (
+                <div style={{ display:"flex", gap:8, marginTop:8 }}>
+                  <button onClick={async () => { await supabase.from("leads").update({ status:"won", outcome:"won", outcome_reported_at: new Date().toISOString() }).eq("id", lead.id); setMyLeads((prev: any[]) => prev.map((l: any) => l.id === lead.id ? { ...l, status:"won" } : l)); }}
+                    style={{ flex:1, padding:"8px", borderRadius:8, border:"1px solid #22c55e", background:"transparent", color:"#22c55e", fontWeight:700, cursor:"pointer", fontSize:".78rem" }}>
+                    ✅ Won — Job Done
+                  </button>
+                  <button onClick={async () => { await supabase.from("leads").update({ status:"lost", outcome:"lost", outcome_reported_at: new Date().toISOString() }).eq("id", lead.id); setMyLeads((prev: any[]) => prev.map((l: any) => l.id === lead.id ? { ...l, status:"lost" } : l)); }}
+                    style={{ flex:1, padding:"8px", borderRadius:8, border:"1px solid #666", background:"transparent", color:"#666", fontWeight:700, cursor:"pointer", fontSize:".78rem" }}>
+                    ❌ Didn't Book
+                  </button>
+                </div>
+              )}
+              {lead.status === "won" && <div style={{ fontSize:".75rem", color:"#22c55e", marginTop:4, fontWeight:600 }}>✅ Job completed — $25 will be billed on your next invoice</div>}
+              {lead.status === "lost" && <div style={{ fontSize:".75rem", color:C.muted, marginTop:4 }}>❌ Not booked — $5 will be billed on your next invoice</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* All recent */}
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
         <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}` }}>
