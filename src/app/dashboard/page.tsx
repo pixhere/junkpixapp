@@ -80,12 +80,15 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
 };
 
 const NAV = [
-  { id: "overview",   label: "Overview",   icon: "▦",  href: "" },
-  { id: "quotes",     label: "Quotes",     icon: "📋", href: "/dashboard/quotes" },
-  { id: "calendar",   label: "Calendar",   icon: "📅", href: "/dashboard/calendar" },
-  { id: "sales",      label: "Sales",      icon: "🎯", href: "/dashboard/sales" },
-  { id: "social",     label: "Social",     icon: "📱", href: "/dashboard/social" },
-  { id: "analytics",  label: "Analytics",  icon: "📊", href: "/dashboard/analytics" },
+  { id: "overview",   label: "Home",         icon: "▦",  href: "" },
+  { id: "quotes",     label: "Quotes",       icon: "📋", href: "/dashboard/quotes" },
+  { id: "calendar",   label: "Calendar",     icon: "📅", href: "/dashboard/calendar" },
+  { id: "sales",      label: "Sales",        icon: "🎯", href: "/dashboard/sales" },
+  { id: "social",     label: "Social",       icon: "📱", href: "/dashboard/social" },
+  { id: "analytics",  label: "Analytics",    icon: "📊", href: "/dashboard/analytics" },
+  { id: "leads",      label: "Lead Network", icon: "🌐", href: "/dashboard/leads" },
+  { id: "my-leads",   label: "My Leads",     icon: "📬", href: "/dashboard/my-leads" },
+  { id: "settings",   label: "Settings",     icon: "⚙️", href: "/dashboard/settings" },
 ];
 
 // ── MOCK DATA (replace with real Supabase data later) ─────────────────────────
@@ -649,7 +652,7 @@ export default function Dashboard() {
           </div>
           <div style={{ fontSize:".88rem", color:C.muted, marginTop:4 }}>Here's what needs your attention today.</div>
         </div>
-        <button onClick={() => router.push("/dashboard/settings")} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"8px 10px", fontSize:"1.1rem", flexShrink:0 }}>⚙️</button>
+
       </div>
 
       {/* Stats */}
