@@ -56,9 +56,11 @@ export default function NavLayout({ children, active, title, backHref }: {
         height: "100vh",
         overflowY: "auto" as const,
       }}>
-        <div style={{ fontWeight:800, color:"#F0F0F0", fontSize:"1rem", padding:"0 12px", marginBottom:20 }}>
-          <div style={{ color:"#D97B4F", fontFamily:"monospace", letterSpacing:".1em" }}>JUNKPIX</div>
-          <div style={{ fontSize:".7rem", color:"#666666", fontWeight:400, marginTop:2 }}>Operator Dashboard</div>
+        <div style={{ padding:"0 12px", marginBottom:20 }}>
+          <div style={{ fontSize:"1.2rem", fontWeight:800 }}>
+            <span style={{ color:"#D97B4F" }}>Junk</span><span style={{ color:"#F0F0F0" }}>Pix</span>
+          </div>
+          <div style={{ fontSize:".72rem", color:"#666666", fontWeight:400, marginTop:2 }}>Operator Dashboard</div>
         </div>
         {NAV_ITEMS.map(item => (
           <button
