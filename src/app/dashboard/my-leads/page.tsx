@@ -45,13 +45,13 @@ export default function MyLeadsPage() {
   };
 
   if (loading) return (
-    <NavLayout active="leads">
+    <NavLayout active="my-leads">
       <div style={{ padding:24, color:C.muted }}>Loading your leads...</div>
     </NavLayout>
   );
 
   return (
-    <NavLayout active="leads">
+    <NavLayout active="my-leads">
       <div style={{ padding:24, maxWidth:640 }}>
         <div style={{ marginBottom:24 }}>
           <div style={{ fontSize:"1.4rem", fontWeight:800, color:C.text }}>🌐 My Leads</div>
