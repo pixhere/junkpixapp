@@ -107,8 +107,11 @@ export default function NavLayout({ children, active, title, backHref }: {
         {/* Drawer header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 12px 24px" }}>
           <div>
-            <div style={{ fontWeight:800, color:"#D97B4F", fontFamily:"monospace", letterSpacing:".1em", fontSize:"1.1rem" }}>JUNKPIX</div>
-            <div style={{ fontSize:".7rem", color:"#666666", marginTop:2 }}>Operator Dashboard</div>
+  <div style={{ fontSize:"1.2rem", fontWeight:800 }}>
+              <span style={{ color:"#D97B4F" }}>Junk</span>
+              <span style={{ color:"#F0F0F0" }}>Pix</span>
+            </div>
+            <div style={{ fontSize:".72rem", color:"#666666", marginTop:2 }}>Operator Dashboard</div>
           </div>
           <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#666", cursor:"pointer", padding:"8px 12px", fontSize:"1rem" }}>✕</button>
         </div>
