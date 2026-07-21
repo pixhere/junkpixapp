@@ -2125,8 +2125,16 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
         {/* Mobile hamburger header */}
         <div className="mobile-hamburger-header" style={{ display:"none", position:"sticky" as const, top:0, zIndex:100, background:"#111111", borderBottom:"1px solid #222222", padding:"12px 16px", alignItems:"center", gap:12 }}>
           <button onClick={() => setDrawerOpen(true)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F0F0F0", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}>☰</button>
-          <div style={{ fontWeight:700, color:"#F0F0F0", fontSize:".95rem", flex:1 }}>
-            {active === "overview" ? "🏠 Home" : active === "quotes" ? "📋 Quotes" : active === "calendar" ? "📅 Calendar" : active === "social" ? "📱 Social" : active === "analytics" ? "📊 Analytics" : active === "settings" ? "⚙️ Settings" : "Dashboard"}
+          <div style={{ flex:1 }}>
+            {active === "overview" ? (
+              <div style={{ fontSize:"1.1rem", fontWeight:800 }}>
+                <span style={{ color:"#D97B4F" }}>Junk</span><span style={{ color:"#F0F0F0" }}>Pix</span>
+              </div>
+            ) : (
+              <div style={{ fontWeight:700, color:"#F0F0F0", fontSize:".95rem" }}>
+                {active === "quotes" ? "📋 Quotes" : active === "calendar" ? "📅 Calendar" : active === "social" ? "📱 Social" : active === "analytics" ? "📊 Analytics" : active === "settings" ? "⚙️ Settings" : "Dashboard"}
+              </div>
+            )}
           </div>
           {newCount > 0 && <span style={{ background:C.accent, color:"#000", borderRadius:10, padding:"3px 8px", fontSize:".72rem", fontWeight:800 }}>{newCount} new</span>}
         </div>
