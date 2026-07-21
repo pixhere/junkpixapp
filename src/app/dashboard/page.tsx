@@ -98,6 +98,7 @@ const MOCK_QUOTES = [
 
 export default function Dashboard() {
   const [active, setActive]       = useState("overview");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const router = useRouter();
   const [quotes, setQuotes] = useState<any[]>([]);
   const [selected, setSelected]   = useState<any>(null);
@@ -2117,42 +2118,86 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
       </div>
 
       {/* Main content */}
-      <div style={{ flex:1, padding:32, overflowY:"auto", paddingBottom:80 }} className="main-content">
+      <div style={{ flex:1, overflowY:"auto" }} className="main-content">
+        {/* Mobile hamburger header */}
+        <div className="mobile-hamburger-header" style={{ display:"none", position:"sticky" as const, top:0, zIndex:100, background:"#111111", borderBottom:"1px solid #222222", padding:"12px 16px", alignItems:"center", gap:12 }}>
+          <button onClick={() => setDrawerOpen(true)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F0F0F0", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}>☰</button>
+          <div style={{ fontWeight:700, color:"#F0F0F0", fontSize:".95rem", flex:1 }}>
+            {active === "overview" ? "🏠 Home" : active === "quotes" ? "📋 Quotes" : active === "calendar" ? "📅 Calendar" : active === "social" ? "📱 Social" : active === "analytics" ? "📊 Analytics" : active === "settings" ? "⚙️ Settings" : "Dashboard"}
+          </div>
+          {newCount > 0 && <span style={{ background:C.accent, color:"#000", borderRadius:10, padding:"3px 8px", fontSize:".72rem", fontWeight:800 }}>{newCount} new</span>}
+        </div>
+        <div style={{ padding:32 }} className="main-content-inner">
         <Screen />
       </div>
 
+        </div>
       {/* Quote detail modal */}
       {selected && typeof document !== "undefined" && ReactDOM.createPortal(
         <QuoteModal quote={selected} onClose={() => setSelected(null)} />,
         document.body
       )}
-        {/* Bottom nav — mobile only */}
-      <div style={{ display:"none" }} className="mobile-nav">
-        <style>{`
-        @media (max-width: 768px) {
-            .desktop-sidebar { display: none !important; }
-            .mobile-nav { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: #111111; border-top: 1px solid #222222; padding: 8px 0 24px; z-index: 50; justify-content: space-around; align-items: center; }
-            .main-content { padding: 16px !important; padding-bottom: 90px !important; }
-            .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
-          }
-        `}</style>
-       {[
-          { id:"overview",  label:"Home",      icon:"▦" },
-          { id:"quotes",    label:"Quotes",    icon:"📋" },
-          { id:"calendar",  label:"Calendar",  icon:"📅" },
-          { id:"sales",     label:"Sales",     icon:"🎯" },
-          { id:"social",    label:"Social",    icon:"📱" },
-          { id:"analytics", label:"Analytics", icon:"📊" },
-        ].map(item => (
-          <button key={item.id} onClick={() => (item as any).href ? router.push((item as any).href) : setActive(item.id)} style={{ background:"none", border:"none", color: active===item.id ? C.accent : C.muted, cursor:"pointer", display:"flex", flexDirection:"column" as const, alignItems:"center", gap:4, padding:"4px 16px", position:"relative" as const }}>
-            <span style={{ fontSize:"1.3rem" }}>{item.icon}</span>
-            <span style={{ fontSize:".6rem", fontWeight: active===item.id ? 700 : 400 }}>{item.label}</span>
-            {item.id === "quotes" && newCount > 0 && (
-              <span style={{ position:"absolute" as const, top:0, right:8, background:C.accent, color:"#000", borderRadius:10, padding:"1px 5px", fontSize:".55rem", fontWeight:800 }}>{newCount}</span>
-            )}
-          </button>
-        ))}
+
+      {/* Mobile hamburger overlay */}
+      {drawerOpen && (
+        <div onClick={() => setDrawerOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:200, backdropFilter:"blur(4px)" }} />
+      )}
+
+      {/* Mobile drawer */}
+      <div style={{
+        position:"fixed", top:0, left:0, bottom:0, width:280,
+        background:"#111111", borderRight:"1px solid #222222",
+        zIndex:300,
+        transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+        transition:"transform .25s cubic-bezier(.4,0,.2,1)",
+        display:"flex", flexDirection:"column" as const,
+        overflowY:"auto" as const,
+      }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 16px 24px" }}>
+          <div>
+            <div style={{ fontWeight:800, color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontSize:"1.1rem" }}>JUNKPIX</div>
+            <div style={{ fontSize:".7rem", color:C.muted, marginTop:2 }}>Operator Dashboard</div>
+          </div>
+          <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#666", cursor:"pointer", padding:"8px 12px", fontSize:"1rem" }}>✕</button>
+        </div>
+        <div style={{ display:"flex", flexDirection:"column" as const, gap:4, padding:"0 12px" }}>
+          {[
+            { id:"overview",   label:"Home",           icon:"▦",  href:"" },
+            { id:"quotes",     label:"Quotes",         icon:"📋", href:"/dashboard/quotes" },
+            { id:"calendar",   label:"Calendar",       icon:"📅", href:"/dashboard/calendar" },
+            { id:"sales",      label:"Sales",          icon:"🎯", href:"/dashboard/sales" },
+            { id:"social",     label:"Social",         icon:"📱", href:"/dashboard/social" },
+            { id:"analytics",  label:"Analytics",      icon:"📊", href:"/dashboard/analytics" },
+            { id:"leads",      label:"Lead Network",   icon:"🌐", href:"/dashboard/leads" },
+            { id:"my-leads",   label:"My Leads",       icon:"📬", href:"/dashboard/my-leads" },
+            { id:"settings",   label:"Settings",       icon:"⚙️", href:"/dashboard/settings" },
+          ].map(item => (
+            <button key={item.id}
+              onClick={() => { setDrawerOpen(false); item.href ? router.push(item.href) : setActive(item.id); }}
+              style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:10, border:"none", background: active===item.id ? "rgba(217,123,79,0.12)" : "transparent", color: active===item.id ? C.accent : "#888", cursor:"pointer", fontWeight: active===item.id ? 700 : 400, fontSize:".92rem", textAlign:"left" as const, width:"100%" }}>
+              <span style={{ fontSize:"1.2rem", width:28, textAlign:"center" as const }}>{item.icon}</span>
+              <span>{item.label}</span>
+              {item.id === "quotes" && newCount > 0 && <span style={{ marginLeft:"auto", background:C.accent, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:".68rem", fontWeight:800 }}>{newCount}</span>}
+            </button>
+          ))}
+        </div>
+        <div style={{ marginTop:"auto", padding:"16px", borderTop:"1px solid #222" }}>
+          <div style={{ fontSize:".82rem", fontWeight:600, color:C.text }}>{operator?.owner_name || "Operator"}</div>
+          <div style={{ fontSize:".72rem", color:C.muted, marginTop:2 }}>{operator?.business_name || ""}</div>
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-sidebar { display: none !important; }
+          .mobile-hamburger-header { display: flex !important; }
+          .main-content { padding: 16px !important; padding-bottom: 24px !important; }
+          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+        }
+        @media (min-width: 769px) {
+          .mobile-hamburger-header { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
