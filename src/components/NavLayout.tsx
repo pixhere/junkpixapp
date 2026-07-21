@@ -1,41 +1,52 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 const NAV_ITEMS = [
-  { id: "overview",   label: "Home",     icon: "▦",  href: "/dashboard" },
-  { id: "quotes",     label: "Quotes",   icon: "📋", href: "/dashboard/quotes" },
-  { id: "calendar",   label: "Calendar", icon: "📅", href: "/dashboard/calendar" },
-  { id: "sales",      label: "Sales",    icon: "🎯", href: "/dashboard/sales" },
-  { id: "social",     label: "Social",   icon: "📱", href: "/dashboard/social" },
-  { id: "analytics",  label: "Analytics",icon: "📊", href: "/dashboard/analytics" },
-  { id: "leads",      label: "Leads",     icon: "🌐", href: "/dashboard/leads" },
+  { id: "overview",   label: "Home",       icon: "▦",  href: "/dashboard" },
+  { id: "quotes",     label: "Quotes",     icon: "📋", href: "/dashboard/quotes" },
+  { id: "calendar",   label: "Calendar",   icon: "📅", href: "/dashboard/calendar" },
+  { id: "sales",      label: "Sales",      icon: "🎯", href: "/dashboard/sales" },
+  { id: "social",     label: "Social",     icon: "📱", href: "/dashboard/social" },
+  { id: "analytics",  label: "Analytics",  icon: "📊", href: "/dashboard/analytics" },
+  { id: "leads",      label: "Lead Network", icon: "🌐", href: "/dashboard/leads" },
+  { id: "my-leads",   label: "My Leads",   icon: "📬", href: "/dashboard/my-leads" },
+  { id: "settings",   label: "Settings",   icon: "⚙️", href: "/dashboard/settings" },
 ];
 
-export default function NavLayout({ children, active, title, backHref }: { 
-  children: React.ReactNode, 
+export default function NavLayout({ children, active, title, backHref }: {
+  children: React.ReactNode,
   active: string,
   title?: string,
   backHref?: string,
 }) {
   const router = useRouter();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const navigate = (href: string) => {
+    setDrawerOpen(false);
+    router.push(href);
+  };
+
+  const activeItem = NAV_ITEMS.find(i => i.id === active);
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:"#0A0A0A", fontFamily:"system-ui,sans-serif", color:"#F0F0F0" }}>
       <style>{`
         .jp-sidebar { display: none; }
-        .jp-mobile-nav { display: flex; }
-        .jp-content { padding-bottom: 80px; flex: 1; min-width: 0; }
+        .jp-content { flex: 1; min-width: 0; }
         @media (min-width: 900px) {
           .jp-sidebar { display: flex !important; }
-          .jp-mobile-nav { display: none !important; }
-          .jp-content { padding-bottom: 0; }
+          .jp-hamburger-header { display: none !important; }
+        }
+        @media (max-width: 899px) {
+          .jp-hamburger-header { display: flex !important; }
         }
       `}</style>
 
       {/* Desktop left sidebar */}
       <div className="jp-sidebar" style={{
-        width: 180, flexShrink: 0,
+        width: 200, flexShrink: 0,
         borderRight: "1px solid #222222",
         padding: "24px 12px",
         flexDirection: "column",
@@ -46,13 +57,13 @@ export default function NavLayout({ children, active, title, backHref }: {
         overflowY: "auto" as const,
       }}>
         <div style={{ fontWeight:800, color:"#F0F0F0", fontSize:"1rem", padding:"0 12px", marginBottom:20 }}>
-          <div>🚛 JunkPix</div>
+          <div style={{ color:"#D97B4F", fontFamily:"monospace", letterSpacing:".1em" }}>JUNKPIX</div>
           <div style={{ fontSize:".7rem", color:"#666666", fontWeight:400, marginTop:2 }}>Operator Dashboard</div>
         </div>
         {NAV_ITEMS.map(item => (
           <button
             key={item.id}
-            onClick={() => router.push(item.href)}
+            onClick={() => navigate(item.href)}
             style={{
               display:"flex", alignItems:"center", gap:10,
               padding:"10px 14px", borderRadius:8, border:"none",
@@ -60,55 +71,114 @@ export default function NavLayout({ children, active, title, backHref }: {
               color: active === item.id ? "#D97B4F" : "#666666",
               cursor:"pointer", fontWeight: active === item.id ? 700 : 400,
               fontSize:".88rem", textAlign:"left" as const, width:"100%",
+              transition:"all .15s",
             }}
           >
-            <span style={{ fontSize:"1.1rem" }}>{item.icon}</span>
+            <span style={{ fontSize:"1rem" }}>{item.icon}</span>
             <span>{item.label}</span>
+            {active === item.id && <div style={{ marginLeft:"auto", width:3, height:16, background:"#D97B4F", borderRadius:2 }} />}
           </button>
         ))}
+      </div>
+
+      {/* Mobile hamburger overlay */}
+      {drawerOpen && (
+        <div
+          onClick={() => setDrawerOpen(false)}
+          style={{
+            position:"fixed", inset:0, background:"rgba(0,0,0,0.7)",
+            zIndex:200, backdropFilter:"blur(4px)",
+          }}
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <div style={{
+        position:"fixed", top:0, left:0, bottom:0,
+        width:280, background:"#111111",
+        borderRight:"1px solid #222222",
+        zIndex:300,
+        transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+        transition:"transform .25s cubic-bezier(.4,0,.2,1)",
+        display:"flex", flexDirection:"column" as const,
+        padding:"0 12px 24px",
+        overflowY:"auto" as const,
+      }}>
+        {/* Drawer header */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 12px 24px" }}>
+          <div>
+            <div style={{ fontWeight:800, color:"#D97B4F", fontFamily:"monospace", letterSpacing:".1em", fontSize:"1.1rem" }}>JUNKPIX</div>
+            <div style={{ fontSize:".7rem", color:"#666666", marginTop:2 }}>Operator Dashboard</div>
+          </div>
+          <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#666", cursor:"pointer", padding:"8px 12px", fontSize:"1rem" }}>✕</button>
+        </div>
+
+        {/* Nav items */}
+        <div style={{ display:"flex", flexDirection:"column" as const, gap:4 }}>
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.href)}
+              style={{
+                display:"flex", alignItems:"center", gap:14,
+                padding:"14px 16px", borderRadius:10, border:"none",
+                background: active === item.id ? "rgba(217,123,79,0.12)" : "transparent",
+                color: active === item.id ? "#D97B4F" : "#888888",
+                cursor:"pointer", fontWeight: active === item.id ? 700 : 400,
+                fontSize:".92rem", textAlign:"left" as const, width:"100%",
+                transition:"all .15s",
+              }}
+            >
+              <span style={{ fontSize:"1.2rem", width:28, textAlign:"center" as const }}>{item.icon}</span>
+              <span>{item.label}</span>
+              {active === item.id && <div style={{ marginLeft:"auto", width:3, height:20, background:"#D97B4F", borderRadius:2 }} />}
+            </button>
+          ))}
+        </div>
+
+        {/* Drawer footer */}
+        <div style={{ marginTop:"auto", paddingTop:24, borderTop:"1px solid #222", padding:"16px" }}>
+          <div style={{ fontSize:".72rem", color:"#444", textAlign:"center" as const }}>JunkPix · Powered by AI</div>
+        </div>
       </div>
 
       {/* Main content */}
       <div className="jp-content">
-        {/* Top header */}
+
+        {/* Mobile hamburger header — always visible on mobile */}
+        <div className="jp-hamburger-header" style={{
+          display:"none",
+          position:"sticky" as const, top:0, zIndex:100,
+          background:"#111111", borderBottom:"1px solid #222222",
+          padding:"12px 16px",
+          alignItems:"center", gap:12,
+        }}>
+          <button
+            onClick={() => setDrawerOpen(true)}
+            style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F0F0F0", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}
+          >
+            ☰
+          </button>
+          {backHref && (
+            <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"8px 14px", fontSize:".84rem", flexShrink:0 }}>←</button>
+          )}
+          <div style={{ fontWeight:700, color:"#F0F0F0", fontSize:".95rem", flex:1 }}>
+            {title || (activeItem ? `${activeItem.icon} ${activeItem.label}` : "Dashboard")}
+          </div>
+        </div>
+
+        {/* Desktop top header (only when back/title needed) */}
         {(title || backHref) && (
-          <div style={{ position:"sticky" as const, top:0, zIndex:50, background:"#161616", borderBottom:"1px solid #222222", padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ position:"sticky" as const, top:0, zIndex:50, background:"#161616", borderBottom:"1px solid #222222", padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }} className="jp-sidebar">
             {backHref && (
-              <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"6px 14px", fontSize:".84rem", whiteSpace:"nowrap" as const, flexShrink:0 }}>←</button>
+              <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"6px 14px", fontSize:".84rem", flexShrink:0 }}>←</button>
             )}
             {title && <div style={{ fontWeight:800, color:"#F0F0F0", fontSize:"1rem", flex:1 }}>{title}</div>}
           </div>
         )}
+
         {children}
       </div>
-
-      {/* Mobile bottom nav only */}
-      <div className="jp-mobile-nav" style={{
-        position:"fixed", bottom:0, left:0, right:0,
-        background:"#161616", borderTop:"1px solid #222222",
-        zIndex:100, paddingTop:6,
-        paddingBottom:"max(env(safe-area-inset-bottom), 10px)",
-        justifyContent:"space-around",
-      }}>
-        {NAV_ITEMS.map(item => (
-          <button
-            key={item.id}
-            onClick={() => router.push(item.href)}
-            style={{
-              background:"none", border:"none",
-              color: active === item.id ? "#D97B4F" : "#666666",
-              cursor:"pointer", display:"flex", flexDirection:"column" as const,
-              alignItems:"center", gap:2, padding:"4px 8px",
-              minWidth:44, flexShrink:0,
-              WebkitTapHighlightColor:"transparent",
-            }}
-          >
-            <span style={{ fontSize:"1.2rem", lineHeight:1 }}>{item.icon}</span>
-            <span style={{ fontSize:".5rem", fontWeight:active === item.id ? 700 : 400, whiteSpace:"nowrap" as const }}>{item.label}</span>
-          </button>
-        ))}
-      </div>
-
     </div>
   );
 }
