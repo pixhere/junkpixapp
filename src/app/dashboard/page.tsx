@@ -1336,6 +1336,46 @@ export default function Dashboard() {
         {/* Payments / Stripe Connect */}
         {settingsTab === "payments" && <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:16 }}>
           <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>💳 Payments</div>
+
+          {/* Lead Network Billing */}
+          <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:20, marginBottom:20 }}>
+            <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", fontWeight:700, marginBottom:8 }}>LEAD NETWORK BILLING</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:16, lineHeight:1.6 }}>
+              Add a card to receive JunkPix leads. You're billed $25 for completed jobs and $5 for leads that don't book — charged every 2 weeks automatically.
+            </div>
+            {operator?.lead_payment_method_id ? (
+              <div style={{ background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:8, padding:14, marginBottom:12 }}>
+                <div style={{ color:C.green, fontWeight:700, fontSize:".88rem" }}>✅ Payment Method on File</div>
+                <div style={{ color:C.muted, fontSize:".75rem", marginTop:4 }}>You're ready to receive leads. Billing runs every 2 weeks.</div>
+              </div>
+            ) : (
+              <div style={{ background:"rgba(217,123,79,0.08)", border:`1px solid ${C.accent}`, borderRadius:8, padding:14, marginBottom:12 }}>
+                <div style={{ color:C.accent, fontWeight:700, fontSize:".88rem" }}>⚠️ No Payment Method</div>
+                <div style={{ color:C.muted, fontSize:".75rem", marginTop:4 }}>Add a card to start receiving leads from JunkPix.</div>
+              </div>
+            )}
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("/api/setup-payment-method", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ operatorId: operator?.id, email: operator?.email }),
+                  });
+                  const data = await res.json();
+                  if (data.clientSecret) {
+                    window.location.href = `https://checkout.stripe.com/setup?client_secret=${data.clientSecret}&return_url=${window.location.origin}/dashboard/settings?tab=payments`;
+                  }
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+              style={{ width:"100%", padding:"12px 0", borderRadius:8, border:"none", background:C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}
+            >
+              {operator?.lead_payment_method_id ? "Update Payment Method →" : "Add Payment Method →"}
+            </button>
+          </div>
+
           <div style={{ fontSize:".82rem", color:C.muted, marginBottom:20 }}>
             Connect your Stripe account to collect deposits directly from customers. Money goes straight to you — JunkPix never touches it.
           </div>
