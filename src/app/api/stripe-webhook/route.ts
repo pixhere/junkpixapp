@@ -33,9 +33,29 @@ export async function POST(req: NextRequest) {
       const session = event.data.object;
       const operatorId = session.metadata?.operatorId;
       const customerId = session.customer;
-      const subscriptionId = session.subscription;
 
-      if (operatorId) {
+      if (session.mode === "setup" && operatorId) {
+        // Operator added a payment method for lead billing
+        const Stripe = (await import("stripe")).default;
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-05-27.dahlia" as any });
+        
+        // Get the payment method from the setup intent
+        const setupIntent = await stripe.setupIntents.retrieve(session.setup_intent as string);
+        const paymentMethodId = setupIntent.payment_method as string;
+
+        // Set as default payment method on customer
+        if (paymentMethodId) {
+          await stripe.customers.update(customerId as string, {
+            invoice_settings: { default_payment_method: paymentMethodId },
+          });
+          await supabase.from("operators").update({
+            lead_payment_method_id: paymentMethodId,
+            lead_billing_enabled: true,
+          }).eq("id", operatorId);
+        }
+      } else if (session.mode === "subscription" && operatorId) {
+        // Operator subscribed to JunkPix
+        const subscriptionId = session.subscription;
         await supabase.from("operators").update({
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,

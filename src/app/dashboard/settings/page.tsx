@@ -29,6 +29,8 @@ const TABS = [
 
 export default function SettingsPage() {
   const router = useRouter();
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const setupSuccess = searchParams?.get("setup") === "success";
   const [operator, setOperator] = useState<any>(null);
   const [tab, setTab] = useState("business");
   const [saving, setSaving] = useState(false);
@@ -345,6 +347,11 @@ export default function SettingsPage() {
 
             {/* Lead Network Billing */}
             <div style={{ background:C.surface, border:"1px solid "+C.border, borderRadius:10, padding:20, marginBottom:20 }}>
+              {setupSuccess && (
+                <div style={{ background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:8, padding:12, marginBottom:12 }}>
+                  <div style={{ color:C.green, fontWeight:700, fontSize:".88rem" }}>🎉 Payment method added successfully!</div>
+                </div>
+              )}
               <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", fontWeight:700, marginBottom:8 }}>LEAD NETWORK BILLING</div>
               <div style={{ fontSize:".82rem", color:C.muted, marginBottom:16, lineHeight:1.6 }}>
                 Add a card to receive JunkPix leads. You're billed $25 for completed jobs and $5 for leads that don't book — charged every 2 weeks automatically.
