@@ -369,8 +369,8 @@ export default function SettingsPage() {
                       body: JSON.stringify({ operatorId: operator?.id, email: operator?.email }),
                     });
                     const data = await res.json();
-                    if (data.clientSecret) {
-                      alert("Stripe setup initiated. Card collection coming soon!");
+                    if (data.url) {
+                      window.location.href = data.url;
                     }
                   } catch (e) {
                     console.error(e);
