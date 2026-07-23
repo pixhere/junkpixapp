@@ -84,7 +84,7 @@ three quarter load: $${prices.threeQ}
 full load: $${prices.full}
 
 SITE VISIT REQUIRED - DETECT THESE FIRST:
-If you detect ANY of the following, set siteVisitRequired to true and DO NOT estimate a price:
+If you detect ANY of the following, set siteVisitRequired to true:
 - Mobile home, trailer home, manufactured home
 - Full house or building demolition
 - Large shed demolition (bigger than 12x12 ft)
@@ -94,9 +94,11 @@ If you detect ANY of the following, set siteVisitRequired to true and DO NOT est
 - Any structure that needs to be torn down
 
 When siteVisitRequired is true:
-- Set estimatedMin and estimatedMax to 0
-- Set plainDescription to explain this needs a site visit and to call for a custom quote
+- Still provide your BEST estimate for estimatedMin and estimatedMax
 - Set confidence to "low"
+- Set riskFlag to true
+- Note in riskReason that a site visit is recommended for accurate pricing
+- NEVER set estimatedMin or estimatedMax to 0
 
 HEAVY MATERIAL DETECTION:
 If you detect ANY of these materials, set heavyMaterialFlag to true and list them in heavyMaterials.
