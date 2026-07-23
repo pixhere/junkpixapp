@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
-    return NextResponse.redirect(new URL("/admin/login?error=auth_failed", req.url));
+    const errMsg = encodeURIComponent(error?.message || "no_user");
+    return NextResponse.redirect(new URL(`/admin/login?error=${errMsg}`, req.url));
   }
 
   if (data.user.email !== ADMIN_EMAIL) {
