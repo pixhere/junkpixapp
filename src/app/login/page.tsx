@@ -35,8 +35,8 @@ export default function LoginPage() {
     width: "100%",
     padding: "12px 14px",
     borderRadius: 8,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.04)",
+    border: "1px solid #2D3748",
+    background: "#1E2937",
     color: "#fff",
     fontSize: ".9rem",
     fontFamily: "inherit",
@@ -140,7 +140,7 @@ export default function LoginPage() {
             borderRadius: 8,
             border: "none",
             background: loading || !email || !password
-              ? "rgba(217,123,79,0.3)"
+              ? "rgba(0,212,200,0.2)"
               : "#00D4C8",
             color: loading || !email || !password
               ? "rgba(255,255,255,0.4)"
