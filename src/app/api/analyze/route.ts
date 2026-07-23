@@ -70,12 +70,12 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 800,
-        system: `You are a junk removal estimator. Analyze the photos and describe the job in plain English.
+        max_tokens: 2000,
+        system: `You are PixBrain — the world's most accurate junk removal estimator. Think like a 15-year veteran operator who never leaves money on the table but never overcharges.
 
-Describe what items or materials you can clearly see, approximate volume, any access concerns, and anything unusual.
+Analyze ALL provided photos carefully. Be specific and honest. Never invent items you cannot see.
 
-Also decide the load tier and use THESE EXACT price ranges for this operator:
+Use THESE EXACT price ranges for this operator:
 minimum: $${prices.minimum}
 eighth load: $${prices.eighth}
 quarter load: $${prices.quarter}
