@@ -49,7 +49,7 @@ export default function AdminPage() {
 
   const logout = async () => {
     await fetch("/api/admin-logout", { method: "POST" });
-    router.push("/admin/login");
+    window.location.href = "/admin/login";
   };
 
   const getOpQuotes = (opId: string) => quotes.filter(q => q.operator_id === opId);
