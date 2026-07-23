@@ -222,10 +222,95 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
           </button>
         </div>
 
-        {/* AI Description */}
+        {/* PixBrain v2 Analysis */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
-          <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", letterSpacing:".1em", marginBottom:8 }}>AI DESCRIPTION</div>
-          <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.6 }}>{quote.ai_description}</div>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+            <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", letterSpacing:".1em", fontWeight:700 }}>🧠 PIXBRAIN ANALYSIS</div>
+            {quote.booking_score && (
+              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <div style={{ fontSize:".65rem", color:C.muted }}>BOOKING SCORE</div>
+                <div style={{ fontWeight:800, fontSize:"1.1rem", color: quote.booking_score >= 70 ? "#22c55e" : quote.booking_score >= 40 ? "#F59E0B" : "#ef4444" }}>{quote.booking_score}/100</div>
+              </div>
+            )}
+          </div>
+
+          {/* Risk Flag */}
+          {quote.risk_flag && (
+            <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:8, padding:"10px 14px", marginBottom:12 }}>
+              <div style={{ fontWeight:700, color:"#ef4444", fontSize:".84rem" }}>⚠️ RISK FLAG</div>
+              <div style={{ fontSize:".78rem", color:C.muted, marginTop:4 }}>{quote.risk_reason}</div>
+            </div>
+          )}
+
+          {/* Job Type + Volume */}
+          {(quote.job_type || quote.volume_cubic_yards) && (
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+              {quote.job_type && <div style={{ background:C.surface, borderRadius:8, padding:"10px 12px" }}>
+                <div style={{ fontSize:".6rem", color:C.muted, marginBottom:2 }}>JOB TYPE</div>
+                <div style={{ fontSize:".82rem", fontWeight:600, color:C.text }}>{quote.job_type}</div>
+              </div>}
+              {quote.volume_cubic_yards && <div style={{ background:C.surface, borderRadius:8, padding:"10px 12px" }}>
+                <div style={{ fontSize:".6rem", color:C.muted, marginBottom:2 }}>VOLUME</div>
+                <div style={{ fontSize:".82rem", fontWeight:600, color:C.text }}>{quote.volume_cubic_yards} cu yd</div>
+              </div>}
+              {quote.recommended_crew && <div style={{ background:C.surface, borderRadius:8, padding:"10px 12px" }}>
+                <div style={{ fontSize:".6rem", color:C.muted, marginBottom:2 }}>CREW / TIME</div>
+                <div style={{ fontSize:".82rem", fontWeight:600, color:C.text }}>{quote.recommended_crew} people · {quote.estimated_hours}hrs</div>
+              </div>}
+            </div>
+          )}
+
+          {/* Plain Description */}
+          <div style={{ fontSize:".88rem", color:C.text, lineHeight:1.6, marginBottom:12 }}>{quote.ai_description}</div>
+
+          {/* Item List */}
+          {quote.item_list && quote.item_list.length > 0 && (
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>DETECTED ITEMS</div>
+              <div style={{ display:"flex", flexDirection:"column" as const, gap:4 }}>
+                {quote.item_list.map((item: any, i: number) => (
+                  <div key={i} style={{ display:"flex", justifyContent:"space-between", fontSize:".82rem", padding:"4px 0", borderBottom:`1px solid ${C.border}` }}>
+                    <span style={{ color:C.text }}>{item.quantity}× {item.name}</span>
+                    <span style={{ color:C.muted }}>{item.estimatedWeightLbs ? `~${item.estimatedWeightLbs} lbs` : ""}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Difficulty Factors */}
+          {quote.difficulty_factors && Object.values(quote.difficulty_factors).some(Boolean) && (
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:8 }}>DIFFICULTY FLAGS</div>
+              <div style={{ display:"flex", flexWrap:"wrap" as const, gap:6 }}>
+                {Object.entries(quote.difficulty_factors).filter(([,v]) => v).map(([k]) => (
+                  <span key={k} style={{ background:"rgba(245,158,11,0.1)", border:"1px solid rgba(245,158,11,0.3)", color:"#F59E0B", fontSize:".72rem", fontWeight:600, padding:"3px 8px", borderRadius:20 }}>
+                    {k.replace(/([A-Z])/g, " $1").trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Upsell Suggestions */}
+          {quote.upsell_suggestions && quote.upsell_suggestions.length > 0 && (
+            <div style={{ marginBottom:12, background:"rgba(0,212,200,0.05)", border:`1px solid ${C.accent}`, borderRadius:8, padding:12 }}>
+              <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", marginBottom:8 }}>💡 UPSELL OPPORTUNITIES</div>
+              {quote.upsell_suggestions.map((s: any, i: number) => (
+                <div key={i} style={{ fontSize:".82rem", color:C.text, marginBottom:4 }}>
+                  <span style={{ color:C.accent, fontWeight:700 }}>+${s.addOnPrice}</span> {s.item} — <span style={{ color:C.muted }}>{s.reason}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Suggested Customer Message */}
+          {quote.suggested_customer_message && (
+            <div style={{ marginBottom:12, background:C.surface, borderRadius:8, padding:12 }}>
+              <div style={{ fontSize:".65rem", color:C.muted, fontFamily:"monospace", marginBottom:6 }}>💬 SUGGESTED MESSAGE</div>
+              <div style={{ fontSize:".82rem", color:C.text, lineHeight:1.6, fontStyle:"italic" }}>{quote.suggested_customer_message}</div>
+            </div>
+          )}
           {quote.yard_waste_flag && (
             <div style={{ marginTop:12, padding:"12px 14px", background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:8 }}>
               <div style={{ fontWeight:700, color:"#16a34a", fontSize:".84rem", marginBottom:4 }}>🌿 YARD WASTE DETECTED</div>

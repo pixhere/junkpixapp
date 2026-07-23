@@ -150,19 +150,40 @@ When heavyMaterialFlag is true:
 
 Return ONLY valid JSON with no markdown:
 {
-  "plainDescription": "description of what you see",
-  "pricingMode": "itemized"|"loadtier",
-  "loadTier": "minimum"|"eighth"|"quarter"|"half"|"threeQ"|"full",
-  "estimatedMin": <number from the range above>,
-  "estimatedMax": <number from the range above>,
-  "confidence": "high"|"medium"|"low",
+  "plainDescription": "2-3 sentence plain English summary of the job",
+  "jobType": "Garage Cleanout|Basement Cleanout|Estate Cleanout|Backyard Cleanup|Construction Debris|Furniture Removal|Appliance Removal|Mixed Debris|Other",
+  "itemList": [{ "name": "item name", "quantity": 1, "estimatedWeightLbs": 50 }],
+  "volumeCubicYards": 3.5,
+  "truckLoadPercent": 45,
+  "pricingMode": "itemized|loadtier",
+  "loadTier": "minimum|eighth|quarter|half|threeQ|full",
+  "estimatedMin": <number>,
+  "estimatedMax": <number>,
+  "confidence": "high|medium|low",
+  "confidenceScore": 85,
+  "difficultyFactors": {
+    "stairs": false,
+    "narrowAccess": false,
+    "heavyItems": false,
+    "disassemblyRequired": false,
+    "longCarry": false,
+    "hazardousMaterials": false
+  },
+  "disposalCategory": "standard|construction|heavyMaterial|ewaste|mixed",
+  "recommendedCrew": 2,
+  "estimatedHours": 2.5,
+  "riskFlag": false,
+  "riskReason": "",
+  "upsellSuggestions": [{ "item": "upsell item", "addOnPrice": 50, "reason": "why" }],
   "visibleHazardFlag": false,
-  "siteVisitRequired": true|false,
-  "heavyMaterialFlag": true|false,
-  "yardWasteFlag": true|false,
-  "tireFlag": true|false,
-  "tireCount": <number of tires detected>,
-  "heavyMaterials": ["list of heavy materials detected"]
+  "siteVisitRequired": false,
+  "heavyMaterialFlag": false,
+  "yardWasteFlag": false,
+  "tireFlag": false,
+  "tireCount": 0,
+  "heavyMaterials": [],
+  "bookingScore": 75,
+  "suggestedCustomerMessage": "Hi [name], I reviewed your photos. [description]. I can have a [X]-person crew there for $[price]. Does [day] or [day] work best?"
 }`,
         messages: [{
           role: "user",
@@ -190,12 +211,32 @@ Return ONLY valid JSON with no markdown:
     } catch {
       result = {
         plainDescription: txt || "Unable to analyze photo.",
+        jobType: "Mixed Debris",
+        itemList: [],
+        volumeCubicYards: 0,
+        truckLoadPercent: 0,
         pricingMode: "loadtier",
         loadTier: "quarter",
         estimatedMin: operatorPrices?.price_quarter_min || 300,
         estimatedMax: operatorPrices?.price_quarter_max || 400,
         confidence: "low",
-        visibleHazardFlag: false
+        confidenceScore: 0,
+        difficultyFactors: { stairs: false, narrowAccess: false, heavyItems: false, disassemblyRequired: false, longCarry: false, hazardousMaterials: false },
+        disposalCategory: "standard",
+        recommendedCrew: 2,
+        estimatedHours: 2,
+        riskFlag: false,
+        riskReason: "",
+        upsellSuggestions: [],
+        visibleHazardFlag: false,
+        siteVisitRequired: false,
+        heavyMaterialFlag: false,
+        yardWasteFlag: false,
+        tireFlag: false,
+        tireCount: 0,
+        heavyMaterials: [],
+        bookingScore: 50,
+        suggestedCustomerMessage: ""
       };
     }
 
