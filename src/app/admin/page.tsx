@@ -48,6 +48,12 @@ export default function AdminPage() {
   };
 
   const logout = async () => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    await supabase.auth.signOut();
     await fetch("/api/admin-logout", { method: "POST" });
     window.location.href = "/admin/login";
   };
