@@ -10,7 +10,7 @@ const supabase = createClient(
 
 const C = {
   bg: "#0F172A",
-  card: "#141414",
+  card: "#1E2937",
   ink: "#FFFFFF",
   inkSoft: "rgba(255,255,255,0.6)",
   inkFaint: "rgba(255,255,255,0.3)",
@@ -101,7 +101,7 @@ export default function SignupPage() {
 
   if (success) return (
     <div style={{ minHeight:"100vh", background:"#0F172A", color:"#fff", fontFamily:"system-ui,sans-serif", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-      <div style={{ background:"#141414", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"40px 36px", width:"100%", maxWidth:480, textAlign:"center" }}>
+      <div style={{ background:"#1E2937", border:"1px solid #2D3748", borderRadius:16, padding:"40px 36px", width:"100%", maxWidth:480, textAlign:"center" }}>
         <div style={{ fontSize:"3rem", marginBottom:20 }}>🎉</div>
         <div style={{ fontSize:".85rem", fontWeight:800, letterSpacing:".15em", color:"#00D4C8", fontFamily:"monospace", marginBottom:24 }}>JUNKPIX</div>
         <h1 style={{ fontSize:"1.4rem", fontWeight:800, marginBottom:8 }}>You're in.</h1>
@@ -115,14 +115,14 @@ export default function SignupPage() {
     </div>
   );
 
-  const inputStyle = { width:"100%", padding:"12px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"#fff", fontSize:".9rem", fontFamily:"inherit", marginBottom:16, boxSizing:"border-box" as const };
+  const inputStyle = { width:"100%", padding:"12px 14px", borderRadius:8, border:"1px solid #2D3748", background:"#1E2937", color:"#fff", fontSize:".9rem", fontFamily:"inherit", marginBottom:16, boxSizing:"border-box" as const };
   const labelStyle = { fontSize:".78rem", fontWeight:600 as const, color:"rgba(255,255,255,0.3)", letterSpacing:".06em", fontFamily:"monospace", marginBottom:6, display:"block" as const };
   const btnStyle = { width:"100%", padding:"14px", borderRadius:8, border:"none", background:"#00D4C8", color:"#fff", fontSize:".95rem", fontWeight:700 as const, cursor:"pointer", letterSpacing:".04em", marginTop:8 };
-  const btnDisabled = { ...btnStyle, background:"rgba(217,123,79,0.3)", color:"rgba(255,255,255,0.4)", cursor:"not-allowed" as const };
+  const btnDisabled = { ...btnStyle, background:"rgba(0,212,200,0.2)", color:"rgba(255,255,255,0.4)", cursor:"not-allowed" as const };
 
   return (
     <div style={{ minHeight:"100vh", background:"#0F172A", color:"#fff", fontFamily:"system-ui,sans-serif", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-      <div style={{ background:"#141414", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"40px 36px", width:"100%", maxWidth:480 }}>
+      <div style={{ background:"#1E2937", border:"1px solid #2D3748", borderRadius:16, padding:"40px 36px", width:"100%", maxWidth:480 }}>
 
         <div style={{ fontSize:".85rem", fontWeight:800, letterSpacing:".15em", color:"#00D4C8", fontFamily:"monospace", marginBottom:32 }}>JUNKPIX</div>
 
@@ -209,7 +209,7 @@ export default function SignupPage() {
             <input style={inputStyle} placeholder="https://yourbusiness.com" value={website} onChange={e => setWebsite(e.target.value)} />
 
             <div style={{ display:"flex", gap:12, marginTop:8 }}>
-              <button onClick={() => setStep(1)} style={{ ...btnStyle, background:"transparent", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.6)", flex:1 }}>← Back</button>
+              <button onClick={() => setStep(1)} style={{ ...btnStyle, background:"transparent", border:"1px solid #2D3748", color:"rgba(255,255,255,0.6)", flex:1 }}>← Back</button>
               <button
                 style={businessName && ownerName && phone && city && state ? { ...btnStyle, flex:2 } : { ...btnDisabled, flex:2 }}
                 disabled={!businessName || !ownerName || !phone || !city || !state}
@@ -280,7 +280,7 @@ export default function SignupPage() {
             </label>
 
             <div style={{ display:"flex", gap:12, marginTop:8 }}>
-              <button onClick={() => setStep(2)} style={{ ...btnStyle, background:"transparent", border:"1px solid rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.6)", flex:1 }}>← Back</button>
+              <button onClick={() => setStep(2)} style={{ ...btnStyle, background:"transparent", border:"1px solid #2D3748", color:"rgba(255,255,255,0.6)", flex:1 }}>← Back</button>
               <button
                 style={loading || !agreedToTerms ? { ...btnDisabled, flex:2 } : { ...btnStyle, flex:2 }}
                 disabled={loading || !agreedToTerms}
