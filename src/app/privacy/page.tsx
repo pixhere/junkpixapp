@@ -69,6 +69,11 @@ export default function PrivacyPage() {
             <p>For privacy-related questions, contact <a href="mailto:junkpixapp@gmail.com" style={{ color:"#D97B4F" }}>junkpixapp@gmail.com</a>.</p>
           </section>
 
+          <section>
+            <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:"#F0F0F0", marginBottom:10 }}>12. Aggregated & Anonymized Data</h2>
+            <p>JunkPix may collect, process, and use aggregated and anonymized data derived from operator and customer activity on the platform. This data does not identify any individual person or business and may include information such as average job sizes, pricing trends, regional demand patterns, and service category breakdowns. JunkPix reserves the right to use such anonymized, aggregated data for internal product improvement, research, and — at our sole discretion — for sharing with or licensing to third parties such as industry analysts, insurers, municipal planners, or suppliers. No personally identifiable information (PII) is included in any such aggregated data sets. By using JunkPix, operators and customers consent to this use of anonymized, non-identifiable data.</p>
+          </section>
+
         </div>
       </div>
     </div>
