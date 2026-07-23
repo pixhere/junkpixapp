@@ -9,8 +9,8 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e",
+  bg:"#0F172A", card:"#0F172A", border:"#2D3748", text:"#F5F4F0",
+  muted:"#666660", accent:"#00D4C8", surface:"#1a1a1a", green:"#22c55e",
 };
 
 export default function CloseJobPage() {
@@ -79,7 +79,7 @@ export default function CloseJobPage() {
             <div key={q.id}>
               <button
                 onClick={() => { setSelectedQuote(q); setContent(""); if (contentRef.current) contentRef.current.innerText = ""; }}
-                style={{ width: "100%", padding: "14px 16px", borderRadius: selectedQuote?.id === q.id ? "8px 8px 0 0" : 8, border: "1px solid " + (selectedQuote?.id === q.id ? C.accent : C.border), background: selectedQuote?.id === q.id ? "rgba(217,123,79,0.15)" : C.card, color: C.text, cursor: "pointer", textAlign: "left" as const, display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                style={{ width: "100%", padding: "14px 16px", borderRadius: selectedQuote?.id === q.id ? "8px 8px 0 0" : 8, border: "1px solid " + (selectedQuote?.id === q.id ? C.accent : C.border), background: selectedQuote?.id === q.id ? "rgba(0,212,200,0.15)" : C.card, color: C.text, cursor: "pointer", textAlign: "left" as const, display: "flex", justifyContent: "space-between", alignItems: "center" }}
               >
                 <div>
                   <div style={{ fontWeight: 600, fontSize: ".9rem" }}>{q.customer_name}</div>

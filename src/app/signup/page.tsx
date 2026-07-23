@@ -9,12 +9,12 @@ const supabase = createClient(
 );
 
 const C = {
-  bg: "#0A0A0A",
+  bg: "#0F172A",
   card: "#141414",
   ink: "#FFFFFF",
   inkSoft: "rgba(255,255,255,0.6)",
   inkFaint: "rgba(255,255,255,0.3)",
-  clay: "#D97B4F",
+  clay: "#00D4C8",
   line: "rgba(255,255,255,0.08)",
 };
 
@@ -100,15 +100,15 @@ export default function SignupPage() {
   };
 
   if (success) return (
-    <div style={{ minHeight:"100vh", background:"#0A0A0A", color:"#fff", fontFamily:"system-ui,sans-serif", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+    <div style={{ minHeight:"100vh", background:"#0F172A", color:"#fff", fontFamily:"system-ui,sans-serif", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
       <div style={{ background:"#141414", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"40px 36px", width:"100%", maxWidth:480, textAlign:"center" }}>
         <div style={{ fontSize:"3rem", marginBottom:20 }}>🎉</div>
-        <div style={{ fontSize:".85rem", fontWeight:800, letterSpacing:".15em", color:"#D97B4F", fontFamily:"monospace", marginBottom:24 }}>JUNKPIX</div>
+        <div style={{ fontSize:".85rem", fontWeight:800, letterSpacing:".15em", color:"#00D4C8", fontFamily:"monospace", marginBottom:24 }}>JUNKPIX</div>
         <h1 style={{ fontSize:"1.4rem", fontWeight:800, marginBottom:8 }}>You're in.</h1>
         <p style={{ fontSize:".88rem", color:"rgba(255,255,255,0.6)", lineHeight:1.5, marginBottom:24 }}>
           Check your email at <strong>{email}</strong> to confirm your account. Once confirmed you can log in and start receiving quote requests.
         </p>
-        <a href="/login" style={{ display:"block", background:"#D97B4F", color:"#fff", padding:"14px 24px", borderRadius:8, fontWeight:700, fontSize:".95rem", textDecoration:"none", textAlign:"center" }}>
+        <a href="/login" style={{ display:"block", background:"#00D4C8", color:"#fff", padding:"14px 24px", borderRadius:8, fontWeight:700, fontSize:".95rem", textDecoration:"none", textAlign:"center" }}>
           Go to Login
         </a>
       </div>
@@ -117,19 +117,19 @@ export default function SignupPage() {
 
   const inputStyle = { width:"100%", padding:"12px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"#fff", fontSize:".9rem", fontFamily:"inherit", marginBottom:16, boxSizing:"border-box" as const };
   const labelStyle = { fontSize:".78rem", fontWeight:600 as const, color:"rgba(255,255,255,0.3)", letterSpacing:".06em", fontFamily:"monospace", marginBottom:6, display:"block" as const };
-  const btnStyle = { width:"100%", padding:"14px", borderRadius:8, border:"none", background:"#D97B4F", color:"#fff", fontSize:".95rem", fontWeight:700 as const, cursor:"pointer", letterSpacing:".04em", marginTop:8 };
+  const btnStyle = { width:"100%", padding:"14px", borderRadius:8, border:"none", background:"#00D4C8", color:"#fff", fontSize:".95rem", fontWeight:700 as const, cursor:"pointer", letterSpacing:".04em", marginTop:8 };
   const btnDisabled = { ...btnStyle, background:"rgba(217,123,79,0.3)", color:"rgba(255,255,255,0.4)", cursor:"not-allowed" as const };
 
   return (
-    <div style={{ minHeight:"100vh", background:"#0A0A0A", color:"#fff", fontFamily:"system-ui,sans-serif", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+    <div style={{ minHeight:"100vh", background:"#0F172A", color:"#fff", fontFamily:"system-ui,sans-serif", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
       <div style={{ background:"#141414", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"40px 36px", width:"100%", maxWidth:480 }}>
 
-        <div style={{ fontSize:".85rem", fontWeight:800, letterSpacing:".15em", color:"#D97B4F", fontFamily:"monospace", marginBottom:32 }}>JUNKPIX</div>
+        <div style={{ fontSize:".85rem", fontWeight:800, letterSpacing:".15em", color:"#00D4C8", fontFamily:"monospace", marginBottom:32 }}>JUNKPIX</div>
 
         {/* Progress bar */}
         <div style={{ display:"flex", gap:8, marginBottom:32 }}>
           {[1,2,3].map(n => (
-            <div key={n} style={{ height:4, flex:1, borderRadius:2, background: step >= n ? "#D97B4F" : "rgba(255,255,255,0.1)" }} />
+            <div key={n} style={{ height:4, flex:1, borderRadius:2, background: step >= n ? "#00D4C8" : "rgba(255,255,255,0.1)" }} />
           ))}
         </div>
 
@@ -163,7 +163,7 @@ export default function SignupPage() {
             </button>
 
             <p style={{ textAlign:"center", fontSize:".82rem", color:"rgba(255,255,255,0.3)", marginTop:20 }}>
-              Already have an account? <a href="/login" style={{ color:"#D97B4F", textDecoration:"none" }}>Log in</a>
+              Already have an account? <a href="/login" style={{ color:"#00D4C8", textDecoration:"none" }}>Log in</a>
             </p>
           </>
         )}
@@ -269,13 +269,13 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={agreedToTerms}
                 onChange={e => setAgreedToTerms(e.target.checked)}
-                style={{ marginTop:3, accentColor:"#D97B4F", width:16, height:16, flexShrink:0 }}
+                style={{ marginTop:3, accentColor:"#00D4C8", width:16, height:16, flexShrink:0 }}
               />
               <span style={{ fontSize:".78rem", color:"rgba(255,255,255,0.6)", lineHeight:1.5 }}>
                 I agree to JunkPix's{" "}
-                <a href="/terms" target="_blank" style={{ color:"#D97B4F", textDecoration:"underline" }}>Terms of Service</a>
+                <a href="/terms" target="_blank" style={{ color:"#00D4C8", textDecoration:"underline" }}>Terms of Service</a>
                 {" "}and{" "}
-                <a href="/privacy" target="_blank" style={{ color:"#D97B4F", textDecoration:"underline" }}>Privacy Policy</a>
+                <a href="/privacy" target="_blank" style={{ color:"#00D4C8", textDecoration:"underline" }}>Privacy Policy</a>
               </span>
             </label>
 

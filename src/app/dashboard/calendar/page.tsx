@@ -10,8 +10,8 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a",
+  bg:"#0F172A", card:"#0F172A", border:"#2D3748", text:"#F5F4F0",
+  muted:"#666660", accent:"#00D4C8", surface:"#1a1a1a",
 };
 
 export default function CalendarPage() {
@@ -72,7 +72,7 @@ export default function CalendarPage() {
               const isToday = dateStr === todayStr;
               const isSelected = dateStr === selectedDate;
               return (
-                <div key={day} onClick={() => setSelectedDate(dateStr === selectedDate ? null : dateStr)} style={{ padding: "6px 2px", borderRadius: 8, textAlign: "center" as const, cursor: "pointer", background: isSelected ? "rgba(217,123,79,0.15)" : isToday ? "rgba(255,255,255,0.05)" : "transparent", border: isSelected ? "1px solid " + C.accent : isToday ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent" }}>
+                <div key={day} onClick={() => setSelectedDate(dateStr === selectedDate ? null : dateStr)} style={{ padding: "6px 2px", borderRadius: 8, textAlign: "center" as const, cursor: "pointer", background: isSelected ? "rgba(0,212,200,0.15)" : isToday ? "rgba(255,255,255,0.05)" : "transparent", border: isSelected ? "1px solid " + C.accent : isToday ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent" }}>
                   <div style={{ fontSize: ".82rem", fontWeight: isToday ? 700 : 400, color: isToday ? C.accent : C.text }}>{day}</div>
                   {jobs.length > 0 && (
                     <div style={{ display: "flex", justifyContent: "center", gap: 2, marginTop: 2 }}>

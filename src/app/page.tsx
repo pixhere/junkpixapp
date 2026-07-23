@@ -32,17 +32,17 @@ async function PricingSection() {
   return (
     <div style={{ maxWidth: 900, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: isFounding ? "1fr 1fr 1fr" : "1fr 1fr", gap: 20, padding: "0 24px" }}>
       {isFounding && (
-        <div style={{ background: "#fff", border: "2px solid #D97B4F", borderRadius: 16, padding: "32px 28px", position: "relative" as const, boxShadow: "0 4px 24px rgba(217,123,79,0.12)" }}>
-          <div style={{ position: "absolute" as const, top: -14, left: "50%", transform: "translateX(-50%)", background: "#D97B4F", color: "#fff", fontSize: ".65rem", fontWeight: 800, letterSpacing: ".1em", padding: "5px 14px", borderRadius: 20, whiteSpace: "nowrap" as const }}>
+        <div style={{ background: "#fff", border: "2px solid #00D4C8", borderRadius: 16, padding: "32px 28px", position: "relative" as const, boxShadow: "0 4px 24px rgba(0,212,200,0.12)" }}>
+          <div style={{ position: "absolute" as const, top: -14, left: "50%", transform: "translateX(-50%)", background: "#00D4C8", color: "#fff", fontSize: ".65rem", fontWeight: 800, letterSpacing: ".1em", padding: "5px 14px", borderRadius: 20, whiteSpace: "nowrap" as const }}>
             🔥 FOUNDING OPERATOR
           </div>
-          <div style={{ fontSize: ".65rem", color: "#D97B4F", letterSpacing: ".1em", marginBottom: 12, marginTop: 8, fontWeight: 700 }}>LIMITED</div>
+          <div style={{ fontSize: ".65rem", color: "#00D4C8", letterSpacing: ".1em", marginBottom: 12, marginTop: 8, fontWeight: 700 }}>LIMITED</div>
           <div style={{ fontSize: "2.4rem", fontWeight: 900, color: "#1A1A1A", marginBottom: 4 }}>$49<span style={{ fontSize: ".9rem", fontWeight: 400, color: "#999" }}>/mo</span></div>
-          <div style={{ fontSize: ".78rem", color: "#D97B4F", fontWeight: 700, marginBottom: 20 }}>Locked forever · {foundingLeft} of 20 spots left</div>
+          <div style={{ fontSize: ".78rem", color: "#00D4C8", fontWeight: 700, marginBottom: 20 }}>Locked forever · {foundingLeft} of 20 spots left</div>
           <div style={{ fontSize: ".85rem", color: "#555", lineHeight: 1.8, marginBottom: 24 }}>
             Unlimited quotes<br />Your branded quote page<br />AI suggested replies<br />Email notifications<br />Dashboard + analytics
           </div>
-          <a href="/signup" style={{ display: "block", background: "#D97B4F", color: "#fff", padding: "14px 0", borderRadius: 10, fontWeight: 800, fontSize: ".95rem", textDecoration: "none", textAlign: "center" as const }}>
+          <a href="/signup" style={{ display: "block", background: "#00D4C8", color: "#fff", padding: "14px 0", borderRadius: 10, fontWeight: 800, fontSize: ".95rem", textDecoration: "none", textAlign: "center" as const }}>
             Claim Your Spot →
           </a>
         </div>
@@ -82,32 +82,32 @@ export default function Home() {
       {/* Nav */}
       <nav style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: "1.1rem", fontWeight: 900, letterSpacing: ".04em" }}>
-          Junk<span style={{ color: "#D97B4F" }}>Pix</span>
+          Junk<span style={{ color: "#00D4C8" }}>Pix</span>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <a href="/login" style={{ color: "#666", textDecoration: "none", fontSize: ".88rem", fontWeight: 500, padding: "8px 16px" }}>Log In</a>
-          <a href="/signup" style={{ background: "#D97B4F", color: "#fff", textDecoration: "none", fontSize: ".88rem", fontWeight: 700, padding: "10px 22px", borderRadius: 8 }}>Start Free Trial</a>
+          <a href="/signup" style={{ background: "#00D4C8", color: "#fff", textDecoration: "none", fontSize: ".88rem", fontWeight: 700, padding: "10px 22px", borderRadius: 8 }}>Start Free Trial</a>
         </div>
       </nav>
 
       {/* Hero */}
       <section style={{ maxWidth: 900, margin: "0 auto", padding: "80px 32px 60px", textAlign: "center" as const }}>
-        <div style={{ display: "inline-block", background: "rgba(217,123,79,0.1)", color: "#D97B4F", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".12em", padding: "6px 16px", borderRadius: 20, marginBottom: 32 }}>
+        <div style={{ display: "inline-block", background: "rgba(0,212,200,0.1)", color: "#00D4C8", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".12em", padding: "6px 16px", borderRadius: 20, marginBottom: 32 }}>
           AI-POWERED PHOTO QUOTING
         </div>
         <h1 style={{ fontSize: "clamp(2.8rem, 7vw, 5rem)", fontWeight: 900, lineHeight: 1.05, marginBottom: 24, letterSpacing: "-.02em", color: "#111" }}>
           Snap a photo.<br />
           Get a quote.<br />
-          <span style={{ color: "#D97B4F" }}>Book the job.</span>
+          <span style={{ color: "#00D4C8" }}>Book the job.</span>
         </h1>
         <p style={{ fontSize: "1.15rem", color: "#666", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 16px", fontWeight: 400 }}>
           Stop wasting trips. Customers send photos, AI reads the job, and you quote from your phone — before you ever leave the driveway.
         </p>
-        <p style={{ fontSize: ".95rem", color: "#D97B4F", fontWeight: 700, maxWidth: 520, margin: "0 auto 48px", fontStyle: "italic" }}>
+        <p style={{ fontSize: ".95rem", color: "#00D4C8", fontWeight: 700, maxWidth: 520, margin: "0 auto 48px", fontStyle: "italic" }}>
           Built by a junk removal operator, for junk removal operators. Not a generic tool — a junk removal machine.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" as const, flexWrap: "wrap" as const }}>
-          <a href="/signup" style={{ background: "#D97B4F", color: "#fff", padding: "16px 36px", borderRadius: 10, fontWeight: 800, fontSize: "1rem", textDecoration: "none", letterSpacing: ".02em", boxShadow: "0 4px 20px rgba(217,123,79,0.35)" }}>
+          <a href="/signup" style={{ background: "#00D4C8", color: "#fff", padding: "16px 36px", borderRadius: 10, fontWeight: 800, fontSize: "1rem", textDecoration: "none", letterSpacing: ".02em", boxShadow: "0 4px 20px rgba(217,123,79,0.35)" }}>
             Start Free Trial
           </a>
           <a href="/login" style={{ background: "#fff", color: "#333", padding: "16px 28px", borderRadius: 10, fontWeight: 600, fontSize: "1rem", textDecoration: "none", border: "1.5px solid #E0E0E0" }}>
@@ -140,7 +140,7 @@ export default function Home() {
       {/* Pricing */}
       <section style={{ padding: "0 0 80px" }}>
         <div style={{ textAlign: "center" as const, marginBottom: 48 }}>
-          <div style={{ fontSize: ".72rem", color: "#D97B4F", fontWeight: 700, letterSpacing: ".12em", marginBottom: 12 }}>PRICING</div>
+          <div style={{ fontSize: ".72rem", color: "#00D4C8", fontWeight: 700, letterSpacing: ".12em", marginBottom: 12 }}>PRICING</div>
           <h2 style={{ fontSize: "2.2rem", fontWeight: 900, color: "#111", marginBottom: 12, letterSpacing: "-.02em" }}>Simple, honest pricing.</h2>
           <p style={{ fontSize: ".95rem", color: "#777", maxWidth: 400, margin: "0 auto" }}>30-day free trial. No credit card needed. Cancel anytime.</p>
         </div>
@@ -150,7 +150,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ borderTop: "1px solid #E8E8E8", padding: "32px", textAlign: "center" as const }}>
         <div style={{ fontSize: "1rem", fontWeight: 900, marginBottom: 8, letterSpacing: ".04em" }}>
-          Junk<span style={{ color: "#D97B4F" }}>Pix</span>
+          Junk<span style={{ color: "#00D4C8" }}>Pix</span>
         </div>
         <div style={{ fontSize: ".78rem", color: "#aaa" }}>© 2025 JunkPix · Built for junk removal operators</div>
       </footer>

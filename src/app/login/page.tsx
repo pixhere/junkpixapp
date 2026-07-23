@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#0A0A0A",
+      background: "#0F172A",
       color: "#fff",
       fontFamily: "system-ui, sans-serif",
       display: "flex",
@@ -78,7 +78,7 @@ export default function LoginPage() {
           fontSize: ".85rem",
           fontWeight: 800,
           letterSpacing: ".15em",
-          color: "#D97B4F",
+          color: "#00D4C8",
           fontFamily: "monospace",
           marginBottom: 32,
         }}>
@@ -141,7 +141,7 @@ export default function LoginPage() {
             border: "none",
             background: loading || !email || !password
               ? "rgba(217,123,79,0.3)"
-              : "#D97B4F",
+              : "#00D4C8",
             color: loading || !email || !password
               ? "rgba(255,255,255,0.4)"
               : "#fff",
@@ -162,7 +162,7 @@ export default function LoginPage() {
           marginTop: 20,
         }}>
           Don't have an account?{" "}
-          <a href="/signup" style={{ color: "#D97B4F", textDecoration: "none" }}>
+          <a href="/signup" style={{ color: "#00D4C8", textDecoration: "none" }}>
             Start free trial
           </a>
         </p>

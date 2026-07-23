@@ -10,12 +10,12 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e",
+  bg:"#0F172A", card:"#0F172A", border:"#2D3748", text:"#F5F4F0",
+  muted:"#666660", accent:"#00D4C8", surface:"#1a1a1a", green:"#22c55e",
 };
 
 const STATUS_STYLES: Record<string,any> = {
-  new:       { label:"New",       color:"#D97B4F", bg:"rgba(217,123,79,0.1)" },
+  new:       { label:"New",       color:"#00D4C8", bg:"rgba(0,212,200,0.1)" },
   reviewed:  { label:"Reviewed",  color:"#3b82f6", bg:"rgba(59,130,246,0.1)" },
   quoted:    { label:"Quoted",    color:"#a855f7", bg:"rgba(168,85,247,0.1)" },
   booked:    { label:"Booked",    color:"#22c55e", bg:"rgba(34,197,94,0.1)"  },
@@ -58,7 +58,7 @@ export default function QuotesPage() {
         {/* Filter tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" as const, paddingBottom: 4 }}>
           {["all","new","reviewed","quoted","booked","completed"].map(f => (
-            <button key={f} onClick={() => setFilter(f)} style={{ padding: "7px 14px", borderRadius: 20, border: "1px solid " + (filter === f ? C.accent : C.border), background: filter === f ? "rgba(217,123,79,0.15)" : "transparent", color: filter === f ? C.accent : C.muted, cursor: "pointer", fontSize: ".78rem", fontWeight: filter === f ? 700 : 400, whiteSpace: "nowrap" as const, flexShrink: 0 }}>
+            <button key={f} onClick={() => setFilter(f)} style={{ padding: "7px 14px", borderRadius: 20, border: "1px solid " + (filter === f ? C.accent : C.border), background: filter === f ? "rgba(0,212,200,0.15)" : "transparent", color: filter === f ? C.accent : C.muted, cursor: "pointer", fontSize: ".78rem", fontWeight: filter === f ? 700 : 400, whiteSpace: "nowrap" as const, flexShrink: 0 }}>
               {f === "all" ? "All" : STATUS_STYLES[f]?.label}
               {f === "new" && newCount > 0 && <span style={{ marginLeft: 6, background: C.accent, color: "#000", borderRadius: 10, padding: "1px 6px", fontSize: ".65rem", fontWeight: 800 }}>{newCount}</span>}
             </button>

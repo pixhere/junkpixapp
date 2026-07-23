@@ -9,13 +9,13 @@ const supabase = createClient(
 );
 
 const C = {
-  bg: "#0A0A0A", card: "#111111", border: "#222222", text: "#F5F4F0",
-  muted: "#666660", accent: "#D97B4F", accentDim: "rgba(217,123,79,0.15)",
+  bg: "#0F172A", card: "#0F172A", border: "#2D3748", text: "#F5F4F0",
+  muted: "#666660", accent: "#00D4C8", accentDim: "rgba(0,212,200,0.15)",
   green: "#22c55e", red: "#ef4444", surface: "#1a1a1a",
 };
 
 const STATUS_STYLES: Record<string, any> = {
-  new:       { label: "New",       color: "#D97B4F", bg: "rgba(217,123,79,0.1)" },
+  new:       { label: "New",       color: "#00D4C8", bg: "rgba(0,212,200,0.1)" },
   reviewed:  { label: "Reviewed",  color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
   quoted:    { label: "Quoted",    color: "#a855f7", bg: "rgba(168,85,247,0.1)" },
   booked:    { label: "Booked",    color: "#22c55e", bg: "rgba(34,197,94,0.1)"  },

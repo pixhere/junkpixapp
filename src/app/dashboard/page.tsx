@@ -57,14 +57,14 @@ function scoreLead(quote: any) {
 }
 
 const C = {
-  bg: "#0A0A0A",
-  surface: "#111111",
-  card: "#161616",
-  border: "#222222",
-  accent: "#D97B4F",
-  accentDim: "rgba(217,123,79,0.1)",
-  text: "#F0F0F0",
-  muted: "#666666",
+  bg: "#0F172A",
+  surface: "#0F172A",
+  card: "#1E2937",
+  border: "#2D3748",
+  accent: "#00D4C8",
+  accentDim: "rgba(0,212,200,0.1)",
+  text: "#F1F5F9",
+  muted: "#94A3B8",
   green: "#22c55e",
   red: "#ef4444",
   blue: "#3b82f6",
@@ -171,9 +171,9 @@ export default function Dashboard() {
   };
   // Trial expired paywall
   if (trialExpired) return (
-    <div style={{ background:"#0A0A0A", minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:24, fontFamily:"system-ui,sans-serif" }}>
+    <div style={{ background:"#0F172A", minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:24, fontFamily:"system-ui,sans-serif" }}>
       <div style={{ maxWidth:480, width:"100%", textAlign:"center" as const }}>
-        <div style={{ fontSize:"1rem", fontWeight:800, color:"#D97B4F", letterSpacing:".1em", marginBottom:24 }}>JUNKPIX</div>
+        <div style={{ fontSize:"1rem", fontWeight:800, color:"#00D4C8", letterSpacing:".1em", marginBottom:24 }}>JUNKPIX</div>
         <div style={{ fontSize:"2rem", marginBottom:16 }}>⏰</div>
         <div style={{ fontSize:"1.4rem", fontWeight:800, color:"#fff", marginBottom:8 }}>Your free trial has ended</div>
         <div style={{ fontSize:".88rem", color:"rgba(255,255,255,.6)", marginBottom:32, lineHeight:1.6 }}>
@@ -188,10 +188,10 @@ export default function Dashboard() {
           <div key={plan.label} style={{ background:"#1a1a1a", border:"1px solid #333", borderRadius:12, padding:20, marginBottom:12, textAlign:"left" as const }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
               <div>
-                <div style={{ fontWeight:700, color:"#fff", fontSize:"1rem" }}>{plan.label} {plan.badge && <span style={{ fontSize:".7rem", color:"#D97B4F" }}>{plan.badge}</span>}</div>
+                <div style={{ fontWeight:700, color:"#fff", fontSize:"1rem" }}>{plan.label} {plan.badge && <span style={{ fontSize:".7rem", color:"#00D4C8" }}>{plan.badge}</span>}</div>
                 <div style={{ fontSize:".78rem", color:"rgba(255,255,255,.4)", marginTop:2 }}>{plan.desc}</div>
               </div>
-              <div style={{ fontSize:"1.2rem", fontWeight:800, color:"#D97B4F" }}>{plan.price}</div>
+              <div style={{ fontSize:"1.2rem", fontWeight:800, color:"#00D4C8" }}>{plan.price}</div>
             </div>
             <button
               onClick={async () => {
@@ -203,7 +203,7 @@ export default function Dashboard() {
                 const data = await res.json();
                 if (data.url) window.location.href = data.url;
               }}
-              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background:"#D97B4F", color:"#000", fontWeight:700, cursor:"pointer", fontSize:".9rem", marginTop:8 }}
+              style={{ width:"100%", padding:"11px 0", borderRadius:8, border:"none", background:"#00D4C8", color:"#000", fontWeight:700, cursor:"pointer", fontSize:".9rem", marginTop:8 }}
             >
               Get Started →
             </button>
@@ -456,7 +456,7 @@ export default function Dashboard() {
           })()}
 
           {/* AI SUGGESTED REPLIES */}
-          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(217,123,79,0.15)` }}>
+          <div style={{ background:C.surface, borderRadius:10, padding:16, marginBottom:16, border:`1px solid rgba(0,212,200,0.15)` }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 <span style={{ fontSize:"1rem" }}>✨</span>
@@ -1349,7 +1349,7 @@ export default function Dashboard() {
                 <div style={{ color:C.muted, fontSize:".75rem", marginTop:4 }}>You're ready to receive leads. Billing runs every 2 weeks.</div>
               </div>
             ) : (
-              <div style={{ background:"rgba(217,123,79,0.08)", border:`1px solid ${C.accent}`, borderRadius:8, padding:14, marginBottom:12 }}>
+              <div style={{ background:"rgba(0,212,200,0.08)", border:`1px solid ${C.accent}`, borderRadius:8, padding:14, marginBottom:12 }}>
                 <div style={{ color:C.accent, fontWeight:700, fontSize:".88rem" }}>⚠️ No Payment Method</div>
                 <div style={{ color:C.muted, fontSize:".75rem", marginTop:4 }}>Add a card to start receiving leads from JunkPix.</div>
               </div>
@@ -2163,15 +2163,15 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
       {/* Main content */}
       <div style={{ flex:1, overflowY:"auto" }} className="main-content">
         {/* Mobile hamburger header */}
-        <div className="mobile-hamburger-header" style={{ display:"none", position:"sticky" as const, top:0, zIndex:100, background:"#111111", borderBottom:"1px solid #222222", padding:"12px 16px", alignItems:"center", gap:12 }}>
-          <button onClick={() => setDrawerOpen(true)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F0F0F0", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}>☰</button>
+        <div className="mobile-hamburger-header" style={{ display:"none", position:"sticky" as const, top:0, zIndex:100, background:"#0F172A", borderBottom:"1px solid #2D3748", padding:"12px 16px", alignItems:"center", gap:12 }}>
+          <button onClick={() => setDrawerOpen(true)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F1F5F9", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}>☰</button>
           <div style={{ flex:1 }}>
             {active === "overview" ? (
               <div style={{ fontSize:"1.1rem", fontWeight:800 }}>
-                <span style={{ color:"#D97B4F" }}>Junk</span><span style={{ color:"#F0F0F0" }}>Pix</span>
+                <span style={{ color:"#00D4C8" }}>Junk</span><span style={{ color:"#F1F5F9" }}>Pix</span>
               </div>
             ) : (
-              <div style={{ fontWeight:700, color:"#F0F0F0", fontSize:".95rem" }}>
+              <div style={{ fontWeight:700, color:"#F1F5F9", fontSize:".95rem" }}>
                 {active === "quotes" ? "📋 Quotes" : active === "calendar" ? "📅 Calendar" : active === "social" ? "📱 Social" : active === "analytics" ? "📊 Analytics" : active === "settings" ? "⚙️ Settings" : "Dashboard"}
               </div>
             )}
@@ -2197,7 +2197,7 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
       {/* Mobile drawer */}
       <div style={{
         position:"fixed", top:0, left:0, bottom:0, width:280,
-        background:"#111111", borderRight:"1px solid #222222",
+        background:"#0F172A", borderRight:"1px solid #2D3748",
         zIndex:300,
         transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
         transition:"transform .25s cubic-bezier(.4,0,.2,1)",
@@ -2206,7 +2206,7 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
       }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 16px 24px" }}>
           <div>
-            <div style={{ fontSize:"1.2rem", fontWeight:800 }}><span style={{ color:"#D97B4F" }}>Junk</span><span style={{ color:"#F0F0F0" }}>Pix</span></div>
+            <div style={{ fontSize:"1.2rem", fontWeight:800 }}><span style={{ color:"#00D4C8" }}>Junk</span><span style={{ color:"#F1F5F9" }}>Pix</span></div>
             <div style={{ fontSize:".7rem", color:C.muted, marginTop:2 }}>Operator Dashboard</div>
           </div>
           <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#666", cursor:"pointer", padding:"8px 12px", fontSize:"1rem" }}>✕</button>
@@ -2225,7 +2225,7 @@ const SCREENS: Record<string, any> = { overview: Overview, quotes: Quotes, calen
           ].map(item => (
             <button key={item.id}
               onClick={() => { setDrawerOpen(false); item.href ? router.push(item.href) : setActive(item.id); }}
-              style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:10, border:"none", background: active===item.id ? "rgba(217,123,79,0.12)" : "transparent", color: active===item.id ? C.accent : "#888", cursor:"pointer", fontWeight: active===item.id ? 700 : 400, fontSize:".92rem", textAlign:"left" as const, width:"100%" }}>
+              style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:10, border:"none", background: active===item.id ? "rgba(0,212,200,0.12)" : "transparent", color: active===item.id ? C.accent : "#888", cursor:"pointer", fontWeight: active===item.id ? 700 : 400, fontSize:".92rem", textAlign:"left" as const, width:"100%" }}>
               <span style={{ fontSize:"1.2rem", width:28, textAlign:"center" as const }}>{item.icon}</span>
               <span>{item.label}</span>
               {item.id === "quotes" && newCount > 0 && <span style={{ marginLeft:"auto", background:C.accent, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:".68rem", fontWeight:800 }}>{newCount}</span>}

@@ -9,9 +9,9 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", surface:"#111111", card:"#161616", border:"#222222",
-  accent:"#D97B4F", accentDim:"rgba(217,123,79,0.1)", text:"#F0F0F0",
-  muted:"#666666", green:"#22c55e", red:"#ef4444",
+  bg:"#0F172A", surface:"#0F172A", card:"#1E2937", border:"#2D3748",
+  accent:"#00D4C8", accentDim:"rgba(0,212,200,0.1)", text:"#F1F5F9",
+  muted:"#94A3B8", green:"#22c55e", red:"#ef4444",
 };
 
 export default function MyLeadsPage() {
@@ -104,7 +104,7 @@ export default function MyLeadsPage() {
                 </div>
 
                 {lead.description && (
-                  <div style={{ fontSize:".82rem", color:C.muted, lineHeight:1.6, marginBottom:12, padding:12, background:"#0A0A0A", borderRadius:8 }}>
+                  <div style={{ fontSize:".82rem", color:C.muted, lineHeight:1.6, marginBottom:12, padding:12, background:"#0F172A", borderRadius:8 }}>
                     {lead.description}
                   </div>
                 )}

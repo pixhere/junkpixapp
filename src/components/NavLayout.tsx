@@ -31,7 +31,7 @@ export default function NavLayout({ children, active, title, backHref }: {
   const activeItem = NAV_ITEMS.find(i => i.id === active);
 
   return (
-    <div style={{ display:"flex", minHeight:"100vh", background:"#0A0A0A", fontFamily:"system-ui,sans-serif", color:"#F0F0F0" }}>
+    <div style={{ display:"flex", minHeight:"100vh", background:"#0F172A", fontFamily:"system-ui,sans-serif", color:"#F1F5F9" }}>
       <style>{`
         .jp-sidebar { display: none; }
         .jp-content { flex: 1; min-width: 0; }
@@ -47,7 +47,7 @@ export default function NavLayout({ children, active, title, backHref }: {
       {/* Desktop left sidebar */}
       <div className="jp-sidebar" style={{
         width: 200, flexShrink: 0,
-        borderRight: "1px solid #222222",
+        borderRight: "1px solid #2D3748",
         padding: "24px 12px",
         flexDirection: "column",
         gap: 4,
@@ -58,9 +58,9 @@ export default function NavLayout({ children, active, title, backHref }: {
       }}>
         <div style={{ padding:"0 12px", marginBottom:20 }}>
           <div style={{ fontSize:"1.2rem", fontWeight:800 }}>
-            <span style={{ color:"#D97B4F" }}>Junk</span><span style={{ color:"#F0F0F0" }}>Pix</span>
+            <span style={{ color:"#00D4C8" }}>Junk</span><span style={{ color:"#F1F5F9" }}>Pix</span>
           </div>
-          <div style={{ fontSize:".72rem", color:"#666666", fontWeight:400, marginTop:2 }}>Operator Dashboard</div>
+          <div style={{ fontSize:".72rem", color:"#94A3B8", fontWeight:400, marginTop:2 }}>Operator Dashboard</div>
         </div>
         {NAV_ITEMS.map(item => (
           <button
@@ -69,8 +69,8 @@ export default function NavLayout({ children, active, title, backHref }: {
             style={{
               display:"flex", alignItems:"center", gap:10,
               padding:"10px 14px", borderRadius:8, border:"none",
-              background: active === item.id ? "rgba(217,123,79,0.1)" : "transparent",
-              color: active === item.id ? "#D97B4F" : "#666666",
+              background: active === item.id ? "rgba(0,212,200,0.1)" : "transparent",
+              color: active === item.id ? "#00D4C8" : "#94A3B8",
               cursor:"pointer", fontWeight: active === item.id ? 700 : 400,
               fontSize:".88rem", textAlign:"left" as const, width:"100%",
               transition:"all .15s",
@@ -78,7 +78,7 @@ export default function NavLayout({ children, active, title, backHref }: {
           >
             <span style={{ fontSize:"1rem" }}>{item.icon}</span>
             <span>{item.label}</span>
-            {active === item.id && <div style={{ marginLeft:"auto", width:3, height:16, background:"#D97B4F", borderRadius:2 }} />}
+            {active === item.id && <div style={{ marginLeft:"auto", width:3, height:16, background:"#00D4C8", borderRadius:2 }} />}
           </button>
         ))}
       </div>
@@ -97,8 +97,8 @@ export default function NavLayout({ children, active, title, backHref }: {
       {/* Mobile drawer */}
       <div style={{
         position:"fixed", top:0, left:0, bottom:0,
-        width:280, background:"#111111",
-        borderRight:"1px solid #222222",
+        width:280, background:"#0F172A",
+        borderRight:"1px solid #2D3748",
         zIndex:300,
         transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
         transition:"transform .25s cubic-bezier(.4,0,.2,1)",
@@ -110,10 +110,10 @@ export default function NavLayout({ children, active, title, backHref }: {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 12px 24px" }}>
           <div>
   <div style={{ fontSize:"1.2rem", fontWeight:800 }}>
-              <span style={{ color:"#D97B4F" }}>Junk</span>
-              <span style={{ color:"#F0F0F0" }}>Pix</span>
+              <span style={{ color:"#00D4C8" }}>Junk</span>
+              <span style={{ color:"#F1F5F9" }}>Pix</span>
             </div>
-            <div style={{ fontSize:".72rem", color:"#666666", marginTop:2 }}>Operator Dashboard</div>
+            <div style={{ fontSize:".72rem", color:"#94A3B8", marginTop:2 }}>Operator Dashboard</div>
           </div>
           <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#666", cursor:"pointer", padding:"8px 12px", fontSize:"1rem" }}>✕</button>
         </div>
@@ -127,8 +127,8 @@ export default function NavLayout({ children, active, title, backHref }: {
               style={{
                 display:"flex", alignItems:"center", gap:14,
                 padding:"14px 16px", borderRadius:10, border:"none",
-                background: active === item.id ? "rgba(217,123,79,0.12)" : "transparent",
-                color: active === item.id ? "#D97B4F" : "#888888",
+                background: active === item.id ? "rgba(0,212,200,0.12)" : "transparent",
+                color: active === item.id ? "#00D4C8" : "#888888",
                 cursor:"pointer", fontWeight: active === item.id ? 700 : 400,
                 fontSize:".92rem", textAlign:"left" as const, width:"100%",
                 transition:"all .15s",
@@ -136,7 +136,7 @@ export default function NavLayout({ children, active, title, backHref }: {
             >
               <span style={{ fontSize:"1.2rem", width:28, textAlign:"center" as const }}>{item.icon}</span>
               <span>{item.label}</span>
-              {active === item.id && <div style={{ marginLeft:"auto", width:3, height:20, background:"#D97B4F", borderRadius:2 }} />}
+              {active === item.id && <div style={{ marginLeft:"auto", width:3, height:20, background:"#00D4C8", borderRadius:2 }} />}
             </button>
           ))}
         </div>
@@ -154,31 +154,31 @@ export default function NavLayout({ children, active, title, backHref }: {
         <div className="jp-hamburger-header" style={{
           display:"none",
           position:"sticky" as const, top:0, zIndex:100,
-          background:"#111111", borderBottom:"1px solid #222222",
+          background:"#0F172A", borderBottom:"1px solid #2D3748",
           padding:"12px 16px",
           alignItems:"center", gap:12,
         }}>
           <button
             onClick={() => setDrawerOpen(true)}
-            style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F0F0F0", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}
+            style={{ background:"none", border:"1px solid #222", borderRadius:8, color:"#F1F5F9", cursor:"pointer", padding:"8px 12px", fontSize:"1.1rem", flexShrink:0 }}
           >
             ☰
           </button>
           {backHref && (
-            <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"8px 14px", fontSize:".84rem", flexShrink:0 }}>←</button>
+            <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #2D3748", borderRadius:8, color:"#94A3B8", cursor:"pointer", padding:"8px 14px", fontSize:".84rem", flexShrink:0 }}>←</button>
           )}
-          <div style={{ fontWeight:700, color:"#F0F0F0", fontSize:".95rem", flex:1 }}>
+          <div style={{ fontWeight:700, color:"#F1F5F9", fontSize:".95rem", flex:1 }}>
             {title || (activeItem ? `${activeItem.icon} ${activeItem.label}` : "Dashboard")}
           </div>
         </div>
 
         {/* Desktop top header (only when back/title needed) */}
         {(title || backHref) && (
-          <div style={{ position:"sticky" as const, top:0, zIndex:50, background:"#161616", borderBottom:"1px solid #222222", padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }} className="jp-sidebar">
+          <div style={{ position:"sticky" as const, top:0, zIndex:50, background:"#1E2937", borderBottom:"1px solid #2D3748", padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }} className="jp-sidebar">
             {backHref && (
-              <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #222222", borderRadius:8, color:"#666666", cursor:"pointer", padding:"6px 14px", fontSize:".84rem", flexShrink:0 }}>←</button>
+              <button onClick={() => router.push(backHref)} style={{ background:"none", border:"1px solid #2D3748", borderRadius:8, color:"#94A3B8", cursor:"pointer", padding:"6px 14px", fontSize:".84rem", flexShrink:0 }}>←</button>
             )}
-            {title && <div style={{ fontWeight:800, color:"#F0F0F0", fontSize:"1rem", flex:1 }}>{title}</div>}
+            {title && <div style={{ fontWeight:800, color:"#F1F5F9", fontSize:"1rem", flex:1 }}>{title}</div>}
           </div>
         )}
 

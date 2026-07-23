@@ -6,9 +6,9 @@ const C = {
   bg: "#0D0B09",
   card: "#141210",
   border: "#2A2520",
-  accent: "#D97B4F",
-  text: "#F0F0F0",
-  muted: "#666666",
+  accent: "#00D4C8",
+  text: "#F1F5F9",
+  muted: "#94A3B8",
   red: "#ef4444",
   green: "#22c55e",
 };
@@ -100,7 +100,7 @@ export default function HowItWorksPage() {
 
       {/* Bottom CTA */}
       <div style={{ textAlign: "center" as const, padding: "0 24px 100px" }}>
-        <div style={{ background: "rgba(217,123,79,0.08)", border: "1px solid rgba(217,123,79,0.2)", borderRadius: 16, padding: "48px 32px", maxWidth: 520, margin: "0 auto" }}>
+        <div style={{ background: "rgba(0,212,200,0.08)", border: "1px solid rgba(217,123,79,0.2)", borderRadius: 16, padding: "48px 32px", maxWidth: 520, margin: "0 auto" }}>
           <div style={{ fontSize: ".68rem", color: C.accent, letterSpacing: ".15em", fontFamily: "monospace", marginBottom: 16 }}>READY TO STOP WASTING TRIPS?</div>
           <h2 style={{ fontSize: "1.8rem", fontWeight: 800, marginBottom: 12, lineHeight: 1.2 }}>
             30 days free.<br />No credit card.

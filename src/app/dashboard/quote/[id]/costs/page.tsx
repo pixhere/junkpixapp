@@ -10,9 +10,9 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", surface:"#111111", card:"#161616", border:"#222222",
-  accent:"#D97B4F", accentDim:"rgba(217,123,79,0.1)", text:"#F0F0F0",
-  muted:"#666666", green:"#22c55e", red:"#ef4444",
+  bg:"#0F172A", surface:"#0F172A", card:"#1E2937", border:"#2D3748",
+  accent:"#00D4C8", accentDim:"rgba(0,212,200,0.1)", text:"#F1F5F9",
+  muted:"#94A3B8", green:"#22c55e", red:"#ef4444",
 };
 
 export default function CostsPage() {
@@ -77,7 +77,7 @@ export default function CostsPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const inp: any = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #222222", background:"#111111", color:"#F0F0F0", fontSize:".88rem", outline:"none", boxSizing:"border-box", fontFamily:"inherit" };
+  const inp: any = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #2D3748", background:"#0F172A", color:"#F1F5F9", fontSize:".88rem", outline:"none", boxSizing:"border-box", fontFamily:"inherit" };
 
   const StatBox = ({ label, value, color }: any) => (
     <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"20px 18px" }}>
@@ -86,7 +86,7 @@ export default function CostsPage() {
     </div>
   );
 
-  if (!quote) return <NavLayout active="quotes"><div style={{ padding:24, color:"#666666" }}>Loading...</div></NavLayout>;
+  if (!quote) return <NavLayout active="quotes"><div style={{ padding:24, color:"#94A3B8" }}>Loading...</div></NavLayout>;
 
   return (
     <NavLayout active="quotes" title="💰 Job Cost Tracking" backHref={`/dashboard/quote/${id}`}>

@@ -9,8 +9,8 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", card:"#111111", border:"#222222", text:"#F5F4F0",
-  muted:"#666660", accent:"#D97B4F", surface:"#1a1a1a", green:"#22c55e",
+  bg:"#0F172A", card:"#0F172A", border:"#2D3748", text:"#F5F4F0",
+  muted:"#666660", accent:"#00D4C8", surface:"#1a1a1a", green:"#22c55e",
 };
 
 export default function AcademyPage() {

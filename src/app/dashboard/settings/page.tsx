@@ -10,12 +10,12 @@ const supabase = createClient(
 );
 
 const C = {
-  bg: "#0A0A0A", surface: "#111111", card: "#161616", border: "#222222",
-  accent: "#D97B4F", accentDim: "rgba(217,123,79,0.1)", text: "#F0F0F0",
-  muted: "#666666", green: "#22c55e", red: "#ef4444",
+  bg: "#0F172A", surface: "#0F172A", card: "#1E2937", border: "#2D3748",
+  accent: "#00D4C8", accentDim: "rgba(0,212,200,0.1)", text: "#F1F5F9",
+  muted: "#94A3B8", green: "#22c55e", red: "#ef4444",
 };
 
-const inp: any = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #222222", background:"#111111", color:"#F0F0F0", fontSize:".88rem", outline:"none", boxSizing:"border-box", fontFamily:"inherit", marginBottom:12 };
+const inp: any = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #2D3748", background:"#0F172A", color:"#F1F5F9", fontSize:".88rem", outline:"none", boxSizing:"border-box", fontFamily:"inherit", marginBottom:12 };
 
 const TABS = [
   { id:"business",     label:"Business" },
@@ -362,7 +362,7 @@ export default function SettingsPage() {
                   <div style={{ color:C.muted, fontSize:".75rem", marginTop:4 }}>You're ready to receive leads. Billing runs every 2 weeks.</div>
                 </div>
               ) : (
-                <div style={{ background:"rgba(217,123,79,0.08)", border:"1px solid "+C.accent, borderRadius:8, padding:14, marginBottom:12 }}>
+                <div style={{ background:"rgba(0,212,200,0.08)", border:"1px solid "+C.accent, borderRadius:8, padding:14, marginBottom:12 }}>
                   <div style={{ color:C.accent, fontWeight:700, fontSize:".88rem" }}>⚠️ No Payment Method</div>
                   <div style={{ color:C.muted, fontSize:".75rem", marginTop:4 }}>Add a card to start receiving leads from JunkPix.</div>
                 </div>

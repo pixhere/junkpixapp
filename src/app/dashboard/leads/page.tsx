@@ -9,16 +9,16 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0A0A0A", surface:"#111111", card:"#161616", border:"#222222",
-  accent:"#D97B4F", accentDim:"rgba(217,123,79,0.1)", text:"#F0F0F0",
-  muted:"#666666", green:"#22c55e", red:"#ef4444", blue:"#3b82f6",
+  bg:"#0F172A", surface:"#0F172A", card:"#1E2937", border:"#2D3748",
+  accent:"#00D4C8", accentDim:"rgba(0,212,200,0.1)", text:"#F1F5F9",
+  muted:"#94A3B8", green:"#22c55e", red:"#ef4444", blue:"#3b82f6",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  new: "#D97B4F",
+  new: "#00D4C8",
   assigned: "#3b82f6",
   won: "#22c55e",
-  lost: "#666666",
+  lost: "#94A3B8",
 };
 
 export default function LeadsPage() {
