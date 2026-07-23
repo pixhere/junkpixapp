@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { id: "analytics",  label: "Analytics",  icon: "📊", href: "/dashboard/analytics" },
   { id: "leads",      label: "Lead Network", icon: "🌐", href: "/dashboard/leads" },
   { id: "my-leads",   label: "My Leads",   icon: "📬", href: "/dashboard/my-leads" },
+  { id: "tax",        label: "Tax Est.",   icon: "🧾", href: "/dashboard/tax" },
   { id: "settings",   label: "Settings",   icon: "⚙️", href: "/dashboard/settings" },
 ];
 
