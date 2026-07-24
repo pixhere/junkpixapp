@@ -79,6 +79,8 @@ export default function CloseJobPage() {
             <div key={q.id}>
               <button
                 onClick={() => { setSelectedQuote(q); setContent(""); if (contentRef.current) contentRef.current.innerText = ""; }}
+                onMouseEnter={e => { if (selectedQuote?.id !== q.id) e.currentTarget.style.background = "#1a1a1a"; }}
+                onMouseLeave={e => { if (selectedQuote?.id !== q.id) e.currentTarget.style.background = C.card; }}
                 style={{ width: "100%", padding: "14px 16px", borderRadius: selectedQuote?.id === q.id ? "8px 8px 0 0" : 8, border: "1px solid " + (selectedQuote?.id === q.id ? C.accent : C.border), background: selectedQuote?.id === q.id ? "rgba(0,212,200,0.15)" : C.card, color: C.text, cursor: "pointer", textAlign: "left" as const, display: "flex", justifyContent: "space-between", alignItems: "center" }}
               >
                 <div>
