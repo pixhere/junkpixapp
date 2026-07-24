@@ -80,6 +80,8 @@ export default function SocialPage() {
                   <button
                     onClick={() => generate(q)}
                     disabled={generating}
+                    onMouseEnter={e => { if (selectedQuote?.id !== q.id) e.currentTarget.style.background = "#1a1a1a"; }}
+                    onMouseLeave={e => { if (selectedQuote?.id !== q.id) e.currentTarget.style.background = C.surface; }}
                     style={{ width:"100%", padding:"14px 16px", borderRadius:8, border:`1px solid ${selectedQuote?.id === q.id ? C.accent : C.border}`, background:selectedQuote?.id === q.id ? C.accentDim : C.surface, color:C.text, cursor:"pointer", textAlign:"left" as const, display:"flex", justifyContent:"space-between", alignItems:"center" }}
                   >
                     <div>
