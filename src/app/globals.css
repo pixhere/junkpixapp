@@ -19,6 +19,16 @@
   }
 }
 
+.jp-card-hover {
+  transition: background 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+}
+
+.jp-card-hover:hover {
+  background: rgba(0, 212, 200, 0.04) !important;
+  border-color: rgba(0, 212, 200, 0.3) !important;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
