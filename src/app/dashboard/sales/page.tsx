@@ -33,6 +33,8 @@ export default function SalesMenuPage() {
             <button
               key={item.href}
               onClick={() => router.push(item.href)}
+              onMouseEnter={e => (e.currentTarget.style.background = "#1a1a1a")}
+              onMouseLeave={e => (e.currentTarget.style.background = C.card)}
               style={{
                 padding: "20px", borderRadius: 12,
                 border: "1px solid " + C.border,
