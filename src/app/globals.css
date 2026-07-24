@@ -28,6 +28,12 @@
   background: #1a1a1a !important;
 }
 
+/* Global hover for all clickable elements */
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transition: filter 0.15s ease;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
