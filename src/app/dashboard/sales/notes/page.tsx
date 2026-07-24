@@ -9,7 +9,7 @@ const supabase = createClient(
 );
 
 const C = {
-  bg:"#0F172A", card:"#0F172A", border:"#2D3748", text:"#F5F4F0",
+  bg:"#0F172A", card:"#1E2937", border:"#2D3748", text:"#F5F4F0",
   muted:"#666660", accent:"#00D4C8", surface:"#1a1a1a", green:"#22c55e", red:"#ef4444",
 };
 
