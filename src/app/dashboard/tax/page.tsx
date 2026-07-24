@@ -196,7 +196,10 @@ export default function TaxEstimatorPage() {
 
         {/* Income */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20, marginBottom:16 }}>
-          <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", fontWeight:700, marginBottom:16 }}>INCOME THIS YEAR</div>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+            <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", fontWeight:700 }}>INCOME THIS YEAR</div>
+            <div style={{ fontSize:".72rem", color:C.muted }}>{new Date().getFullYear()} only</div>
+          </div>
 
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
             <div style={{ background:C.surface, borderRadius:8, padding:12 }}>
