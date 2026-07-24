@@ -28,6 +28,15 @@
   background: #1a1a1a !important;
 }
 
+/* Remove default browser button outlines */
+button {
+  outline: none;
+}
+
+button:focus {
+  outline: none;
+}
+
 /* Global hover for all clickable elements */
 button:hover:not(:disabled) {
   filter: brightness(1.08);
