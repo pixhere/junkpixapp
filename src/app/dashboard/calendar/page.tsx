@@ -72,7 +72,7 @@ export default function CalendarPage() {
               const isToday = dateStr === todayStr;
               const isSelected = dateStr === selectedDate;
               return (
-                <div key={day} onClick={() => setSelectedDate(dateStr === selectedDate ? null : dateStr)} style={{ padding: "6px 2px", borderRadius: 8, textAlign: "center" as const, cursor: "pointer", background: isSelected ? "rgba(0,212,200,0.15)" : isToday ? "rgba(255,255,255,0.05)" : "transparent", border: isSelected ? "1px solid " + C.accent : isToday ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent" }}>
+                <div key={day} className="jp-card-hover" onClick={() => setSelectedDate(dateStr === selectedDate ? null : dateStr)} style={{ padding: "6px 2px", borderRadius: 8, textAlign: "center" as const, cursor: "pointer", background: isSelected ? "rgba(0,212,200,0.15)" : isToday ? "rgba(255,255,255,0.05)" : "transparent", border: isSelected ? "1px solid " + C.accent : isToday ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent" }}>
                   <div style={{ fontSize: ".82rem", fontWeight: isToday ? 700 : 400, color: isToday ? C.accent : C.text }}>{day}</div>
                   {jobs.length > 0 && (
                     <div style={{ display: "flex", justifyContent: "center", gap: 2, marginTop: 2 }}>
@@ -94,7 +94,7 @@ export default function CalendarPage() {
             {selectedJobs.length === 0 ? (
               <div style={{ color: C.muted, fontSize: ".84rem" }}>No jobs scheduled.</div>
             ) : selectedJobs.map(q => (
-              <div key={q.id} onClick={() => router.push("/dashboard/quote/"+q.id)} style={{ padding: "12px 14px", borderRadius: 8, background: C.surface, border: "1px solid " + C.border, cursor: "pointer", marginBottom: 8 }}>
+              <div key={q.id} className="jp-card-hover" onClick={() => router.push("/dashboard/quote/"+q.id)} style={{ padding: "12px 14px", borderRadius: 8, background: C.surface, border: "1px solid " + C.border, cursor: "pointer", marginBottom: 8 }}>
                 <div style={{ fontWeight: 600, color: C.text }}>{q.customer_name}</div>
                 <div style={{ fontSize: ".75rem", color: C.muted }}>{q.customer_address}</div>
                 {q.scheduled_time && <div style={{ fontSize: ".75rem", color: C.accent }}>⏰ {q.scheduled_time}</div>}
@@ -109,7 +109,7 @@ export default function CalendarPage() {
           {quotes.length === 0 ? (
             <div style={{ color: C.muted, fontSize: ".84rem" }}>No jobs scheduled yet.</div>
           ) : quotes.sort((a,b) => new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()).slice(0,10).map(q => (
-            <div key={q.id} onClick={() => router.push("/dashboard/quote/"+q.id)} style={{ padding: "12px 14px", borderRadius: 8, background: C.surface, border: "1px solid " + C.border, cursor: "pointer", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div key={q.id} className="jp-card-hover" onClick={() => router.push("/dashboard/quote/"+q.id)} style={{ padding: "12px 14px", borderRadius: 8, background: C.surface, border: "1px solid " + C.border, cursor: "pointer", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <div style={{ fontWeight: 600, color: C.text, fontSize: ".9rem" }}>{q.customer_name}</div>
                 <div style={{ fontSize: ".72rem", color: C.accent }}>📅 {new Date(q.scheduled_date+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}{q.scheduled_time && " · "+q.scheduled_time}</div>

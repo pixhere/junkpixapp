@@ -75,7 +75,7 @@ export default function QuotesPage() {
           {filtered.map(q => {
             const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
             return (
-              <div key={q.id} onClick={() => router.push("/dashboard/quote/" + q.id)} style={{ padding: "16px", background: C.card, borderBottom: "1px solid " + C.border, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+              <div key={q.id} className="jp-card-hover" onClick={() => router.push("/dashboard/quote/" + q.id)} style={{ padding: "16px", background: C.card, borderBottom: "1px solid " + C.border, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <div style={{ fontWeight: 700, fontSize: ".95rem", color: C.text }}>{q.customer_name}</div>

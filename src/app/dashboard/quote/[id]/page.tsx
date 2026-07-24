@@ -155,7 +155,7 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
 
   if (!quote) return (
     <div style={{ background:C.bg, minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", color:C.muted, fontFamily:"system-ui,sans-serif" }}>
-      Quote not found. <button onClick={() => router.push("/dashboard")} style={{ marginLeft:12, color:C.accent, background:"none", border:"none", cursor:"pointer" }}>← Back</button>
+      Quote not found. <button className="jp-card-hover" onClick={() => router.push("/dashboard")} style={{ marginLeft:12, color:C.accent, background:"none", border:"none", cursor:"pointer" }}>← Back</button>
     </div>
   );
 
@@ -165,7 +165,7 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
     <div style={{ background:C.bg, minHeight:"100vh", fontFamily:"system-ui,sans-serif", color:C.text }}>
       {/* Header */}
       <div style={{ borderBottom:`1px solid ${C.border}`, padding:"16px 24px", display:"flex", alignItems:"center", gap:16 }}>
-        <button onClick={() => router.push("/dashboard")} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:8, color:C.muted, cursor:"pointer", padding:"8px 14px", fontSize:".84rem" }}>
+        <button className="jp-card-hover" onClick={() => router.push("/dashboard")} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:8, color:C.muted, cursor:"pointer", padding:"8px 14px", fontSize:".84rem" }}>
           ← Dashboard
         </button>
         <div style={{ fontWeight:700, color:C.text }}>{quote.customer_name}</div>
@@ -214,10 +214,10 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* Before & After + Costs buttons */}
         <div style={{ display:"flex", gap:12 }}>
-          <button onClick={() => router.push(`/dashboard/quote/${quote.id}/photos`)} style={{ flex:1, padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+          <button className="jp-card-hover" onClick={() => router.push(`/dashboard/quote/${quote.id}/photos`)} style={{ flex:1, padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
             📸 Before & After Photos
           </button>
-          <button onClick={() => router.push(`/dashboard/quote/${quote.id}/costs`)} style={{ flex:1, padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+          <button className="jp-card-hover" onClick={() => router.push(`/dashboard/quote/${quote.id}/costs`)} style={{ flex:1, padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:C.card, color:C.text, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
             💰 Job Cost Tracking
           </button>
         </div>

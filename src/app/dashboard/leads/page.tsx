@@ -236,7 +236,7 @@ export default function LeadsPage() {
         ) : (
           <div style={{ display:"flex", flexDirection:"column" as const, gap:8 }}>
             {filtered.map(lead => (
-              <div key={lead.id} onClick={() => setSelected(lead)}
+              <div key={lead.id} className="jp-card-hover" onClick={() => setSelected(lead)}
                 style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 20px", cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                 <div>
                   <div style={{ fontWeight:700, color:C.text, marginBottom:2 }}>{lead.name}</div>

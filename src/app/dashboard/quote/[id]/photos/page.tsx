@@ -223,7 +223,7 @@ export default function PhotosPage() {
           </div>
         )}
 
-        <button onClick={() => router.push(`/dashboard/quote/${id}/costs`)} style={{ padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
+        <button className="jp-card-hover" onClick={() => router.push(`/dashboard/quote/${id}/costs`)} style={{ padding:"13px", borderRadius:8, border:`1px solid ${C.border}`, background:"transparent", color:C.muted, fontWeight:600, cursor:"pointer", fontSize:".88rem" }}>
           💰 View Job Cost Tracking →
         </button>
 
