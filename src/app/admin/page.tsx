@@ -8,6 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+
 const C = {
   bg: "#0F172A",
   card: "#1E2937",
@@ -36,14 +37,15 @@ export default function AdminPage() {
   }, []);
 
   const load = async () => {
-    const [{ data: ops }, { data: qs }, { data: ls }] = await Promise.all([
-      supabase.from("operators").select("*").order("created_at", { ascending: false }),
-      supabase.from("quote_requests").select("operator_id, status, created_at, estimated_min, booking_score").order("created_at", { ascending: false }),
-      supabase.from("leads").select("*").order("created_at", { ascending: false }),
-    ]);
-    if (ops) setOperators(ops);
-    if (qs) setQuotes(qs);
-    if (ls) setLeads(ls);
+    const res = await fetch("/api/admin-data");
+    if (!res.ok) {
+      setLoading(false);
+      return;
+    }
+    const data = await res.json();
+    setOperators(data.operators || []);
+    setQuotes(data.quotes || []);
+    setLeads(data.leads || []);
     setLoading(false);
   };
 
