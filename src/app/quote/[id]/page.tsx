@@ -667,7 +667,7 @@ const submitRes = await fetch("/api/submit-quote", {
         <div style={s.btnBar}>
           <button style={s.btnP(!canGo4)} disabled={!canGo4} onClick={runEstimate}>Get My Quote →</button>
           <div style={{ textAlign:"center" as const, fontSize:".72rem", color:C.inkFaint, marginTop:10 }}>
-            Photos stay private • Only {opOwnerName || "your operator"} sees them • Quote usually &lt; 1 hour
+            Photos stay private • Only {opOwnerName || "your operator"}{" "}sees them • Quote usually &lt; 1 hour
           </div>
         </div>
       </div>
