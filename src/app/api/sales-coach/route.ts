@@ -83,18 +83,13 @@ How to justify the price. How to make $${q.estimated_min} feel like a steal. Val
 Be specific. Be bold. This operator needs to feel ready to pick up the phone RIGHT NOW.`;
 
     } else if (type === "daily_intel") {
-      userPrompt = `Date: ${dateSeed || new Date().toDateString()}. Search your knowledge for the most powerful, actionable sales and business insight for this specific date. Make sure this lesson is DIFFERENT from other days — vary the topic, master, and angle every single day.
+      userPrompt = `Date: ${dateSeed || new Date().toDateString()}. Give ${ownerName} a sharp daily sales briefing. Be direct and specific to junk removal. Keep it under 200 words total.
 
-Give ${ownerName} ONE thing that will make them more money this week.
-
-Format:
-- TODAY'S LESSON (one powerful concept from the masters)
-- WHY IT MATTERS FOR JUNK REMOVAL (specific application)
-- THE DRILL (one thing to practice today — specific, measurable)
-- BOOK OF THE DAY (one book recommendation with 3 key lessons from it)
-- QUOTE THAT HITS DIFFERENT (one quote from the legends that applies right now)
-
-Make it feel like a morning briefing from the best sales coach they've ever had.`;
+Format (keep each section to 1-2 sentences max):
+TODAY'S LESSON: One powerful sales concept
+FOR JUNK REMOVAL: How to apply it today
+THE DRILL: One specific action to take right now
+QUOTE: One memorable quote from a sales legend`;
 
     } else if (type === "academy") {
       userPrompt = `${ownerName} wants to level up their sales skills. 
@@ -136,7 +131,7 @@ Answer as the combined wisdom of all 15 sales and business legends. Be direct, s
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 2000,
+        max_tokens: type === "daily_intel" ? 600 : type === "ask" ? 500 : 2000,
         temperature: 0.9,
         stream: true,
         system: MASTER_SYSTEM,
