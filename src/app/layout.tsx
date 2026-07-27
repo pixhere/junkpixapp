@@ -17,6 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "JunkPix — AI Photo Quoting for Junk Removal",
   description: "Stop wasting trips. Customers send photos, AI reads the job, you send the quote. Built for junk removal operators.",
+  verification: {
+    google: "3iiqhzG3R1p_Pq92jRlLs-OKcWgynw6_SLEM3Klt3GQ",
+  },
 };
 
 export default function RootLayout({
