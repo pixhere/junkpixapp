@@ -18,7 +18,9 @@ export default function CloseJobPage() {
   const [quotes, setQuotes] = useState<any[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [content, setContent] = useState("");
+  const streamRef = useRef("");
   const [copied, setCopied] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +40,8 @@ export default function CloseJobPage() {
     if (!operator) return;
     setLoading(true);
     setContent("");
-    if (contentRef.current) contentRef.current.innerText = "";
+    streamRef.current = "";
+    setStreaming(false);
     try {
       const res = await fetch("/api/sales-coach", {
         method: "POST",
@@ -46,18 +49,22 @@ export default function CloseJobPage() {
         body: JSON.stringify({ type: "close_job", operator, quote }),
       });
       if (!res.ok) { setContent("Something went wrong. Try again."); setLoading(false); return; }
+      setLoading(false);
+      setStreaming(true);
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
-      let full = "";
-      setLoading(false);
+      let lastUpdate = Date.now();
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        full += chunk;
-        if (contentRef.current) contentRef.current.innerText = full;
+        streamRef.current += decoder.decode(value, { stream: true });
+        if (Date.now() - lastUpdate > 100) {
+          setContent(streamRef.current);
+          lastUpdate = Date.now();
+        }
       }
-      setContent(full);
+      setContent(streamRef.current);
+      setStreaming(false);
     } catch {
       setContent("Something went wrong. Try again.");
       setLoading(false);
@@ -78,7 +85,7 @@ export default function CloseJobPage() {
           {quotes.map(q => (
             <div key={q.id}>
               <button
-                onClick={() => { setSelectedQuote(q); setContent(""); if (contentRef.current) contentRef.current.innerText = ""; }}
+                onClick={() => { setSelectedQuote(q); setContent(""); streamRef.current = ""; setStreaming(false); }}
                 onMouseEnter={e => { if (selectedQuote?.id !== q.id) e.currentTarget.style.background = "#1a1a1a"; }}
                 onMouseLeave={e => { if (selectedQuote?.id !== q.id) e.currentTarget.style.background = C.card; }}
                 style={{ width: "100%", padding: "14px 16px", borderRadius: selectedQuote?.id === q.id ? "8px 8px 0 0" : 8, border: "1px solid " + (selectedQuote?.id === q.id ? C.accent : C.border), background: selectedQuote?.id === q.id ? "rgba(0,212,200,0.15)" : C.card, color: C.text, cursor: "pointer", textAlign: "left" as const, display: "flex", justifyContent: "space-between", alignItems: "center" }}
@@ -98,7 +105,7 @@ export default function CloseJobPage() {
                     disabled={loading}
                     style={{ width: "100%", padding: "12px", border: "none", background: C.accent, color: "#000", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontSize: ".9rem" }}
                   >
-                    {loading ? "Generating..." : "🎯 Generate Closing Playbook"}
+                    {loading ? "Connecting..." : streaming ? "🎯 Generating..." : "🎯 Generate Closing Playbook"}
                   </button>
                 </div>
               )}
@@ -106,7 +113,7 @@ export default function CloseJobPage() {
           ))}
         </div>
 
-        {loading && !content && (
+        {loading && (
           <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 20, color: C.muted }}>
             <div style={{ width: 20, height: 20, border: "2px solid " + C.border, borderTopColor: C.accent, borderRadius: "50%", animation: "spin .8s linear infinite" }} />
             <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
@@ -114,7 +121,7 @@ export default function CloseJobPage() {
           </div>
         )}
 
-        {(loading || content) && (
+        {(streaming || content) && (
           <div style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div style={{ fontSize: ".7rem", color: C.accent, fontFamily: "monospace", fontWeight: 700 }}>✨ YOUR CLOSING PLAYBOOK</div>

@@ -16,7 +16,9 @@ const C = {
 export default function AskCoachPage() {
   const [operator, setOperator] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [content, setContent] = useState("");
+  const streamRef = useRef("");
   const [question, setQuestion] = useState("");
   const [copied, setCopied] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -35,7 +37,8 @@ export default function AskCoachPage() {
     if (!question.trim() || !operator) return;
     setLoading(true);
     setContent("");
-    if (contentRef.current) contentRef.current.innerText = "";
+    streamRef.current = "";
+    setStreaming(false);
 
     try {
       const res = await fetch("/api/sales-coach", {
@@ -48,17 +51,19 @@ export default function AskCoachPage() {
 
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
-      let full = "";
-      setLoading(false);
+      let lastUpdate = Date.now();
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        full += chunk;
-        if (contentRef.current) contentRef.current.innerText = full;
+        streamRef.current += decoder.decode(value, { stream: true });
+        if (Date.now() - lastUpdate > 100) {
+          setContent(streamRef.current);
+          lastUpdate = Date.now();
+        }
       }
-      setContent(full);
+      setContent(streamRef.current);
+      setStreaming(false);
     } catch {
       setContent("Something went wrong. Try again.");
     }
