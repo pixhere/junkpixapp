@@ -27,6 +27,8 @@ export default function PhotosPage() {
   const [posts, setPosts] = useState<Record<string, string> | null>(null);
   const [copied, setCopied] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [completed, setCompleted]   = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const [posting, setPosting] = useState<Record<string, boolean>>({});
   const [posted, setPosted] = useState<Record<string, boolean>>({});
@@ -39,7 +41,11 @@ export default function PhotosPage() {
       const { data: op } = await supabase.from("operators").select("*").eq("id", user.id).single();
       if (op) setOperator(op);
       const { data: q } = await supabase.from("quote_requests").select("*").eq("id", id).single();
-      if (q) { setQuote(q); setAfterPhotos(q.after_photo_urls || []); }
+      if (q) { 
+        setQuote(q); 
+        setAfterPhotos(q.after_photo_urls || []); 
+        if (q.status === "completed") setCompleted(true);
+      }
     };
     load();
   }, [id]);
@@ -66,6 +72,14 @@ export default function PhotosPage() {
     const newPhotos = afterPhotos.filter(p => p !== url);
     await supabase.from("quote_requests").update({ after_photo_urls: newPhotos }).eq("id", id);
     setAfterPhotos(newPhotos);
+  };
+
+  const markComplete = async () => {
+    setCompleting(true);
+    await supabase.from("quote_requests").update({ status: "completed" }).eq("id", id);
+    setCompleted(true);
+    setCompleting(false);
+    setQuote((prev: any) => ({ ...prev, status: "completed" }));
   };
 
   const sendForgot = async () => {
@@ -185,6 +199,26 @@ export default function PhotosPage() {
             </div>
           </div>
         </div>
+
+        {/* Mark Complete */}
+        {afterPhotos.length > 0 && (
+          <div style={{ background:C.card, border:`1px solid ${completed ? C.green : C.border}`, borderRadius:12, padding:20, marginBottom:0 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>
+              {completed ? "✅ Job Completed" : "🏁 Mark Job Complete"}
+            </div>
+            <div style={{ fontSize:".84rem", color:C.muted, marginBottom:16 }}>
+              {completed 
+                ? "This job is marked as complete. Revenue is now counted in your analytics." 
+                : "After photos uploaded — mark this job complete to update your revenue and analytics."}
+            </div>
+            {!completed && (
+              <button onClick={markComplete} disabled={completing}
+                style={{ padding:"12px 24px", borderRadius:8, border:"none", background:C.green, color:"#000", fontWeight:700, cursor: completing ? "not-allowed" : "pointer", fontSize:".9rem" }}>
+                {completing ? "Saving..." : "✅ Mark as Complete"}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Generate social */}
         {afterPhotos.length > 0 && (
