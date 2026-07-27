@@ -576,6 +576,52 @@ const submitRes = await fetch("/api/submit-quote", {
           </div>
         </div>
 
+        {/* Scheduling */}
+        <div style={{ marginBottom:24 }}>
+          <div style={s.qlabel}>When do you want it gone? <span style={s.qnote}>optional — helps us plan</span></div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginTop:8 }}>
+            {[
+              { v:"asap", l:"⚡ ASAP / Same day" },
+              { v:"tomorrow", l:"📅 Tomorrow" },
+              { v:"this_week", l:"🗓 This week" },
+              { v:"next_week", l:"🔜 Next week or later" },
+            ].map(opt => (
+              <button key={opt.v} onClick={() => setUrgency(urgency === opt.v ? null : opt.v)}
+                style={{ padding:"12px 10px", borderRadius:10, border:`1.5px solid ${urgency === opt.v ? C.clay : C.line}`, background: urgency === opt.v ? "rgba(217,123,79,0.08)" : C.card, color: urgency === opt.v ? C.clay : C.ink, cursor:"pointer", fontSize:".82rem", fontWeight: urgency === opt.v ? 700 : 400, textAlign:"left" as const }}>
+                {opt.l}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setUrgency(urgency === "specific" ? null : "specific")}
+            style={{ width:"100%", marginTop:8, padding:"12px", borderRadius:10, border:`1.5px solid ${urgency === "specific" ? C.clay : C.line}`, background: urgency === "specific" ? "rgba(217,123,79,0.08)" : C.card, color: urgency === "specific" ? C.clay : C.ink, cursor:"pointer", fontSize:".82rem", fontWeight: urgency === "specific" ? 700 : 400, textAlign:"left" as const }}>
+            📆 Specific date
+          </button>
+          {urgency === "specific" && (
+            <input type="date" value={specificDate} onChange={e => setSpecificDate(e.target.value)}
+              style={{ ...s.input, marginTop:8 }} />
+          )}
+        </div>
+
+        {/* Preferred time window */}
+        {urgency && (
+          <div style={{ marginBottom:24 }}>
+            <div style={s.qlabel}>Preferred time window <span style={s.qnote}>optional</span></div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginTop:8 }}>
+              {[
+                { v:"morning", l:"🌅 Morning (8–12)" },
+                { v:"afternoon", l:"☀️ Afternoon (12–4)" },
+                { v:"evening", l:"🌆 Evening (4–7)" },
+                { v:"flexible", l:"🕐 Flexible / anytime" },
+              ].map(opt => (
+                <button key={opt.v} onClick={() => setPreferredTime(preferredTime === opt.v ? null : opt.v)}
+                  style={{ padding:"12px 10px", borderRadius:10, border:`1.5px solid ${preferredTime === opt.v ? C.clay : C.line}`, background: preferredTime === opt.v ? "rgba(217,123,79,0.08)" : C.card, color: preferredTime === opt.v ? C.clay : C.ink, cursor:"pointer", fontSize:".82rem", fontWeight: preferredTime === opt.v ? 700 : 400, textAlign:"left" as const }}>
+                  {opt.l}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div style={s.btnBar}>
           <button style={s.btnP(!canGo3)} disabled={!canGo3} onClick={() => setStep(3)}>Continue</button>
         </div>
