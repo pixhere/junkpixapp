@@ -178,7 +178,6 @@ useEffect(() => {
     const msgs = [
       "Looking at your photos...",
       "Spotting what needs to go...",
-      "Checking access and difficulty...",
       "Almost ready...",
     ];
     let mi = 0;
@@ -187,7 +186,7 @@ useEffect(() => {
       mi++;
       if (mi < msgs.length) setLoadMsg(msgs[mi]);
       else clearInterval(msgInterval);
-    }, 2500);
+    }, 2000);
     setStep(4);
     setLoadMsg("COMPRESSING PHOTOS...");
     console.log("opId value:", opId);
@@ -410,7 +409,7 @@ const submitRes = await fetch("/api/submit-quote", {
           {/* Progress bar */}
           <div style={{ display:"flex", gap:6, marginBottom:24 }}>
             {[1,2,3].map(n => (
-              <div key={n} style={{ flex:1, height:4, borderRadius:2, background: n === 1 ? C.clay : C.line }} />
+              <div key={n} style={{ flex:1, height:4, borderRadius:2, background: n === 1 ? C.clay : "rgba(61,46,38,.2)" }} />
             ))}
           </div>
           <div style={s.eyebrow}>STEP 1 OF 3</div>
@@ -509,7 +508,7 @@ const submitRes = await fetch("/api/submit-quote", {
         {/* Progress bar */}
         <div style={{ display:"flex", gap:6, marginBottom:28 }}>
           {[1,2,3].map(n => (
-            <div key={n} style={{ flex:1, height:4, borderRadius:2, background: n <= 2 ? C.clay : C.line }} />
+            <div key={n} style={{ flex:1, height:4, borderRadius:2, background: n <= 2 ? C.clay : "rgba(61,46,38,.2)" }} />
           ))}
         </div>
         <div style={s.eyebrow}>STEP 2 OF 3</div>
