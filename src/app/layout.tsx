@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
+const META_PIXEL = `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','991030980503561');fbq('track','PageView');`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,6 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: META_PIXEL }} />
+      </head>
       <body style={{ fontFamily: "var(--font-inter), system-ui, sans-serif", margin: 0, padding: 0 }}>
         {children}
       </body>
