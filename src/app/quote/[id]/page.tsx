@@ -143,6 +143,9 @@ useEffect(() => {
   const [condition, setCondition] = useState<string | null>(null);
   const [condDetail, setCondDetail] = useState("");
   const [extras, setExtras]       = useState<string[]>([]);
+  const [urgency, setUrgency]       = useState<string | null>(null);
+  const [preferredTime, setPreferredTime] = useState<string | null>(null);
+  const [specificDate, setSpecificDate]   = useState("");
   const [customer, setCustomer] = useState({ name:"", phone:"", email:"", address:"", city:"", state:"", zip:"", notes:"" });
   const canGo4 = customer.name.trim() && customer.phone.trim() && customer.email.trim() && customer.address.trim() && customer.city.trim() && customer.state.trim() && customer.zip.trim();
   const [loadMsg, setLoadMsg]     = useState("");
@@ -276,6 +279,9 @@ const submitRes = await fetch("/api/submit-quote", {
           booking_score:     ai.bookingScore || null,
           suggested_customer_message: ai.suggestedCustomerMessage || null,
           status:            "new",
+          urgency:           urgency || null,
+          preferred_date:    urgency === "specific" ? specificDate : urgency || null,
+          preferred_time:    preferredTime || null,
         }),
       });
       const submitData = await submitRes.json();
@@ -512,7 +518,7 @@ const submitRes = await fetch("/api/submit-quote", {
           ))}
         </div>
         <div style={s.eyebrow}>STEP 2 OF 3</div>
-        <h1 style={s.title}>A few quick taps.</h1>
+        <h1 style={s.title}>Quick details that change the price.</h1>
         <p style={s.sub}>This is what changes the price — not just what's there, but how hard it is to get out.</p>
 
         <ChipGroup 
@@ -528,6 +534,7 @@ const submitRes = await fetch("/api/submit-quote", {
 
         <div style={{ marginBottom: 24 }}>
           <div style={s.qlabel}>Stairs? <span style={s.qnote}>flights to carry junk down</span></div>
+          <div style={{ fontSize:".72rem", color:C.inkFaint, marginBottom:4 }}>Each flight adds time & cost</div>
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 6 }}>
             <div onClick={() => setStairs(n => Math.max(0, n-1))} style={{ width: 38, height: 38, borderRadius: "50%", border: `1.5px solid ${C.line}`, background: C.card, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "1.2rem" }}>−</div>
             <span style={{ fontSize: "1.4rem", fontWeight: 800, minWidth: 24, textAlign: "center" }}>{stairs}</span>
@@ -588,8 +595,8 @@ const submitRes = await fetch("/api/submit-quote", {
           ))}
         </div>
         <div style={s.eyebrow}>STEP 3 OF 3</div>
-        <h1 style={s.title}>Almost there.</h1>
-        <p style={s.sub}>We'll review your photos and call or text you usually within the hour.</p>
+        <h1 style={s.title}>Last step — then {opOwnerName || "your operator"} reviews.</h1>
+        <p style={s.sub}>We'll call or text you usually within the hour.</p>
 
         {[
           { key: "name",    placeholder: "Full name",                                type: "text"  },
@@ -613,6 +620,9 @@ const submitRes = await fetch("/api/submit-quote", {
 
         <div style={s.btnBar}>
           <button style={s.btnP(!canGo4)} disabled={!canGo4} onClick={runEstimate}>Get My Quote →</button>
+          <div style={{ textAlign:"center" as const, fontSize:".72rem", color:C.inkFaint, marginTop:10 }}>
+            Photos stay private • Only {opOwnerName || "your operator"} sees them • Quote usually &lt; 1 hour
+          </div>
         </div>
       </div>
     </div>
@@ -664,6 +674,7 @@ if (step === 4) return (
               <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff", marginBottom: 8 }}>Your photos are with {opOwnerName || "your local operator"}.</div>
               <div style={{ fontSize: ".86rem", color: "rgba(255,255,255,.65)", lineHeight: 1.55 }}>
                 Expect a call or text usually within the hour.
+                {urgency && urgency !== "specific" && <span> We noted your timing preference.</span>}
               </div>
             </div>
 
