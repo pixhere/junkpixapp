@@ -175,6 +175,19 @@ useEffect(() => {
   const toggleExtra = (v: string) => setExtras(ex => ex.includes(v) ? ex.filter(x => x !== v) : [...ex, v]);
 
   const runEstimate = async () => {
+    const msgs = [
+      "Looking at your photos...",
+      "Spotting what needs to go...",
+      "Checking access and difficulty...",
+      "Almost ready...",
+    ];
+    let mi = 0;
+    setLoadMsg(msgs[0]);
+    const msgInterval = setInterval(() => {
+      mi++;
+      if (mi < msgs.length) setLoadMsg(msgs[mi]);
+      else clearInterval(msgInterval);
+    }, 2500);
     setStep(4);
     setLoadMsg("COMPRESSING PHOTOS...");
     console.log("opId value:", opId);
@@ -394,9 +407,20 @@ const submitRes = await fetch("/api/submit-quote", {
       <div style={s.app}>
         {topbar(false, "STEP 1 / 3")}
         <div style={s.screen}>
-          <div style={s.eyebrow}>START HERE</div>
-          <h1 style={s.title}>Snap the pile.</h1>
-          <p style={s.sub}>Add 1–10 photos. Tap any photo to enlarge and double-check.</p>
+          {/* Progress bar */}
+          <div style={{ display:"flex", gap:6, marginBottom:24 }}>
+            {[1,2,3].map(n => (
+              <div key={n} style={{ flex:1, height:4, borderRadius:2, background: n === 1 ? C.clay : C.line }} />
+            ))}
+          </div>
+          <div style={s.eyebrow}>STEP 1 OF 3</div>
+          <h1 style={s.title}>Snap the junk.<br/>We'll handle the rest.</h1>
+          <p style={s.sub}>Take a few photos of what needs to go. Our AI reads the job and gets you a quote — fast.</p>
+          <div style={{ display:"flex", flexDirection:"column" as const, gap:6, marginBottom:20, padding:"14px 16px", background:C.bgSoft, borderRadius:10, border:`1px solid ${C.line}` }}>
+            <div style={{ fontSize:".78rem", color:C.inkSoft }}>📸 Wide shot first, then close-ups work best</div>
+            <div style={{ fontSize:".78rem", color:C.inkSoft }}>💡 Good lighting helps the AI spot everything</div>
+            <div style={{ fontSize:".78rem", color:C.inkSoft }}>🔒 Photos stay private • Local operators only</div>
+          </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 18 }}>
             {photos.map((url, i) => (
@@ -482,7 +506,13 @@ const submitRes = await fetch("/api/submit-quote", {
     <div style={s.app}>
       {topbar(true, "STEP 2 / 3")}
       <div style={s.screen}>
-        <div style={s.eyebrow}>ACCESS & CONDITION</div>
+        {/* Progress bar */}
+        <div style={{ display:"flex", gap:6, marginBottom:28 }}>
+          {[1,2,3].map(n => (
+            <div key={n} style={{ flex:1, height:4, borderRadius:2, background: n <= 2 ? C.clay : C.line }} />
+          ))}
+        </div>
+        <div style={s.eyebrow}>STEP 2 OF 3</div>
         <h1 style={s.title}>A few quick taps.</h1>
         <p style={s.sub}>This is what changes the price — not just what's there, but how hard it is to get out.</p>
 
@@ -552,9 +582,15 @@ const submitRes = await fetch("/api/submit-quote", {
     <div style={s.app}>
       {topbar(true, "STEP 3 / 3")}
       <div style={s.screen}>
-        <div style={s.eyebrow}>ALMOST THERE</div>
-        <h1 style={s.title}>Your info.</h1>
-        <p style={s.sub}>So we can send you the quote. We'll review your photos and get back to you fast.</p>
+        {/* Progress bar */}
+        <div style={{ display:"flex", gap:6, marginBottom:28 }}>
+          {[1,2,3].map(n => (
+            <div key={n} style={{ flex:1, height:4, borderRadius:2, background: C.clay }} />
+          ))}
+        </div>
+        <div style={s.eyebrow}>STEP 3 OF 3</div>
+        <h1 style={s.title}>Almost there.</h1>
+        <p style={s.sub}>We'll review your photos and call or text you usually within the hour.</p>
 
         {[
           { key: "name",    placeholder: "Full name",                                type: "text"  },
@@ -596,7 +632,7 @@ if (step === 4) return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"80vh", gap:20 }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       <div style={{ width:48, height:48, border:`3px solid ${C.line}`, borderTopColor:C.clay, borderRadius:"50%", animation:"spin .9s linear infinite" }} />
-      <div style={{ fontSize:".72rem", letterSpacing:".1em", color:C.inkFaint, fontFamily:"monospace", textAlign:"center" }}>{loadMsg}</div>
+      <div style={{ fontSize:".88rem", color:C.inkSoft, textAlign:"center", lineHeight:1.5, maxWidth:240 }}>{loadMsg}</div>
     </div>
   </div>
 );
@@ -626,10 +662,40 @@ if (step === 4) return (
 
             <div style={{ background: C.ink, borderRadius: 12, padding: "28px 24px", marginBottom: 20, textAlign: "center" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>✅</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff", marginBottom: 8 }}>Your photos are with {opOwnerName}.</div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff", marginBottom: 8 }}>Your photos are with {opOwnerName || "your local operator"}.</div>
               <div style={{ fontSize: ".86rem", color: "rgba(255,255,255,.65)", lineHeight: 1.55 }}>
-                We're reviewing your job and will reach out shortly with a price.
+                Expect a call or text usually within the hour.
               </div>
+            </div>
+
+            {/* What Happens Next */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: ".65rem", color: C.inkFaint, fontFamily: "monospace", letterSpacing: ".1em", marginBottom: 14 }}>WHAT HAPPENS NEXT</div>
+              {[
+                { icon: "✅", label: "Photos received", done: true },
+                { icon: "📞", label: `${opOwnerName || "Your operator"} reviews and calls you`, done: false },
+                { icon: "💰", label: "Price confirmed before any payment", done: false },
+                { icon: "🚛", label: "Job scheduled at your convenience", done: false },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 0", borderBottom: i < 3 ? `1px solid ${C.line}` : "none" }}>
+                  <div style={{ fontSize: "1.2rem", width: 28, textAlign: "center", flexShrink: 0 }}>{item.icon}</div>
+                  <div style={{ fontSize: ".84rem", color: item.done ? C.ink : C.inkSoft, fontWeight: item.done ? 600 : 400 }}>{item.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Call button */}
+            {opPhone && (
+              <a href={`tel:${opPhone}`} style={{ display: "block", background: C.clay, color: "#fff", padding: "14px", borderRadius: 10, fontWeight: 800, fontSize: "1rem", textDecoration: "none", textAlign: "center", marginBottom: 16 }}>
+                📞 Call {opOwnerName || "Us"} Now
+              </a>
+            )}
+
+            {/* Trust badges */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap", padding: "16px 0", borderTop: `1px solid ${C.line}` }}>
+              {["✅ Fully Insured", "📍 Local Operator", "🚫 No Hidden Fees"].map(badge => (
+                <div key={badge} style={{ fontSize: ".72rem", color: C.inkSoft }}>{badge}</div>
+              ))}
             </div>
 
             {result?.siteVisitRequired && (
@@ -646,7 +712,7 @@ if (step === 4) return (
                 )}
               </div>
             )}
-            {false && result?.estimatedMin && !result?.siteVisitRequired && (
+            {result?.estimatedMin && !result?.siteVisitRequired && false && (
               <div style={{ background: C.bgSoft, borderRadius: 8, padding: 20, marginBottom: 16, border: `1px solid ${C.line}` }}>
                 <div style={{ fontSize: ".62rem", letterSpacing: ".1em", color: C.inkFaint, fontFamily: "monospace", marginBottom: 8 }}>ESTIMATED RANGE</div>
                 <div style={{ fontSize: "2rem", fontWeight: 800, color: C.clay }}>${result.estimatedMin} – ${result.estimatedMax}</div>
