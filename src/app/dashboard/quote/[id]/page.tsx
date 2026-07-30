@@ -30,6 +30,9 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
   const [operator, setOperator] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState("");
+  const [adjustedPrice, setAdjustedPrice] = useState("");
+  const [savingPrice, setSavingPrice] = useState(false);
+  const [priceSaved, setPriceSaved] = useState(false);
   const [extraItems, setExtraItems] = useState<{name:string,fee:number}[]>([]);
   const [newExtraName, setNewExtraName] = useState("");
   const [newExtraFee, setNewExtraFee] = useState("");
@@ -62,6 +65,21 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
     };
     load();
   }, [id]);
+
+  const savePrice = async () => {
+    if (!adjustedPrice) return;
+    setSavingPrice(true);
+    await supabase.from("quote_requests").update({ 
+      final_price: parseInt(adjustedPrice),
+      operator_adjusted_price: parseInt(adjustedPrice),
+      ai_price_accepted: false,
+    }).eq("id", id);
+    setQuote((prev: any) => ({ ...prev, final_price: parseInt(adjustedPrice) }));
+    setPrice(adjustedPrice);
+    setPriceSaved(true);
+    setSavingPrice(false);
+    setTimeout(() => setPriceSaved(false), 3000);
+  };
 
   const updateStatus = async (status: string) => {
     if (status === "completed" && (!quote?.after_photo_urls || quote.after_photo_urls.length === 0)) {
@@ -173,6 +191,53 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
       </div>
 
       <div style={{ maxWidth:720, margin:"0 auto", padding:24, display:"flex", flexDirection:"column" as const, gap:20 }}>
+
+        {/* Operator Actions — no emails triggered */}
+        <div style={{ background:C.card, border:`1px solid ${C.accent}`, borderRadius:12, padding:20 }}>
+          <div style={{ fontSize:".65rem", color:C.accent, fontFamily:"monospace", fontWeight:700, marginBottom:16 }}>⚙️ OPERATOR CONTROLS — INTERNAL ONLY</div>
+          
+          {/* Quick status update — no email */}
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:".72rem", color:C.muted, marginBottom:8 }}>Update status (no customer notification):</div>
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" as const }}>
+              {["new","reviewed","booked","completed","cancelled"].map(st => (
+                <button key={st} onClick={async () => {
+                  await supabase.from("quote_requests").update({ status: st }).eq("id", id);
+                  setQuote((prev: any) => ({ ...prev, status: st }));
+                }}
+                  style={{ padding:"8px 14px", borderRadius:8, border:`1px solid ${quote.status === st ? C.accent : C.border}`, background: quote.status === st ? C.accentDim : "transparent", color: quote.status === st ? C.accent : C.muted, fontWeight: quote.status === st ? 700 : 400, cursor:"pointer", fontSize:".78rem", textTransform:"capitalize" as const }}>
+                  {st}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Price adjustment — no email */}
+          <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:16 }}>
+            <div style={{ fontSize:".72rem", color:C.muted, marginBottom:8 }}>Adjust price (no customer notification):</div>
+            <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+              <div style={{ position:"relative" as const, flex:1 }}>
+                <span style={{ position:"absolute" as const, left:12, top:"50%", transform:"translateY(-50%)", color:C.muted, fontWeight:700 }}>$</span>
+                <input type="number"
+                  value={adjustedPrice || quote.final_price || ""}
+                  onChange={e => setAdjustedPrice(e.target.value)}
+                  placeholder={quote.estimated_min ? `AI: $${quote.estimated_min}–$${quote.estimated_max}` : "Enter price"}
+                  style={{ width:"100%", padding:"10px 12px 10px 28px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, color:C.text, fontSize:".9rem", outline:"none", boxSizing:"border-box" as const }}
+                />
+              </div>
+              <button onClick={savePrice} disabled={!adjustedPrice || savingPrice}
+                style={{ padding:"10px 18px", borderRadius:8, border:"none", background: priceSaved ? C.green : (adjustedPrice ? C.accent : "#333"), color: adjustedPrice ? "#000" : C.muted, fontWeight:700, cursor: adjustedPrice ? "pointer" : "not-allowed", fontSize:".84rem", whiteSpace:"nowrap" as const }}>
+                {savingPrice ? "Saving..." : priceSaved ? "✅ Saved" : "Save Price"}
+              </button>
+            </div>
+            {quote.final_price && (
+              <div style={{ fontSize:".72rem", color:C.muted, marginTop:6 }}>
+                Current: <strong style={{ color:C.green }}>${quote.final_price}</strong>
+                {quote.estimated_min && <span> · AI suggested: ${quote.estimated_min}–${quote.estimated_max}</span>}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Customer info */}
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
