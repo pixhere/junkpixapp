@@ -144,10 +144,50 @@ ${specialItemsList}
 List each detected special item with its name and fee in specialItems array.
 Add up ALL special item fees and include the total in specialItemsTotal.
 
+MULTI-TRUCK LOAD CALCULATION (CRITICAL):
+Large jobs require multiple truck loads. You MUST calculate this correctly:
+
+Step 1 — Count total truck loads needed (truckLoadsNeeded):
+- Look at total volume across ALL photos
+- Each full truck = 1 load
+- If job needs 2 full trucks = 2 loads
+- If job needs 1.5 trucks = round up to 2 loads
+- Estate cleanouts, full apartment cleanouts, large garage cleanouts = almost always 2+ loads
+
+Step 2 — Calculate base price:
+- base = full load price × truckLoadsNeeded
+- Example: 2 loads × $975 = $1,950 base
+
+Step 3 — Add difficulty surcharges ON TOP of base:
+- Stairs/upper floor: +$150-200 per load
+- Long carry (>50 feet): +$75-100
+- Narrow access: +$50-75
+- Disassembly required: +$75-150
+
+Step 4 — Add per-item disposal fees ON TOP:
+- CRT/tube TV: +$75 each
+- Each car tire: +$25
+- Each truck tire: +$35
+- Appliances with freon (AC, fridge): +$50 each
+- Exercise equipment: +$50-75
+- Mattress: +$25-35 each
+- Electronics/e-waste: +$25-50
+
+Step 5 — Apply heavy material multiplier if applicable:
+- Apply multiplier to the base price only, not the surcharges
+
+Step 6 — Sum everything:
+estimatedMin = (base × multiplier) + all surcharges + all disposal fees - 10%
+estimatedMax = (base × multiplier) + all surcharges + all disposal fees + 10%
+
+NEVER cap the price at a single load tier if the job clearly needs more than one truck.
+A full apartment estate cleanout should NEVER be priced under $1,500.
+A 2-truck job should NEVER be priced under $1,800.
+
 When heavyMaterialFlag is true:
-- Apply the correct multiplier above to your estimated price
+- Apply the correct multiplier to base price only
+- Add surcharges and disposal fees separately
 - Set confidence to low
-- Note in plainDescription that heavy materials require custom pricing
 - If BOTH construction debris AND concrete present, use the HIGHER multiplier
 
 Return ONLY valid JSON with no markdown:
