@@ -32,8 +32,9 @@ export default function QuotesPage() {
   const [operator, setOperator] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [manualJob, setManualJob] = useState({
-    customer_name:"", customer_phone:"", customer_address:"",
-    description:"", final_price:"", job_date:"", status:"completed"
+    customer_name:"", customer_phone:"", customer_email:"", customer_address:"",
+    description:"", final_price:"", job_date:"", status:"completed",
+    lead_source:"", lead_source_other:""
   });
 
   useEffect(() => {
@@ -61,7 +62,9 @@ export default function QuotesPage() {
       operator_id: operator.id,
       customer_name: manualJob.customer_name,
       customer_phone: manualJob.customer_phone || null,
+      customer_email: manualJob.customer_email || null,
       customer_address: manualJob.customer_address || null,
+      lead_source: manualJob.lead_source === "Other" ? manualJob.lead_source_other : manualJob.lead_source || null,
       ai_description: manualJob.description || "Manual job entry",
       final_price: parseInt(manualJob.final_price),
       status: manualJob.status,
@@ -70,7 +73,7 @@ export default function QuotesPage() {
       created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
     }).select().single();
     if (data) setQuotes(prev => [data, ...prev]);
-    setManualJob({ customer_name:"", customer_phone:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed" });
+    setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
     setShowManual(false);
     setSaving(false);
   };
@@ -88,7 +91,9 @@ export default function QuotesPage() {
       operator_id: operator.id,
       customer_name: manualJob.customer_name,
       customer_phone: manualJob.customer_phone || null,
+      customer_email: manualJob.customer_email || null,
       customer_address: manualJob.customer_address || null,
+      lead_source: manualJob.lead_source === "Other" ? manualJob.lead_source_other : manualJob.lead_source || null,
       ai_description: manualJob.description || "Manual job entry",
       final_price: parseInt(manualJob.final_price),
       status: manualJob.status,
@@ -97,7 +102,7 @@ export default function QuotesPage() {
       created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
     }).select().single();
     if (data) setQuotes(prev => [data, ...prev]);
-    setManualJob({ customer_name:"", customer_phone:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed" });
+    setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
     setShowManual(false);
     setSaving(false);
   };
@@ -141,7 +146,9 @@ export default function QuotesPage() {
       operator_id: operator.id,
       customer_name: manualJob.customer_name,
       customer_phone: manualJob.customer_phone || null,
+      customer_email: manualJob.customer_email || null,
       customer_address: manualJob.customer_address || null,
+      lead_source: manualJob.lead_source === "Other" ? manualJob.lead_source_other : manualJob.lead_source || null,
       ai_description: manualJob.description || "Manual job entry",
       final_price: parseInt(manualJob.final_price),
       status: manualJob.status,
@@ -150,7 +157,7 @@ export default function QuotesPage() {
       created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
     }).select().single();
     if (data) setQuotes(prev => [data, ...prev]);
-    setManualJob({ customer_name:"", customer_phone:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed" });
+    setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
     setShowManual(false);
     setSaving(false);
   };
@@ -187,6 +194,7 @@ export default function QuotesPage() {
               { key:"customer_name", label:"Customer Name *", placeholder:"Full name", type:"text" },
               { key:"customer_phone", label:"Phone", placeholder:"Phone number", type:"tel" },
               { key:"customer_address", label:"Address", placeholder:"Job address", type:"text" },
+              { key:"customer_email", label:"Email", placeholder:"customer@email.com", type:"email" },
               { key:"description", label:"Job Description", placeholder:"What was removed?", type:"text" },
               { key:"final_price", label:"Amount Charged *", placeholder:"e.g. 450", type:"number" },
               { key:"job_date", label:"Job Date", placeholder:"", type:"date" },
@@ -199,6 +207,23 @@ export default function QuotesPage() {
                   style={{ width:"100%", padding:"10px 14px", borderRadius:8, border:"1px solid "+C.border, background:C.surface, color:C.text, fontSize:".88rem", outline:"none", boxSizing:"border-box" as const }} />
               </div>
             ))}
+
+            <div style={{ marginBottom:16 }}>
+              <label style={{ fontSize:".72rem", color:C.muted, display:"block", marginBottom:8 }}>WHERE DID THIS LEAD COME FROM?</label>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8 }}>
+                {["Google","Facebook","Referral","Door Hanger","Repeat Customer","JunkPix Lead Network","Nextdoor","Other"].map(src => (
+                  <button key={src} onClick={() => setManualJob(p => ({...p, lead_source:src}))}
+                    style={{ padding:"8px", borderRadius:8, border:"1px solid "+(manualJob.lead_source === src ? C.accent : C.border), background: manualJob.lead_source === src ? C.accentDim : "transparent", color: manualJob.lead_source === src ? C.accent : C.muted, cursor:"pointer", fontWeight: manualJob.lead_source === src ? 700 : 400, fontSize:".78rem" }}>
+                    {src}
+                  </button>
+                ))}
+              </div>
+              {manualJob.lead_source === "Other" && (
+                <input value={manualJob.lead_source_other} onChange={e => setManualJob(p => ({...p, lead_source_other:e.target.value}))}
+                  placeholder="Where did this lead come from?"
+                  style={{ width:"100%", padding:"10px 14px", borderRadius:8, border:"1px solid "+C.border, background:C.surface, color:C.text, fontSize:".88rem", outline:"none", boxSizing:"border-box" as const }} />
+              )}
+            </div>
 
             <div style={{ marginBottom:16 }}>
               <label style={{ fontSize:".72rem", color:C.muted, display:"block", marginBottom:4 }}>STATUS</label>
