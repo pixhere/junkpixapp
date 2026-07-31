@@ -23,6 +23,7 @@ const TABS = [
   { id:"subscription", label:"Subscription" },
   { id:"quoteform",    label:"Quote Form" },
   { id:"payments",     label:"Payments" },
+  { id:"integrations", label:"Integrations" },
   { id:"account",      label:"Account" },
   { id:"support",      label:"Support" },
 ];
@@ -178,6 +179,7 @@ export default function SettingsPage() {
             { id:"pricing",      label:"💰 Pricing" },
             { id:"quoteform",    label:"📋 Quote Form" },
             { id:"payments",     label:"💳 Payments" },
+            { id:"integrations", label:"🔗 Integrations" },
             { id:"subscription", label:"📦 Subscription" },
             { id:"account",      label:"🔐 Account" },
             { id:"support",      label:"🆘 Support" },
@@ -503,6 +505,57 @@ export default function SettingsPage() {
         )}
 
         {/* Save button */}
+        {tab === "integrations" && (
+          <div style={{ background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:24 }}>
+            <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>🔗 Integrations</div>
+            <div style={{ fontSize:".82rem", color:C.muted, marginBottom:24, lineHeight:1.6 }}>
+              Connect JunkPix to your other tools. Once connected, JunkPix automatically syncs your jobs, customers, and automations.
+            </div>
+
+            {/* JunkPix Automations (GHL) */}
+            <div style={{ background:C.surface, border:"1px solid "+C.border, borderRadius:10, padding:20, marginBottom:16 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12 }}>
+                <div>
+                  <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>⚡ JunkPix Automations</div>
+                  <div style={{ fontSize:".78rem", color:C.muted, lineHeight:1.6 }}>
+                    Automatically follow up with customers, send job reminders, request reviews, and never miss a lead — all running in the background.
+                  </div>
+                </div>
+                <span style={{ fontSize:".65rem", fontWeight:700, padding:"4px 10px", borderRadius:20, background:"rgba(148,163,184,0.15)", color:C.muted, whiteSpace:"nowrap" as const, flexShrink:0, marginLeft:12 }}>
+                  Coming Soon
+                </span>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column" as const, gap:8, marginBottom:16 }}>
+                {[
+                  "Missed call → instant text-back with your quote link",
+                  "Job booked → automatic 24hr and 2hr reminders",
+                  "Job complete → review request sent automatically",
+                  "No response → follow-up sequence fires",
+                  "New lead → instant notification + CRM contact created",
+                ].map((feature, i) => (
+                  <div key={i} style={{ display:"flex", alignItems:"center", gap:8, fontSize:".8rem", color:C.muted }}>
+                    <span style={{ color:C.accent, flexShrink:0 }}>✓</span>
+                    {feature}
+                  </div>
+                ))}
+              </div>
+              <button disabled style={{ width:"100%", padding:"12px", borderRadius:8, border:"none", background:"rgba(0,212,200,0.2)", color:C.muted, fontWeight:700, cursor:"not-allowed", fontSize:".88rem" }}>
+                Connect Automations — Coming Soon
+              </button>
+            </div>
+
+            {/* More integrations coming */}
+            <div style={{ background:C.surface, border:"1px solid "+C.border, borderRadius:10, padding:20 }}>
+              <div style={{ fontWeight:700, color:C.text, marginBottom:8 }}>More integrations coming</div>
+              <div style={{ display:"flex", flexDirection:"column" as const, gap:6 }}>
+                {["Google Calendar sync","QuickBooks","Jobber","Stripe invoicing","SMS via Twilio"].map((item, i) => (
+                  <div key={i} style={{ fontSize:".82rem", color:C.muted }}>🔜 {item}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {(tab === "business" || tab === "pricing") && (
           <button onClick={save} disabled={saving} style={{ width:"100%", padding:"14px 0", borderRadius:8, border:"none", background:saved ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".95rem", marginTop:16 }}>
             {saving ? "Saving..." : saved ? "Saved ✓" : "Save Settings"}
