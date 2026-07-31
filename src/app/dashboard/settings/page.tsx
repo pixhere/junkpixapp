@@ -518,7 +518,7 @@ export default function SettingsPage() {
                 <div>
                   <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>⚡ JunkPix Automations</div>
                   <div style={{ fontSize:".78rem", color:C.muted, lineHeight:1.6 }}>
-                    Automatically follow up with customers, send job reminders, request reviews, and never miss a lead — all running in the background.
+                    Automatically follow up with customers, send job reminders, request reviews, and never miss a lead.
                   </div>
                 </div>
                 <span style={{ fontSize:".65rem", fontWeight:700, padding:"4px 10px", borderRadius:20, background:"rgba(148,163,184,0.15)", color:C.muted, whiteSpace:"nowrap" as const, flexShrink:0, marginLeft:12 }}>
@@ -544,15 +544,7 @@ export default function SettingsPage() {
               </button>
             </div>
 
-            {/* More integrations coming */}
-            <div style={{ background:C.surface, border:"1px solid "+C.border, borderRadius:10, padding:20 }}>
-              <div style={{ fontWeight:700, color:C.text, marginBottom:8 }}>More integrations coming</div>
-              <div style={{ display:"flex", flexDirection:"column" as const, gap:6 }}>
-                {["Google Calendar sync","QuickBooks","Jobber","Stripe invoicing","SMS via Twilio"].map((item, i) => (
-                  <div key={i} style={{ fontSize:".82rem", color:C.muted }}>🔜 {item}</div>
-                ))}
-              </div>
-            </div>
+
           </div>
         )}
 
