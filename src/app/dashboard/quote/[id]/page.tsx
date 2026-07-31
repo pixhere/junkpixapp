@@ -211,6 +211,13 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
                 <button key={st} onClick={async () => {
                   await supabase.from("quote_requests").update({ status: st }).eq("id", id);
                   setQuote((prev: any) => ({ ...prev, status: st }));
+                  if (operator?.id) {
+                    fetch("/api/webhook/fire", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ operatorId: operator.id, event: `quote.${st}`, data: { quote_id: id, status: st, customer_name: quote?.customer_name, customer_phone: quote?.customer_phone, customer_email: quote?.customer_email, customer_address: quote?.customer_address, final_price: quote?.final_price } }),
+                    }).catch(() => {});
+                  }
                 }}
                   style={{ padding:"8px 14px", borderRadius:8, border:`1px solid ${quote.status === st ? C.accent : C.border}`, background: quote.status === st ? C.accentDim : "transparent", color: quote.status === st ? C.accent : C.muted, fontWeight: quote.status === st ? 700 : 400, cursor:"pointer", fontSize:".78rem", textTransform:"capitalize" as const }}>
                   {st}
