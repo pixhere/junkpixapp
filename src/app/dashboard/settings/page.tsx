@@ -103,8 +103,6 @@ export default function SettingsPage() {
         setOwnerName(op.owner_name || "");
         setSlug(op.slug || "");
         setReviewLink(op.review_link || "");
-        setWebhookUrl(op.webhook_url || "");
-        setWebhookEnabled(op.webhook_enabled || false);
         setFbPageId(op.fb_page_id || "");
         setIgAccountId(op.ig_account_id || "");
         setGoogleBizId(op.google_biz_id || "");
@@ -144,7 +142,9 @@ export default function SettingsPage() {
   const saveWebhook = async () => {
     if (!operator?.id) return;
     setSavingWebhook(true);
-    await supabase.from("operators").update({ webhook_url: webhookUrl, webhook_enabled: webhookEnabled }).eq("id", operator.id);
+    const { error } = await supabase.from("operators").update({ webhook_url: webhookUrl, webhook_enabled: webhookEnabled }).eq("id", operator.id);
+    console.log("Webhook save error:", error);
+    setOperator((prev: any) => ({ ...prev, webhook_url: webhookUrl, webhook_enabled: webhookEnabled }));
     setSavingWebhook(false);
     setWebhookSaved(true);
     setTimeout(() => setWebhookSaved(false), 3000);
