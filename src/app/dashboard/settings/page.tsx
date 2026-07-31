@@ -34,6 +34,10 @@ export default function SettingsPage() {
   const setupSuccess = searchParams?.get("setup") === "success";
   const [operator, setOperator] = useState<any>(null);
   const [tab, setTab] = useState("business");
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [webhookEnabled, setWebhookEnabled] = useState(false);
+  const [savingWebhook, setSavingWebhook] = useState(false);
+  const [webhookSaved, setWebhookSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loadingConfig, setLoadingConfig] = useState(true);
@@ -54,8 +58,6 @@ export default function SettingsPage() {
   const [ownerName, setOwnerName] = useState("");
   const [slug, setSlug] = useState("");
   const [reviewLink, setReviewLink] = useState("");
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [webhookEnabled, setWebhookEnabled] = useState(false);
 
   // Social Media
   const [fbPageId, setFbPageId] = useState("");
@@ -94,6 +96,8 @@ export default function SettingsPage() {
       if (op) {
         setOperator(op);
         setBusinessName(op.business_name || "");
+        setWebhookUrl(op.webhook_url || "");
+        setWebhookEnabled(op.webhook_enabled || false);
         setPhone(op.phone || "");
         setWebsite(op.website || "");
         setOwnerName(op.owner_name || "");
@@ -136,6 +140,15 @@ export default function SettingsPage() {
     };
     load();
   }, []);
+
+  const saveWebhook = async () => {
+    if (!operator?.id) return;
+    setSavingWebhook(true);
+    await supabase.from("operators").update({ webhook_url: webhookUrl, webhook_enabled: webhookEnabled }).eq("id", operator.id);
+    setSavingWebhook(false);
+    setWebhookSaved(true);
+    setTimeout(() => setWebhookSaved(false), 3000);
+  };
 
   const save = async () => {
     if (!operator) return;
@@ -510,6 +523,33 @@ export default function SettingsPage() {
             <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>🔗 Integrations</div>
             <div style={{ fontSize:".82rem", color:C.muted, marginBottom:24, lineHeight:1.6 }}>
               Connect JunkPix to your other tools. Once connected, JunkPix automatically syncs your jobs, customers, and automations.
+            </div>
+
+            {/* Webhook URL — for testing and advanced integrations */}
+            <div style={{ background:C.surface, border:"1px solid "+C.border, borderRadius:10, padding:20, marginBottom:16 }}>
+              <div style={{ fontWeight:700, color:C.text, marginBottom:4 }}>🔌 Webhook</div>
+              <div style={{ fontSize:".78rem", color:C.muted, marginBottom:16, lineHeight:1.6 }}>
+                Receive real-time events from JunkPix when quotes are updated, jobs are scheduled, or leads are assigned.
+              </div>
+              <div style={{ marginBottom:12 }}>
+                <label style={{ fontSize:".72rem", color:C.muted, display:"block", marginBottom:6 }}>WEBHOOK URL</label>
+                <input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)}
+                  placeholder="https://your-endpoint.com/webhook"
+                  style={{ width:"100%", padding:"10px 14px", borderRadius:8, border:"1px solid "+C.border, background:C.bg, color:C.text, fontSize:".88rem", outline:"none", boxSizing:"border-box" as const }} />
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+                <div onClick={() => setWebhookEnabled(!webhookEnabled)}
+                  style={{ width:44, height:24, borderRadius:12, background: webhookEnabled ? C.accent : C.border, cursor:"pointer", position:"relative" as const, transition:"background .2s" }}>
+                  <div style={{ position:"absolute" as const, top:2, left: webhookEnabled ? 22 : 2, width:20, height:20, borderRadius:"50%", background:"#fff", transition:"left .2s" }} />
+                </div>
+                <span style={{ fontSize:".82rem", color: webhookEnabled ? C.accent : C.muted, fontWeight: webhookEnabled ? 700 : 400 }}>
+                  {webhookEnabled ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+              <button onClick={saveWebhook} disabled={savingWebhook}
+                style={{ width:"100%", padding:"11px", borderRadius:8, border:"none", background: webhookSaved ? C.green : C.accent, color:"#000", fontWeight:700, cursor:"pointer", fontSize:".88rem" }}>
+                {savingWebhook ? "Saving..." : webhookSaved ? "✅ Saved" : "Save Webhook"}
+              </button>
             </div>
 
             {/* JunkPix Automations (GHL) */}
