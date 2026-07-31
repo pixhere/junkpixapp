@@ -55,34 +55,14 @@ export default function QuotesPage() {
         if (qs) setQuotes(qs);
       }
     }, 30000);
-    const saveManualJob = async () => {
-    if (!manualJob.customer_name || !manualJob.final_price || !operator) return;
-    setSaving(true);
-    const { data } = await supabase.from("quote_requests").insert({
-      operator_id: operator.id,
-      customer_name: manualJob.customer_name,
-      customer_phone: manualJob.customer_phone || null,
-      customer_email: manualJob.customer_email || null,
-      customer_address: manualJob.customer_address || null,
-      lead_source: manualJob.lead_source === "Other" ? manualJob.lead_source_other : manualJob.lead_source || null,
-      ai_description: manualJob.description || "Manual job entry",
-      final_price: parseInt(manualJob.final_price),
-      status: manualJob.status,
-      is_manual: true,
-      scheduled_date: manualJob.job_date || null,
-      created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
-    }).select().single();
-    if (data) setQuotes(prev => [data, ...prev]);
-    setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
-    setShowManual(false);
-    setSaving(false);
+    const fireEvent = async (event: string, data: any) => {
+    if (!operator?.id) return;
+    fetch("/api/webhook/fire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorId: operator.id, event, data }),
+    }).catch(() => {});
   };
-
-  return () => clearInterval(interval);
-  }, []);
-
-  const filtered = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
-  const newCount = quotes.filter(q => q.status === "new").length;
 
   const saveManualJob = async () => {
     if (!manualJob.customer_name || !manualJob.final_price || !operator) return;
@@ -101,7 +81,51 @@ export default function QuotesPage() {
       scheduled_date: manualJob.job_date || null,
       created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
     }).select().single();
-    if (data) setQuotes(prev => [data, ...prev]);
+    if (data) {
+      setQuotes(prev => [data, ...prev]);
+      fireEvent("job.manual_added", { customer_name: manualJob.customer_name, customer_phone: manualJob.customer_phone, customer_email: manualJob.customer_email, customer_address: manualJob.customer_address, final_price: parseInt(manualJob.final_price), lead_source: manualJob.lead_source, job_date: manualJob.job_date });
+    }
+    setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
+    setShowManual(false);
+    setSaving(false);
+  };
+
+  return () => clearInterval(interval);
+  }, []);
+
+  const filtered = filter === "all" ? quotes : quotes.filter(q => q.status === filter);
+  const newCount = quotes.filter(q => q.status === "new").length;
+
+  const fireEvent = async (event: string, data: any) => {
+    if (!operator?.id) return;
+    fetch("/api/webhook/fire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorId: operator.id, event, data }),
+    }).catch(() => {});
+  };
+
+  const saveManualJob = async () => {
+    if (!manualJob.customer_name || !manualJob.final_price || !operator) return;
+    setSaving(true);
+    const { data } = await supabase.from("quote_requests").insert({
+      operator_id: operator.id,
+      customer_name: manualJob.customer_name,
+      customer_phone: manualJob.customer_phone || null,
+      customer_email: manualJob.customer_email || null,
+      customer_address: manualJob.customer_address || null,
+      lead_source: manualJob.lead_source === "Other" ? manualJob.lead_source_other : manualJob.lead_source || null,
+      ai_description: manualJob.description || "Manual job entry",
+      final_price: parseInt(manualJob.final_price),
+      status: manualJob.status,
+      is_manual: true,
+      scheduled_date: manualJob.job_date || null,
+      created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
+    }).select().single();
+    if (data) {
+      setQuotes(prev => [data, ...prev]);
+      fireEvent("job.manual_added", { customer_name: manualJob.customer_name, customer_phone: manualJob.customer_phone, customer_email: manualJob.customer_email, customer_address: manualJob.customer_address, final_price: parseInt(manualJob.final_price), lead_source: manualJob.lead_source, job_date: manualJob.job_date });
+    }
     setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
     setShowManual(false);
     setSaving(false);
@@ -139,7 +163,16 @@ export default function QuotesPage() {
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 1 }}>
           {filtered.map(q => {
             const s = STATUS_STYLES[q.status] || STATUS_STYLES.new;
-            const saveManualJob = async () => {
+            const fireEvent = async (event: string, data: any) => {
+    if (!operator?.id) return;
+    fetch("/api/webhook/fire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorId: operator.id, event, data }),
+    }).catch(() => {});
+  };
+
+  const saveManualJob = async () => {
     if (!manualJob.customer_name || !manualJob.final_price || !operator) return;
     setSaving(true);
     const { data } = await supabase.from("quote_requests").insert({
@@ -156,7 +189,10 @@ export default function QuotesPage() {
       scheduled_date: manualJob.job_date || null,
       created_at: manualJob.job_date ? new Date(manualJob.job_date).toISOString() : new Date().toISOString(),
     }).select().single();
-    if (data) setQuotes(prev => [data, ...prev]);
+    if (data) {
+      setQuotes(prev => [data, ...prev]);
+      fireEvent("job.manual_added", { customer_name: manualJob.customer_name, customer_phone: manualJob.customer_phone, customer_email: manualJob.customer_email, customer_address: manualJob.customer_address, final_price: parseInt(manualJob.final_price), lead_source: manualJob.lead_source, job_date: manualJob.job_date });
+    }
     setManualJob({ customer_name:"", customer_phone:"", customer_email:"", customer_address:"", description:"", final_price:"", job_date:"", status:"completed", lead_source:"", lead_source_other:"" });
     setShowManual(false);
     setSaving(false);

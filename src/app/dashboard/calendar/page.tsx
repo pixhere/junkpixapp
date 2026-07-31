@@ -61,6 +61,15 @@ export default function CalendarPage() {
     load();
   }, []);
 
+  const fireEvent = async (event: string, data: any) => {
+    if (!operator?.id) return;
+    fetch("/api/webhook/fire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorId: operator.id, event, data }),
+    }).catch(() => {});
+  };
+
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
@@ -94,7 +103,10 @@ export default function CalendarPage() {
       type: newEvent.type,
       notes: newEvent.notes || null,
     }).select().single();
-    if (data) setEvents(prev => [...prev, data]);
+    if (data) {
+      setEvents(prev => [...prev, data]);
+      fireEvent(data.type === "blocked" ? "calendar.day_blocked" : "calendar.event_added", { title: data.title, date: selectedDate, type: data.type, time: data.time });
+    }
     setNewEvent({ title:"", time:"", type:"manual", notes:"" });
     setShowAddEvent(false);
     setSaving(false);
@@ -111,6 +123,7 @@ export default function CalendarPage() {
     if (quote) {
       setQuotes(prev => [...prev, { ...quote, scheduled_date: date, scheduled_time: time }]);
       setUnscheduledQuotes(prev => prev.filter(q => q.id !== quoteId));
+      fireEvent("job.scheduled", { quote_id: quoteId, scheduled_date: date, scheduled_time: time, customer_name: quote.customer_name, customer_phone: quote.customer_phone, customer_email: quote.customer_email, customer_address: quote.customer_address, final_price: quote.final_price });
     }
     setShowScheduleJob(false);
     setSelectedQuote(null);
@@ -122,6 +135,7 @@ export default function CalendarPage() {
     if (quote) {
       setUnscheduledQuotes(prev => [...prev, { ...quote, scheduled_date: null }]);
       setQuotes(prev => prev.filter(q => q.id !== quoteId));
+      fireEvent("job.unscheduled", { quote_id: quoteId, customer_name: quote.customer_name });
     }
   };
 

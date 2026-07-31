@@ -79,6 +79,13 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
     setPriceSaved(true);
     setSavingPrice(false);
     setTimeout(() => setPriceSaved(false), 3000);
+    if (operator?.id) {
+      fetch("/api/webhook/fire", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ operatorId: operator.id, event: "quote.price_updated", data: { quote_id: id, new_price: parseInt(adjustedPrice), customer_name: quote?.customer_name } }),
+      }).catch(() => {});
+    }
   };
 
   const updateStatus = async (status: string) => {

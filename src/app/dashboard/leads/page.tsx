@@ -61,6 +61,13 @@ export default function LeadsPage() {
       body: JSON.stringify({ lead, operator: op }),
     });
 
+    // Fire webhook event
+    fetch("/api/webhook/fire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorId, event: "lead.assigned", data: { lead_id: leadId, customer_name: lead.name, customer_phone: lead.phone, customer_email: lead.email, city: lead.city, state: lead.state } }),
+    }).catch(() => {});
+
     setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assigned_operator_id: operatorId, status: "assigned" } : l));
     setSelected((prev: any) => prev?.id === leadId ? { ...prev, assigned_operator_id: operatorId, status: "assigned" } : prev);
     setAssigning(false);
